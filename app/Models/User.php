@@ -24,7 +24,7 @@ class User extends Authenticatable
         'last_name',
         'email',
         'password',
-        'role', // Ya estaba incluido, ¡perfecto!
+        'role',
         'is_active',
     ];
 
@@ -56,23 +56,19 @@ class User extends Authenticatable
     // RELACIONES
     // ------------------------------------------------------------------
     
-    /**
-     * Define la relación con el perfil del cliente (ClientProfile).
-     * Un usuario tiene un perfil de cliente.
-     */
     public function profile(): HasOne
     {
-        // Asume que tienes un modelo llamado App\Models\ClientProfile
         return $this->hasOne(ClientProfile::class);
     }
     
-    /**
-     * Define la relación con el perfil del entrenador (Trainer).
-     * Un usuario puede tener un perfil de entrenador.
-     */
     public function trainer(): HasOne
     {
         return $this->hasOne(Trainer::class);
+    }
+
+    public function nutriologo(): HasOne 
+    {
+        return $this->hasOne(Nutriologo::class);
     }
 
     // ------------------------------------------------------------------
@@ -86,18 +82,51 @@ class User extends Authenticatable
 
     public function isTrainer(): bool
     {
-        // Verifica si el rol es 'trainer' (usado en el controlador de registro)
         return $this->role === 'trainer';
     }
 
-    public function isEmployee(): bool
+    public function isNutriologo(): bool 
     {
-        return $this->role === 'empleado';
+        return $this->role === 'nutriologo'; 
     }
 
     public function isAdmin(): bool
     {
         return $this->role === 'administrador';
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->isTrainer() || $this->isNutriologo();
+    }
+
+
+    public function isStaff(): bool
+    {
+        return $this->isAdmin() || $this->isTrainer() || $this->isNutriologo();
+    }
+
+    
+    // ------------------------------------------------------------------
+    // MÉTODOS DE PERFIL (CLAVE PARA EL FLUJO)
+    // ------------------------------------------------------------------
+    
+    /**
+     * Verifica si el empleado (Trainer o Nutriólogo) tiene un perfil asociado.
+     * @return bool
+     */
+    public function hasEmployeeProfile(): bool
+    {
+        if ($this->isTrainer()) {
+            return $this->trainer()->exists();
+        }
+
+        if ($this->isNutriologo()) {
+            return $this->nutriologo()->exists();
+        }
+
+        // Si no es un rol de empleado, asumimos que no tiene un perfil de empleado
+        return false;
     }
 
 

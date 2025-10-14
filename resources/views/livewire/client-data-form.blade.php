@@ -41,7 +41,7 @@
                             </flux:label>
                             <flux:input
                                 wire:model="name"
-                                placeholder="Nombre y Apellido"
+                                placeholder="Nombre"
                                 type="text"
                                 required
                                 class="mt-2 block w-full border border-[#7bcb01] rounded-lg shadow-sm focus:border-[#7bcb01] focus:ring-[#7bcb01] dark:bg-[#1a1a1a]/95 dark:border-[#7bcb01] dark:text-white"
@@ -146,12 +146,12 @@
                         <!-- Contacto de emergencia -->
                         <div>
                             <flux:label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Contacto de emergencia
+                                Contacto de Emergencia (Nombre y Teléfono)
                             </flux:label>
                             <flux:input
                                 wire:model="emergency_contact"
                                 type="text"
-                                placeholder="0404-1234567 Pedro Perez"
+                                placeholder="Ej: Juan Pérez - 0404-1234567"
                                 class="mt-2 block w-full rounded-lg border border-[#7bcb01] shadow-sm 
                                     focus:border-[#7bcb01] focus:ring-[#7bcb01]
                                     dark:bg-[#1a1a1a]/95 dark:border-[#7bcb01] dark:text-white"

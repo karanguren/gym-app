@@ -65,7 +65,7 @@
                                 wire:navigate>
                                 {{ __('Panel Admin') }}
                             </flux:navlist.item>
-                        @elseif ($user->role === 'empleado')
+                        @elseif ($user->role === 'trainer' || $user->role === 'nutriologo')
                             <flux:navlist.item 
                                 icon="home" 
                                 :href="route('employee.dashboard')" 
@@ -137,11 +137,11 @@
                     @endif
                     
                     {{-- Grupo 4: Opciones para EMPLEADOS --}}
-                    @if ($user->role === 'empleado')
+                    @if ($user->role === 'trainer')
                     <flux:navlist.group :heading="__('Staff')" class="grid text-gray-900 dark:text-[#7bcb01]">
                         <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mis Clientes y Rutinas') }}</flux:navlist.item>
-                        <flux:navlist.item icon="message-circle" href="{{ route('employee.chat') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Chat con Clientes') }}</flux:navlist.item>
-                        <flux:navlist.item icon="calendar" href="{{ route('employee.schedules') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Horario') }}</flux:navlist.item>
+                        <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Chat con Clientes') }}</flux:navlist.item>
+                        <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Horario') }}</flux:navlist.item>
                     </flux:navlist.group>
                     @endif
 

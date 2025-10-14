@@ -11,19 +11,36 @@ class Trainer extends Model
     use HasFactory;
 
     /**
-     * Las columnas que se pueden asignar masivamente.
+     * Los campos que se pueden asignar masivamente.
+     * Sincronizado con la nueva estructura de la tabla.
+     * @var array<int, string>
      */
-    protected $fillable = [
+   protected $fillable = [
         'user_id',
+        'id_number', 
+        'address', 
+        'personal_contact', 
+        'emergency_contact', 
+        'personal_description',
+        'work_experience',
+        'certification_paths',
         'certification_id',
         'specialty',
         'hourly_rate',
-        'bio',
         'is_active',
     ];
 
     /**
-     * El perfil de entrenador pertenece a un usuario (Relación 1:1 inversa).
+     * Los campos que deben ser casteados.
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'certification_paths' => 'array', // CRUCIAL para guardar y leer JSON
+        'is_active' => 'boolean',
+    ];
+
+    /**
+     * Define la relación inversa con el usuario.
      */
     public function user(): BelongsTo
     {

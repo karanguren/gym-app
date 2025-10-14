@@ -8,7 +8,7 @@
                 Bienvenido a tu Panel de Control
             </h1>
     
-            @if (Auth::user()->role === 'administrador' || Auth::user()->role === 'empleado')
+            @if (Auth::user()->role === 'administrador' || Auth::user()->role === 'trainer')
                 <!-- Vista de Administrador/Empleado: Botones de Gestión -->
                 <div class="p-6 bg-indigo-50 dark:bg-indigo-900 rounded-lg shadow-inner">
                     <h2 class="text-2xl font-bold text-indigo-700 dark:text-indigo-300 mb-4">

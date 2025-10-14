@@ -50,14 +50,14 @@
             </div>
 
             <div>
-                <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label for="last_name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Apellido
                 </label>
                 <!-- NOTA: El componente PHP debe tener la propiedad $lastName -->
-                <input wire:model="lastName" id="lastName" type="text" required autocomplete="family-name"
+                <input wire:model="last_name" id="last_name" type="text" required autocomplete="family-name"
                     placeholder="Apellido"
                     class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150">
-                @error('lastName') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
+                @error('last_name') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
         
@@ -70,6 +70,25 @@
                 placeholder="email@ejemplo.com"
                 class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150">
             @error('email') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Tipo de Especialista
+            </label>
+            <select 
+                id="role" 
+                wire:model="role" 
+                class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150" 
+                required
+            >
+                <option value="" disabled selected>Selecciona una opción</option>
+                <option value="trainer">Entrenador</option>
+                <option value="nutriologo">Nutriólogo</option>
+            </select>
+            @error('role')
+                <p class="text-sm text-red-600 dark:text-red-400 mt-2">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Contraseñas -->
@@ -117,8 +136,8 @@
 
         <!-- Enlace de Login -->
         <div class="text-center pt-2">
-            <a href="{{ route('admin.login') }}" wire:navigate class="text-sm font-medium text-lime hover:text-lime-darker dark:text-lime">
-                ¿Ya tienes cuenta? Inicia sesión como Admin.
+            <a href="{{ route('login') }}" wire:navigate class="text-sm font-medium text-lime hover:text-lime-darker dark:text-lime">
+                ¿Ya tienes cuenta? Inicia sesión aquí.
             </a>
         </div>
     </form>

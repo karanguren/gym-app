@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // Laravel ya incluye 'auth', 'guest', 'verified', etc.
             // Aquí añadimos el alias 'role' para nuestro middleware personalizado:
             'role' => \App\Http\Middleware\RoleMiddleware::class,
+            
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

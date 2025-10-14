@@ -56,7 +56,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         // 1. Redirigir a Empleado (Trainer/Nutriologo)
         if ($user->isEmployee()) {
-            $this->redirect(route('employee.dashboard', absolute: false), navigate: true);
+             $this->redirect(route('employee.dashboard', absolute: false), navigate: true);
             return;
         }
 

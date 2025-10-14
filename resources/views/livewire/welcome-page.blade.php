@@ -110,8 +110,8 @@
 
                                 if (auth()->user()->role === 'administrador') {
                                     $dashboardRoute = route('admin.dashboard');
-                                } elseif (auth()->user()->role === 'entrenador') {
-                                    $dashboardRoute = route('dashboard');
+                                } elseif (auth()->user()->role === 'trainer' || auth()->user()->role === 'nutriologo') {
+                                    $dashboardRoute = route('employee.dashboard');
                                 }
                             @endphp
 
