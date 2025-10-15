@@ -12,6 +12,7 @@ use App\Livewire\Pages\VerificationPending;
 use App\Livewire\Auth\TrainerRegister;
 use App\Livewire\Employee\EmployeeDashboard;
 use App\Livewire\Employee\EmployeeProfileSetupForm; 
+use App\Livewire\RoutineBuilder; 
 // use App\Livewire\Trainer\TrainerDashboard; // 🎯 NUEVA IMPORTACIÓN (Asumiendo que existe)
 // use App\Livewire\Nutrition\NutritionDashboard; // 🎯 NUEVA IMPORTACIÓN (Asumiendo que existe) 
 use Illuminate\Support\Facades\Auth;
@@ -87,6 +88,10 @@ Route::middleware(['auth', 'verified', 'role:cliente'])->group(function () {
     
     // 3. RUTA DEL DASHBOARD ESPECÍFICO DEL CLIENTE (Mantiene tu componente Dashboard.php)
     Route::get('/client/dashboard', Dashboard::class)->name('client.dashboard'); 
+
+    Route::get('/armar-rutina', RoutineBuilder::class)->name('client.routine-builder');
+
+    Volt::route('/routine-builder', 'routine-builder')->name('routine.builder');
     
     // RUTAS DE CONFIGURACIÓN DEL USUARIO
     Route::redirect('settings', 'settings/profile');

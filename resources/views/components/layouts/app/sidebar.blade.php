@@ -92,7 +92,7 @@
                     {{-- Grupo 2: Opciones para CLIENTES --}}
                     @if ($user->role === 'cliente')
                         <flux:navlist.group :heading="__('Cliente')" class="grid text-gray-900 dark:text-[#7bcb01]">
-                            <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Armar mi Rutina') }}</flux:navlist.item>
+                            <flux:navlist.item icon="users" href="{{ route('client.routine-builder') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Armar mi Rutina') }}</flux:navlist.item>
                             <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Progreso') }}</flux:navlist.item>
                             <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Reservas') }}</flux:navlist.item>
                             <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Foro') }}</flux:navlist.item>
@@ -120,7 +120,7 @@
                                 class="text-gray-900 dark:text-[#7bcb01]"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
-                                {{ __('Entrenadores/Staff') }}
+                                {{ __('Entrenadores/Nutriólogos') }}
                             </flux:navlist.item>
 
                             <flux:navlist.item 

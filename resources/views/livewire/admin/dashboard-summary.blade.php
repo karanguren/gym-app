@@ -9,7 +9,6 @@
             <div class="bg-white/95 dark:bg-[#1a1a1a]/95 overflow-hidden shadow-xl sm:rounded-lg p-6 flex flex-col justify-between transition duration-300 hover:shadow-2xl hover:scale-[1.01] border-t-4 border-[#7bcb01]">
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
-                        <!-- Icono de Grupo de Usuarios -->
                         <svg class="w-8 h-8 text-[#7bcb01]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c4.418 0 8 2.015 8 5v2H4v-2c0-2.985 3.582-5 8-5z"></path>
                         </svg>
@@ -34,7 +33,6 @@
                 </a>
             </div>
 
-            <!-- CUADRO 2: Empleados/Staff - ICONO DE USUARIO INDIVIDUAL -->
             <div class="bg-white/95 dark:bg-[#1a1a1a]/95 overflow-hidden shadow-xl sm:rounded-lg p-6 flex flex-col justify-between transition duration-300 hover:shadow-2xl hover:scale-[1.01] border-t-4 border-orange-500">
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
@@ -44,23 +42,34 @@
                         <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Entrenadores & Staff</h3>
                     </div>
                     <div class="text-gray-600 dark:text-gray-400">
-                        <p class="text-sm">Total de personal activo, incluyendo administradores.</p>
+                        <p class="text-sm">Resumen de personal activo sobre el total.</p>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-between items-center bg-orange-50 dark:bg-orange-900/50 p-3 rounded-md">
-                    <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Total de Miembros:</span>
-                    <span class="text-3xl font-bold text-orange-800 dark:text-orange-200">{{ $employeeCount }}</span>
+                
+                {{-- NUEVO BLOQUE: Activos/Total para Entrenadores y Nutriólogos --}}
+                <div class="mt-6 space-y-3">
+                    <div class="flex justify-between items-center bg-orange-50 dark:bg-orange-900/50 p-3 rounded-md">
+                        <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Entrenadores (Activos/Total):</span>
+                        <span class="text-xl font-bold text-orange-800 dark:text-orange-200">
+                            {{ $trainerActiveCount }}/{{ $trainerTotalCount }}
+                        </span>
+                    </div>
+                    <div class="flex justify-between items-center bg-orange-50 dark:bg-orange-900/50 p-3 rounded-md">
+                        <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Nutriólogos (Activos/Total):</span>
+                        <span class="text-xl font-bold text-orange-800 dark:text-orange-200">
+                            {{ $nutriologoActiveCount }}/{{ $nutriologoTotalCount }}
+                        </span>
+                    </div>
                 </div>
+
                 <a href="{{ route('admin.employees') }}" class="mt-4 text-orange-500 hover:text-orange-700 text-sm font-semibold flex items-center">
                     Ir a Gestión de Staff &rarr;
                 </a>
             </div>
 
-            <!-- CUADRO 3: Publicaciones/Anuncios -->
             <div class="bg-white/95 dark:bg-[#1a1a1a]/95 overflow-hidden shadow-xl sm:rounded-lg p-6 flex flex-col justify-between transition duration-300 hover:shadow-2xl hover:scale-[1.01] border-t-4 border-cyan-500">
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
-                        <!-- Icono de Publicaciones (sin cambios) -->
                         <svg class="w-8 h-8 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                         </svg>
@@ -80,5 +89,4 @@
             </div>
         </div>
     </div>
-
 </div>

@@ -1,83 +1,232 @@
-<div>
+<div x-data="{}">
+
+    {{-- ======================================================= --}}
+    {{-- ESTILOS PERSONALIZADOS (Tomados del ejemplo) --}}
+    {{-- ======================================================= --}}
+    <style>
+        /* Verde Lima base */
+        .text-lime { color: #7bcb01 !important; }
+        .bg-lime { background-color: #7bcb01 !important; }
+        .hover\:bg-lime-darker:hover { background-color: #69b301 !important; }
+        .border-lime { border-color: #7bcb01 !important; }
+
+        /* Input y Select */
+        input, select {
+            padding: 0.6rem 0.8rem !important;
+            border-radius: 0.75rem !important;
+            border-width: 1.5px !important;
+            border-color: #d1d5db !important; /* gris claro */
+            transition: all 0.2s ease-in-out;
+        }
+        input:focus, select:focus {
+            border-color: #7bcb01 !important;
+            box-shadow: 0 0 0 3px rgba(123, 203, 1, 0.25) !important;
+            outline: none;
+        }
+
+        /* Botones */
+        button {
+            transition: all 0.25s ease-in-out !important;
+        }
+
+        /* Borde del contenedor */
+        .card-border-lime {
+            border: 1.5px solid #7bcb01;
+        }
+
+        /* Alpine x-cloak */
+        [x-cloak] { display: none !important; }
+
+        /* Animaciones para el modal de éxito */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes check {
+            from { stroke-dasharray: 0, 30; opacity: 0.5; }
+            to { stroke-dasharray: 30, 0; opacity: 1; }
+        }
+        .animate-check path {
+            stroke-dasharray: 30, 0;
+            animation: check 0.6s ease-out forwards;
+        }
+    </style>
+
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6 border-b pb-2">
-            Gestión de Empleados/Staff 🧑‍💼
+        
+        {{-- ======================================================= --}}
+        {{-- TÍTULO Y BOTÓN CREAR --}}
+        {{-- ======================================================= --}}
+        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
+            <span>Gestión de Staff 🧑‍💼</span>
+            <button 
+                wire:click="$set('showCreateModal', true)"
+                class="bg-lime hover:bg-lime-darker text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 text-sm">
+                + Crear Nuevo
+            </button>
         </h2>
 
         @if (session()->has('success'))
-            <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-md">{{ session('success') }}</div>
+            <div class="bg-green-100 dark:bg-green-800 border-l-4 border-green-500 text-green-700 dark:text-green-200 p-4 mb-4 rounded-md">
+                {{ session('success') }}
+            </div>
         @endif
         @if (session()->has('error'))
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded-md">{{ session('error') }}</div>
+            <div class="bg-red-100 dark:bg-red-800 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 mb-4 rounded-md">
+                {{ session('error') }}
+            </div>
         @endif
 
-        <!-- Filtros -->
-        <div class="mb-4 flex flex-col md:flex-row space-y-3 md:space-y-0 md:space-x-4">
-            <input wire:model.live="search" type="text" placeholder="Buscar Empleado por Nombre o Email..."
-                class="flex-grow rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 shadow-sm">
-            
-            <select wire:model.live="filterRole" 
-                    class="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 shadow-sm">
-                <option value="all">Mostrar Todo el Staff</option>
-                <option value="empleado">Empleados (Entrenadores/Nutriólogos)</option>
-                <option value="administrador">Otros Administradores</option>
-            </select>
+        {{-- ======================================================= --}}
+        {{-- FILTROS Y BÚSQUEDA --}}
+        {{-- ======================================================= --}}
+        <div class="mb-8 p-5 bg-white/95 dark:bg-[#1a1a1a]/95 rounded-xl shadow-lg flex flex-col sm:flex-row gap-4 items-center border border-lime">
+            <div class="flex-grow w-full sm:w-auto">
+                <input wire:model.live.debounce.300ms="search" id="search" type="text"
+                    placeholder="Buscar por nombre o email..."
+                    class="w-full dark:bg-[#1a1a1a]/95 dark:text-white" />
+            </div>
+
+            <div class="w-full sm:w-48 flex-shrink-0 relative">
+                <select
+                    wire:model.live="filterRole"
+                    id="filterRole"
+                    class="w-full appearance-none pr-8 pl-3 py-2 border border-gray-300 rounded-lg
+                        bg-white dark:bg-[#1a1a1a]/95 dark:text-white dark:border-gray-700
+                        focus:outline-none focus:ring-2 focus:ring-lime focus:border-lime
+                        cursor-pointer"
+                >
+                    <option value="all">Mostrar Todo el Staff</option>
+                    <option value="trainer">Entrenadores</option>
+                    <option value="nutriologo">Nutriólogos</option>
+                </select>
+
+                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
         </div>
 
-        <!-- Tabla de Empleados -->
-        <div class="overflow-x-auto bg-white dark:bg-gray-800 shadow-xl sm:rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                <thead class="bg-gray-50 dark:bg-gray-700">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Staff</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Rol Actual</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Cambiar Rol</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    @forelse ($users as $user)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-900 transition duration-150" wire:key="{{ $user->id }}">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $user->name }}</div>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    @if($user->role == 'administrador') bg-red-100 text-red-800
-                                    @else bg-indigo-100 text-indigo-800 @endif">
-                                    {{ $roles[$user->role] ?? ucfirst($user->role) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <select 
-                                    wire:change="updateRole({{ $user->id }}, $event.target.value)"
-                                    class="rounded-lg border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 shadow-sm text-sm"
-                                >
-                                    @foreach ($roles as $roleKey => $roleLabel)
-                                        <option value="{{ $roleKey }}" @selected($user->role == $roleKey)>
-                                            {{ $roleLabel }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                <button wire:click="deleteUser({{ $user->id }})"
-                                        wire:confirm="ATENCIÓN: Esto eliminará la cuenta de {{ $user->name }} permanentemente. ¿Desea continuar?"
-                                        class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded-lg text-xs transition duration-150">
-                                    Eliminar 🗑️
-                                </button>
-                            </td>
-                        </tr>
-                    @empty
+        {{-- ======================================================= --}}
+        {{-- TABLA DE EMPLEADOS --}}
+        {{-- ======================================================= --}}
+        <div class="bg-white/95 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-lime">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-[#7bcb01]">
+                    <thead class="bg-white/95 dark:bg-[#1a1a1a]/95">
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                                No se encontró personal que coincida con los filtros.
-                            </td>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-lime uppercase tracking-wider">Staff</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-lime uppercase tracking-wider">Rol Actual</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold text-lime uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-lime uppercase tracking-wider">Cambiar Rol</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold text-lime uppercase tracking-wider">Acciones</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        @forelse ($users as $user)
+                        @php
+                            $fullName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
+                        @endphp
+                            <tr class="hover:bg-lime/10 transition" wire:key="{{ $user->id }}">
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $fullName !== '' ? $fullName : 'N/A' }}</div>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
+                                </td>
+                                
+                                {{-- ROL BADGE STYLING --}}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
+                                        @if($user->role == 'trainer')
+                                            bg-green-100/50 text-green-800 dark:bg-green-800/50 dark:text-green-300 
+                                        @elseif($user->role == 'nutriologo')
+                                            bg-blue-100/50 text-blue-800 dark:bg-blue-800/50 dark:text-blue-300
+                                        @else 
+                                            bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
+                                        @endif">
+                                        {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
+                                    </span>
+                                </td>
+                                
+                                {{-- ESTADO BADGE (is_active) - ESTILO UNIFICADO --}}
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if ($user->is_active)
+                                        <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-[#7bcb01]/20 text-lime">Activo</span>
+                                    @else
+                                        {{-- Cambiado a tonos rojos para inactivo --}}
+                                        <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-red-100/50 text-red-700 dark:bg-red-900/50 dark:text-red-300">Inactivo</span>
+                                    @endif
+                                </td>
+                                
+                                {{-- SELECT CAMBIAR ROL (MODIFICADO para llamar a confirmRoleChange) --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium relative">
+                                    <select
+                                        {{-- Llama al método de confirmación antes de la acción real --}}
+                                        wire:change="confirmRoleChange({{ $user->id }}, $event.target.value, '{{ $fullName }}')"
+                                        class="w-full appearance-none pr-8 pl-3 py-2 border border-gray-300 rounded-lg
+                                            bg-white dark:bg-[#1a1a1a]/95 dark:text-white dark:border-gray-700
+                                            focus:outline-none focus:ring-2 focus:ring-lime focus:border-lime
+                                            cursor-pointer"
+                                    >
+                                        @foreach ($staffRoles as $roleKey => $roleLabel)
+                                                @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
+                                                    <option value="{{ $roleKey }}" @selected($user->role == $roleKey)>
+                                                        {{ $roleLabel }}
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                    </select>
+
+                                    <div class="pointer-events-none absolute inset-y-0 right-7 flex items-center text-gray-500">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                        
+                                </td>
+                                
+                                {{-- ACCIONES - BOTONES UNIFICADOS (TAMAÑO FIJO) --}}
+                                <td class="px-6 py-4 text-center text-sm font-medium">
+                                    <div class="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
+                                        
+                                        {{-- Botón de Activar/Desactivar llama al modal (TAMAÑO FIJO) --}}
+                                        <button 
+                                            wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
+                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold shadow transition duration-150 hover:scale-[1.02]
+                                            @if($user->is_active) 
+                                                bg-yellow-500 hover:bg-yellow-600 text-white
+                                            @else 
+                                                bg-lime hover:bg-lime-darker text-white 
+                                            @endif">
+                                            {{ $user->is_active ? 'Desactivar' : 'Activar' }}
+                                        </button>
+
+                                        {{-- Botón de Eliminar llama al modal (TAMAÑO FIJO) --}}
+                                        <button 
+                                            wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
+                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold bg-red-600 hover:bg-red-700 text-white shadow transition duration-150 hover:scale-[1.02]">
+                                            Eliminar
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                    No se encontró staff que coincida con los filtros.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
             
             <div class="p-4">
                 {{ $users->links() }}
@@ -85,4 +234,152 @@
         </div>
     </div>
 
+    {{-- ======================================================= --}}
+    {{-- MODAL DE CREACIÓN DE EMPLEADO (ESTILO UNIFORME) --}}
+    {{-- ======================================================= --}}
+    <div 
+        x-data="{ open: @entangle('showCreateModal').live }" 
+        x-show="open" 
+        x-transition.opacity.scale.80 
+        x-cloak 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    >
+        <div 
+            x-show="open" 
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            @click.away="open = false" 
+            class="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl p-6 max-w-lg w-full transform transition-all duration-300 text-left card-border-lime" 
+        >
+            <div class="border-b dark:border-gray-700 pb-3 mb-6">
+                <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white text-lime">
+                    Registrar Nuevo Miembro del Staff
+                </h3>
+            </div>
+            
+            <form wire:submit.prevent="createUser" class="space-y-4">
+                
+                <div>
+                    <label for="newName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre Completo</label>
+                    <input wire:model="newName" type="text" id="newName" required
+                           class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                    @error('newName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="newEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                    <input wire:model="newEmail" type="email" id="newEmail" required
+                           class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                    @error('newEmail') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña (Mín. 8 caracteres)</label>
+                    <input wire:model="newPassword" type="password" id="newPassword" required
+                           class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                    @error('newPassword') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label for="newRole" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rol Inicial</label>
+                    <select wire:model="newRole" id="newRole" required
+                            class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                        @foreach ($staffRoles as $roleKey => $roleLabel)
+                            @if ($roleKey !== 'cliente')
+                                <option value="{{ $roleKey }}">
+                                    {{ $roleLabel }}
+                                </option>
+                            @endif
+                        @endforeach
+                    </select>
+                    @error('newRole') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                </div>
+                
+                <div class="mt-6 pt-4 border-t dark:border-gray-700 flex justify-end space-x-3">
+                    <button type="button" 
+                        wire:click="$set('showCreateModal', false)" 
+                        @click="open = false"
+                        class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-150 font-bold">
+                        Cancelar
+                    </button>
+                    <button type="submit" 
+                            wire:loading.attr="disabled"
+                            class="bg-lime hover:bg-lime-darker text-white font-bold py-2 px-6 rounded-lg transition duration-300 disabled:opacity-50">
+                        <span wire:loading.remove wire:target="createUser">Crear Staff</span>
+                        <span wire:loading wire:target="createUser">Creando...</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- ======================================================= --}}
+    {{-- MODAL DE CONFIRMACIÓN (Reutilizado para cambio de rol) --}}
+    {{-- ======================================================= --}}
+    <div 
+        x-data="{ 
+            show: @entangle('showConfirmationModal'), 
+            success: false,
+            confirmAction() {
+                // Call Livewire action
+                $wire.call('executeModalAction').then(() => {
+                    this.success = true;
+                    // Reset success and close modal after animation
+                    setTimeout(() => {
+                        this.show = false;
+                        this.success = false;
+                        $wire.call('closeModal'); // Clean up state in Livewire
+                    }, 1800);
+                });
+            }
+        }" 
+        x-show="show" 
+        x-cloak
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm"
+        x-transition.opacity
+    >
+        <div 
+            class="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl max-w-lg w-full p-6 border-t-4 border-lime transform transition-all relative overflow-hidden dark:text-white"
+            x-transition.scale
+        >
+
+            {{-- Estado normal --}}
+            <template x-if="!success">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{{ $modalTitle }}</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-5">{!! nl2br($modalMessage) !!}</p>
+
+                    <div class="flex justify-end space-x-3 mt-5">
+                        <button 
+                            wire:click="closeModal"
+                            class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition font-bold"
+                        >
+                            Cancelar
+                        </button>
+                        <button 
+                            @click="confirmAction()" 
+                            class="px-4 py-2 rounded-lg bg-lime hover:bg-lime-darker text-white font-semibold shadow transition"
+                        >
+                            Confirmar
+                        </button>
+                    </div>
+                </div>
+            </template>
+
+            {{-- Estado de éxito --}}
+            <template x-if="success">
+                <div class="flex flex-col items-center justify-center text-center py-8 animate-fadeIn">
+                    <svg class="w-16 h-16 text-lime mb-3 animate-check" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Acción realizada con éxito</p>
+                </div>
+            </template>
+
+        </div>
+    </div>
 </div>
