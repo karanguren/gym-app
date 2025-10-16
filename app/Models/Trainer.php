@@ -37,7 +37,13 @@ class Trainer extends Model
     protected $casts = [
         'certification_paths' => 'array', // CRUCIAL para guardar y leer JSON
         'is_active' => 'boolean',
+        'certification_id' => 'string',
     ];
+
+    public function setCertificationIdAttribute($value)
+    {
+        $this->attributes['certification_id'] = $value ? $value : null;
+    }
 
     /**
      * Define la relación inversa con el usuario.

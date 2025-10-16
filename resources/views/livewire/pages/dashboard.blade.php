@@ -1,6 +1,6 @@
 <div>
 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-<div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-6">
+<div class="bg-white dark:bg-[#1a1a1a]/85 overflow-hidden shadow-xl sm:rounded-lg p-6">
 
         <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-4">
             Bienvenido a tu Panel de Control
@@ -33,7 +33,7 @@
         
         @elseif (Auth::user()->role === 'cliente' && Auth::user()->profile && Auth::user()->profile->is_verified)
             <p class="text-lg text-green-600 dark:text-green-400">
-                ¡Tu cuenta ha sido verificada! Aquí encontrarás tus rutinas y planes.
+                ¡ Aquí encontrarás tus rutinas y planes !.
             </p>
             
             <!-- INCLUSIÓN DEL COMPONENTE LIVEWIRE PARA RUTINAS -->

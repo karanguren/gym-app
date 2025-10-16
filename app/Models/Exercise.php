@@ -15,5 +15,7 @@ class Exercise extends Model
         'description',
         'image_path',
         'gif_path',
+        'instructions',
+        'tips',
     ];
 }

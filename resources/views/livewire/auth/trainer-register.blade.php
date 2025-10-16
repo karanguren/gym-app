@@ -27,10 +27,10 @@
     <!-- Título y Descripción -->
     <div class="text-center">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-4">
-            Registro de Entrenadores
+            Registro de Staff
         </h1>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Crea tu perfil de empleado o entrenador de la plataforma.
+            Crea tu perfil de entrenador o nutriólogo de la plataforma.
         </p>
     </div>
 
@@ -115,22 +115,24 @@
         </div>
 
         <!-- Botón de Registro con Loader -->
-        <button type="submit"
-            class="w-full relative py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-gray-900 bg-lime-dark hover:bg-lime-darker focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime transition duration-150 ease-in-out"
-            wire:loading.attr="disabled">
-            
-            <!-- Contenido normal (usando inline-flex para centrarlo) -->
-            <span wire:loading.remove.delay class="inline-flex justify-center w-full">
+        <button 
+            type="submit"
+            wire:loading.attr="disabled"
+            wire:target="register"
+            class="w-full relative py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-gray-900 bg-lime-dark hover:bg-lime-darker focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime transition duration-150 ease-in-out disabled:opacity-70 disabled:cursor-not-allowed">
+
+            <!-- Texto normal -->
+            <span wire:loading.remove wire:target="register" class="flex items-center justify-center">
                 Registrar
             </span>
-            
-            <!-- Contenido de carga (posición absoluta para reemplazar y centrar) -->
-            <span wire:loading class="absolute inset-0 flex items-center justify-center">
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+
+            <!-- Loader -->
+            <span wire:loading wire:target="register" class="flex items-center justify-center space-x-2">
+                <svg class="animate-spin h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Registrando...
+                <span>Registrando...</span>
             </span>
         </button>
 
@@ -142,7 +144,17 @@
         </div>
     </form>
 </div>
+<style>
+    /* 🚫 Oculta cualquier wire:loading al cargar la página */
+    [wire\:loading] {
+        display: none !important;
+    }
 
+    /* ✅ Muestra solo cuando está ejecutando el método register() */
+    [wire\:loading][wire\:target="register"] {
+        display: flex !important;
+    }
+</style>
 
 
 </div>

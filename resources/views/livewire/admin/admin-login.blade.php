@@ -1,10 +1,16 @@
-<div class="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-[url('../../../public/img/fondo2.jpg')] bg-center" >
-
+<div class="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-[url('../../../public/img/fondo2.jpg')] bg-center bg-cover" >
+    <style>
+        .text-lime { color: #7bcb01; }
+        .focus\:ring-lime { --tw-ring-color: #7bcb01; }
+        .focus\:border-lime { border-color: #7bcb01; }
+        .bg-lime-dark { background-color: #7bcb01; }
+        .hover\:bg-lime-darker:hover { background-color: #69b301; } 
+    </style>
     <div class="absolute top-4 right-4 z-10">
         @livewire('theme-switcher')
     </div>
 
-    <div class="w-full sm:max-w-md px-8 py-10 bg-white/95 dark:bg-[#1a1a1a]/95 shadow-2xl overflow-hidden rounded-xl backdrop-blur-sm transition-colors duration-300">
+    <div class="w-full sm:max-w-md px-8 py-10 bg-white/70 dark:bg-[#1a1a1a]/70 shadow-2xl overflow-hidden rounded-xl backdrop-blur-sm transition-colors duration-300">
         
         <div class="flex justify-center mb-6">
             <img 
@@ -33,8 +39,8 @@
                     type="email" 
                     required 
                     autofocus 
-                    placeholder="ejemplo@gimnasio.com"
-                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150"
+                    placeholder="ejemplo@mail.com"
+                    class="block w-full px-4 py-2 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 border border-gray-300 dark:border-gray-100 dark:text-white transition duration-150"
                 >
                 @error('email') <span class="mt-2 text-sm text-red-600 dark:text-red-500 font-medium">{{ $message }}</span> @enderror
             </div>
@@ -47,24 +53,10 @@
                     type="password" 
                     required 
                     placeholder="Ingresa tu contraseña"
-                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150"
+                    class="block w-full px-4 py-2 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 border border-gray-300 dark:border-gray-100 dark:text-white transition duration-150"
                 >
                 @error('password') <span class="mt-2 text-sm text-red-600 dark:text-red-500 font-medium">{{ $message }}</span> @enderror
             </div>
-
-            <!-- <div class="flex items-center justify-between pt-2">
-                
-                <label for="remember" class="inline-flex items-center">
-                    <input 
-                        wire:model="remember" 
-                        id="remember" 
-                        type="checkbox" 
-                        class="rounded border-gray-300 text-[#7bcb01] shadow-sm focus:ring-[#7bcb01] dark:bg-gray-700 dark:border-gray-600"
-                    >
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">Recordarme</span>
-                </label>
-                
-            </div> -->
 
             <button 
                 type="submit" 
@@ -72,8 +64,7 @@
             >
                 Acceder
             </button>
-            
+
         </form>
     </div>
-
 </div>

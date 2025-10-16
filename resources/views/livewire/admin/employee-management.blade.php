@@ -1,21 +1,15 @@
 <div x-data="{}">
-
-    {{-- ======================================================= --}}
-    {{-- ESTILOS PERSONALIZADOS (Tomados del ejemplo) --}}
-    {{-- ======================================================= --}}
     <style>
-        /* Verde Lima base */
         .text-lime { color: #7bcb01 !important; }
         .bg-lime { background-color: #7bcb01 !important; }
         .hover\:bg-lime-darker:hover { background-color: #69b301 !important; }
         .border-lime { border-color: #7bcb01 !important; }
 
-        /* Input y Select */
         input, select {
             padding: 0.6rem 0.8rem !important;
             border-radius: 0.75rem !important;
             border-width: 1.5px !important;
-            border-color: #d1d5db !important; /* gris claro */
+            border-color: #d1d5db !important;
             transition: all 0.2s ease-in-out;
         }
         input:focus, select:focus {
@@ -24,20 +18,16 @@
             outline: none;
         }
 
-        /* Botones */
         button {
             transition: all 0.25s ease-in-out !important;
         }
 
-        /* Borde del contenedor */
         .card-border-lime {
             border: 1.5px solid #7bcb01;
         }
 
-        /* Alpine x-cloak */
         [x-cloak] { display: none !important; }
 
-        /* Animaciones para el modal de éxito */
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
@@ -54,15 +44,15 @@
             stroke-dasharray: 30, 0;
             animation: check 0.6s ease-out forwards;
         }
+        
+        .bg-state-active { background-color: rgba(123, 203, 1, 0.15); }
+        .text-state-active { color: #5aa101; }
     </style>
 
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
         
-        {{-- ======================================================= --}}
-        {{-- TÍTULO Y BOTÓN CREAR --}}
-        {{-- ======================================================= --}}
         <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
-            <span>Gestión de Staff 🧑‍💼</span>
+            <span>Gestión de Staff</span>
             <button 
                 wire:click="$set('showCreateModal', true)"
                 class="bg-lime hover:bg-lime-darker text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 text-sm">
@@ -82,65 +72,63 @@
         @endif
 
         {{-- ======================================================= --}}
-        {{-- FILTROS Y BÚSQUEDA --}}
+        {{-- FILTROS, BÚSQUEDA Y LISTA --}}
         {{-- ======================================================= --}}
-        <div class="mb-8 p-5 bg-white/95 dark:bg-[#1a1a1a]/95 rounded-xl shadow-lg flex flex-col sm:flex-row gap-4 items-center border border-lime">
-            <div class="flex-grow w-full sm:w-auto">
-                <input wire:model.live.debounce.300ms="search" id="search" type="text"
-                    placeholder="Buscar por nombre o email..."
-                    class="w-full dark:bg-[#1a1a1a]/95 dark:text-white" />
-            </div>
+        <div class="bg-white/95 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-gray-300">
 
-            <div class="w-full sm:w-48 flex-shrink-0 relative">
-                <select
-                    wire:model.live="filterRole"
-                    id="filterRole"
-                    class="w-full appearance-none pr-8 pl-3 py-2 border border-gray-300 rounded-lg
-                        bg-white dark:bg-[#1a1a1a]/95 dark:text-white dark:border-gray-700
-                        focus:outline-none focus:ring-2 focus:ring-lime focus:border-lime
-                        cursor-pointer"
-                >
-                    <option value="all">Mostrar Todo el Staff</option>
-                    <option value="trainer">Entrenadores</option>
-                    <option value="nutriologo">Nutriólogos</option>
-                </select>
+            <div class="p-5 bg-white dark:bg-[#1a1a1a]/95 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
+                <div class="flex-grow w-full sm:w-auto">
+                    <input wire:model.live.debounce.300ms="search" id="search" type="text"
+                        placeholder="Buscar por nombre o email..."
+                        class="w-full dark:bg-[#1a1a1a]/95 dark:text-white" />
+                </div>
 
-                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
+                <div class="w-full sm:w-48 flex-shrink-0 relative">
+                    <select
+                        wire:model.live="filterRole"
+                        id="filterRole"
+                        class="w-full appearance-none pr-8 pl-3 py-2 border border-gray-300 rounded-lg
+                            bg-white dark:bg-[#1a1a1a]/95 dark:text-white dark:border-gray-700
+                            focus:outline-none focus:ring-2 focus:ring-lime focus:border-lime
+                            cursor-pointer"
+                    >
+                        <option value="all">Mostrar Todo</option>
+                        <option value="trainer">Entrenadores</option>
+                        <option value="nutriologo">Nutriólogos</option>
+                    </select>
+
+                    <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        {{-- ======================================================= --}}
-        {{-- TABLA DE EMPLEADOS --}}
-        {{-- ======================================================= --}}
-        <div class="bg-white/95 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-lime">
+            {{-- TABLA DE EMPLEADOS --}}
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-[#7bcb01]">
-                    <thead class="bg-white/95 dark:bg-[#1a1a1a]/95">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
+                    <thead class="bg-white/95 dark:bg-zinc-800">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-lime uppercase tracking-wider">Staff</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-lime uppercase tracking-wider">Rol Actual</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-lime uppercase tracking-wider">Estado</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-lime uppercase tracking-wider">Cambiar Rol</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-lime uppercase tracking-wider">Acciones</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Staff</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Rol Actual</th>
+                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">Cambiar Rol</th>
+                            <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @forelse ($users as $user)
-                        @php
-                            $fullName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
-                        @endphp
+                            @php
+                                $fullName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
+                            @endphp
                             <tr class="hover:bg-lime/10 transition" wire:key="{{ $user->id }}">
                                 <td class="px-6 py-4">
                                     <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $fullName !== '' ? $fullName : 'N/A' }}</div>
                                     <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
                                 </td>
                                 
-                                {{-- ROL BADGE STYLING --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
                                         @if($user->role == 'trainer')
@@ -154,17 +142,14 @@
                                     </span>
                                 </td>
                                 
-                                {{-- ESTADO BADGE (is_active) - ESTILO UNIFICADO --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     @if ($user->is_active)
-                                        <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-[#7bcb01]/20 text-lime">Activo</span>
+                                        <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-state-active text-state-active">Activo</span>
                                     @else
-                                        {{-- Cambiado a tonos rojos para inactivo --}}
                                         <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-red-100/50 text-red-700 dark:bg-red-900/50 dark:text-red-300">Inactivo</span>
                                     @endif
                                 </td>
                                 
-                                {{-- SELECT CAMBIAR ROL (MODIFICADO para llamar a confirmRoleChange) --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium relative">
                                     <select
                                         {{-- Llama al método de confirmación antes de la acción real --}}
@@ -175,12 +160,12 @@
                                             cursor-pointer"
                                     >
                                         @foreach ($staffRoles as $roleKey => $roleLabel)
-                                                @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
+                                            @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
                                                     <option value="{{ $roleKey }}" @selected($user->role == $roleKey)>
-                                                        {{ $roleLabel }}
+                                                    {{ $roleLabel }}
                                                     </option>
-                                                @endif
-                                            @endforeach
+                                            @endif
+                                        @endforeach
                                     </select>
 
                                     <div class="pointer-events-none absolute inset-y-0 right-7 flex items-center text-gray-500">
@@ -192,26 +177,23 @@
                                         
                                 </td>
                                 
-                                {{-- ACCIONES - BOTONES UNIFICADOS (TAMAÑO FIJO) --}}
                                 <td class="px-6 py-4 text-center text-sm font-medium">
                                     <div class="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
                                         
-                                        {{-- Botón de Activar/Desactivar llama al modal (TAMAÑO FIJO) --}}
                                         <button 
                                             wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
                                             class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold shadow transition duration-150 hover:scale-[1.02]
                                             @if($user->is_active) 
-                                                bg-yellow-500 hover:bg-yellow-600 text-white
+                                                bg-yellow-500/90 hover:bg-yellow-600 text-white
                                             @else 
-                                                bg-lime hover:bg-lime-darker text-white 
+                                                bg-[#7bcb01]/75 hover:bg-lime-darker text-white 
                                             @endif">
                                             {{ $user->is_active ? 'Desactivar' : 'Activar' }}
                                         </button>
 
-                                        {{-- Botón de Eliminar llama al modal (TAMAÑO FIJO) --}}
                                         <button 
                                             wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
-                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold bg-red-600 hover:bg-red-700 text-white shadow transition duration-150 hover:scale-[1.02]">
+                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold bg-red-600/90 hover:bg-red-700 text-white shadow">
                                             Eliminar
                                         </button>
                                     </div>
@@ -228,14 +210,14 @@
                 </table>
             </div>
             
-            <div class="p-4">
+            <div class="p-4 border-t dark:border-gray-700">
                 {{ $users->links() }}
             </div>
         </div>
     </div>
 
     {{-- ======================================================= --}}
-    {{-- MODAL DE CREACIÓN DE EMPLEADO (ESTILO UNIFORME) --}}
+    {{-- MODAL DE CREACIÓN DE EMPLEADO --}}
     {{-- ======================================================= --}}
     <div 
         x-data="{ open: @entangle('showCreateModal').live }" 
@@ -249,11 +231,8 @@
             x-transition:enter="ease-out duration-300"
             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave="ease-in duration-200"
-            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             @click.away="open = false" 
-            class="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl p-6 max-w-lg w-full transform transition-all duration-300 text-left card-border-lime" 
+            class="bg-white dark:bg-[#1a1a1a]/90 rounded-xl shadow-2xl p-6 max-w-lg w-full transform transition-all duration-300 text-left border border-gray-700" 
         >
             <div class="border-b dark:border-gray-700 pb-3 mb-6">
                 <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white text-lime">
@@ -266,28 +245,28 @@
                 <div>
                     <label for="newName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre Completo</label>
                     <input wire:model="newName" type="text" id="newName" required
-                           class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                           class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
                     @error('newName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="newEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                     <input wire:model="newEmail" type="email" id="newEmail" required
-                           class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                           class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
                     @error('newEmail') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña (Mín. 8 caracteres)</label>
                     <input wire:model="newPassword" type="password" id="newPassword" required
-                           class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                           class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
                     @error('newPassword') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
                     <label for="newRole" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rol Inicial</label>
                     <select wire:model="newRole" id="newRole" required
-                            class="mt-1 block w-full rounded-lg dark:bg-gray-800 dark:border-gray-700 dark:text-white">
+                             class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
                         @foreach ($staffRoles as $roleKey => $roleLabel)
                             @if ($roleKey !== 'cliente')
                                 <option value="{{ $roleKey }}">
@@ -303,12 +282,12 @@
                     <button type="button" 
                         wire:click="$set('showCreateModal', false)" 
                         @click="open = false"
-                        class="px-4 py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-150 font-bold">
+                        class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition font-bold">
                         Cancelar
                     </button>
                     <button type="submit" 
-                            wire:loading.attr="disabled"
-                            class="bg-lime hover:bg-lime-darker text-white font-bold py-2 px-6 rounded-lg transition duration-300 disabled:opacity-50">
+                             wire:loading.attr="disabled"
+                             class="bg-lime hover:bg-lime-darker text-white font-bold py-2 px-6 rounded-lg transition duration-300 disabled:opacity-50">
                         <span wire:loading.remove wire:target="createUser">Crear Staff</span>
                         <span wire:loading wire:target="createUser">Creando...</span>
                     </button>
@@ -318,36 +297,33 @@
     </div>
 
     {{-- ======================================================= --}}
-    {{-- MODAL DE CONFIRMACIÓN (Reutilizado para cambio de rol) --}}
+    {{-- MODAL DE CONFIRMACIÓN --}}
     {{-- ======================================================= --}}
     <div 
         x-data="{ 
             show: @entangle('showConfirmationModal'), 
             success: false,
             confirmAction() {
-                // Call Livewire action
                 $wire.call('executeModalAction').then(() => {
                     this.success = true;
-                    // Reset success and close modal after animation
                     setTimeout(() => {
                         this.show = false;
                         this.success = false;
-                        $wire.call('closeModal'); // Clean up state in Livewire
+                        $wire.call('closeModal'); 
                     }, 1800);
                 });
             }
         }" 
         x-show="show" 
         x-cloak
-        class="fixed inset-0 z-[9999] flex items-center justify-center bg-gray-900/60 backdrop-blur-sm"
+        class="fixed inset-0 z-[9999] flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm"
         x-transition.opacity
     >
         <div 
-            class="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl max-w-lg w-full p-6 border-t-4 border-lime transform transition-all relative overflow-hidden dark:text-white"
+            class="bg-white dark:bg-[#1a1a1a]/90 rounded-xl shadow-2xl max-w-lg w-full p-6 border-t-4 border-lime transform transition-all relative overflow-hidden"
             x-transition.scale
         >
 
-            {{-- Estado normal --}}
             <template x-if="!success">
                 <div>
                     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{{ $modalTitle }}</h3>
@@ -356,7 +332,7 @@
                     <div class="flex justify-end space-x-3 mt-5">
                         <button 
                             wire:click="closeModal"
-                            class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition font-bold"
+                            class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition font-bold"
                         >
                             Cancelar
                         </button>
@@ -370,7 +346,6 @@
                 </div>
             </template>
 
-            {{-- Estado de éxito --}}
             <template x-if="success">
                 <div class="flex flex-col items-center justify-center text-center py-8 animate-fadeIn">
                     <svg class="w-16 h-16 text-lime mb-3 animate-check" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">

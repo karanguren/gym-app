@@ -155,17 +155,17 @@ class ClientManagement extends Component
         // Si el perfil no está verificado, la acción principal es la APROBACIÓN (desde la tabla de pendientes)
         if ($user->profile && !$user->profile->is_verified) {
             $this->modalTitle = 'Confirmar Aprobación de Perfil';
-            $this->modalMessage = "Estás a punto de **APROBAR** el perfil de **{$userName}**.\nEsto marcará el perfil como 'Verificado', cambiará su rol a 'cliente' y activará su cuenta (is_active = True).\n¿Confirmas la aprobación?";
+            $this->modalMessage = "Estás a punto de **APROBAR** el perfil de **{$userName}**.\nEsto marcará el perfil como 'Verificado'.\n¿Confirmas la aprobación?";
         } else {
             // Si el perfil ya está verificado, la acción es la ACTIVACIÓN/DESACTIVACIÓN general (desde la tabla principal)
             $isActive = $user->is_active;
 
             if ($isActive) {
                 $this->modalTitle = 'Confirmar Desactivación General';
-                $this->modalMessage = "Estás a punto de **DESACTIVAR** al cliente **{$userName}**.\nEsto lo inhabilita para acceder al sistema (Estado General: Inactivo).\n¿Confirmas la desactivación?";
+                $this->modalMessage = "Estás a punto de **DESACTIVAR** al cliente **{$userName}**.\nEsto lo inhabilita para acceder al sistema.\n¿Confirmas la desactivación?";
             } else {
                 $this->modalTitle = 'Confirmar Activación General';
-                $this->modalMessage = "Estás a punto de **ACTIVAR** al cliente **{$userName}**.\nEsto le permite acceder al sistema (Estado General: Activo).\n¿Confirmas la activación?";
+                $this->modalMessage = "Estás a punto de **ACTIVAR** al cliente **{$userName}**.\nEsto le permite acceder al sistema.\n¿Confirmas la activación?";
             }
         }
 

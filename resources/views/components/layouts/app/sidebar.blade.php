@@ -29,10 +29,13 @@
 
                     if ($user->role === 'administrador') {
                         $dashboardRoute = route('admin.dashboard');
-                        $logoutRoute = route('admin.logout'); // Asumo que tienes una ruta 'admin.logout'
+                        $logoutRoute = route('admin.logout'); 
                     } elseif ($user->role === 'empleado') {
                         $dashboardRoute = route('employee.dashboard');
                     }
+
+                    $clientIsVerified = $user->role === 'cliente' && ($user->profile?->is_verified ?? false);
+
                 @endphp
 
                 <div class="flex items-center justify-between me-5">
@@ -90,12 +93,15 @@
                     </flux:navlist.group>
 
                     {{-- Grupo 2: Opciones para CLIENTES --}}
-                    @if ($user->role === 'cliente')
+                    @if ($user->role === 'cliente' && $clientIsVerified)
                         <flux:navlist.group :heading="__('Cliente')" class="grid text-gray-900 dark:text-[#7bcb01]">
+                                {{-- CLIENTE VERIFICADO: Muestra todas las opciones --}}
                             <flux:navlist.item icon="users" href="{{ route('client.routine-builder') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Armar mi Rutina') }}</flux:navlist.item>
                             <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Progreso') }}</flux:navlist.item>
                             <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Reservas') }}</flux:navlist.item>
                             <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Foro') }}</flux:navlist.item>
+                        
+                            
                         </flux:navlist.group>
                     @endif
                     

@@ -65,7 +65,7 @@ body {
 }
 
 .\[grid-area\:main\]  {
-    @apply bg-[url('../../../public/img/LOGOFIT101-1.jpg')] bg-center dark:bg-[url('../../../public/img/LOGOFIT101-2.jpg')]
+    @apply bg-[url('../../../public/img/LOGOFIT101-1.jpg')] bg-center dark:bg-[url('../../../public/img/LOGOFIT101-2.jpg')] bg-center bg-cover
 }
 
 input:focus[data-flux-control],

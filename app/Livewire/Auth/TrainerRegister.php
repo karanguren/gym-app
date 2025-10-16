@@ -50,20 +50,12 @@ class TrainerRegister extends Component
             'role' => $this->role, 
         ]);
 
-        // 2. 🎯 Crear el perfil específico basado en el rol
-        if ($this->role === 'trainer') {
-            // Crea un registro en la tabla 'trainers'
-            Trainer::create(['user_id' => $user->id]);
-        } elseif ($this->role === 'nutriologo') {
-            // Crea un registro en la tabla 'nutriologos'
-            Nutriologo::create(['user_id' => $user->id]);
-        }
 
         // 3. Autenticar al nuevo miembro del staff
         auth()->login($user);
 
         // 4. Redirigir al dashboard
-        $this->redirect(route('trainer.onboarding', absolute: false), navigate: true);
+        $this->redirect(route('employee.dashboard', absolute: false), navigate: true);
     }
 
     /**

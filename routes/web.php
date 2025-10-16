@@ -33,7 +33,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/admin-login', AdminLogin::class)->name('admin.login');
     
     // 🎯 Registro dedicado para Staff (Entrenadores/Nutriólogos)
-    Route::get('/register/trainer', TrainerRegister::class)->name('staff.register');
+    Route::get('/register/staff', TrainerRegister::class)->name('staff.register');
     // Puedes crear una ruta similar para Nutriólogos si el registro es diferente:
     // Route::get('/register/nutriologo', NutriologoRegister::class)->name('nutriologo.register'); 
     

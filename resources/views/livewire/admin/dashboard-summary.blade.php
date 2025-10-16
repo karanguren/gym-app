@@ -1,12 +1,12 @@
 <div>
     <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8 ">
-        <h2 class="text-3xl font-bold text-gray-900 dark:text-[#7bcb01] mb-8">
+        <h2 class="text-3xl font-bold text-[#7bcb01] mb-8">
             Panel de Administración
         </h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-            <div class="bg-white/95 dark:bg-[#1a1a1a]/95 overflow-hidden shadow-xl sm:rounded-lg p-6 flex flex-col justify-between transition duration-300 hover:shadow-2xl hover:scale-[1.01] border-t-4 border-[#7bcb01]">
+            <div class="bg-white/90 dark:bg-[#1a1a1a]/95 overflow-hidden shadow-xl sm:rounded-lg p-6 flex flex-col justify-between transition duration-300 hover:shadow-2xl hover:scale-[1.01] border-t-4 border-[#7bcb01]">
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
                         <svg class="w-8 h-8 text-[#7bcb01]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -19,11 +19,11 @@
                     </div>
                 </div>
                 <div class="mt-6 space-y-3">
-                    <div class="flex justify-between items-center bg-green-50 dark:bg-green-900/50 p-3 rounded-md">
+                    <div class="flex justify-between items-center bg-lime-200/95 dark:bg-lime-300/50 p-3 rounded-md">
                         <span class="text-sm font-medium text-green-700 dark:text-green-300">Activos:</span>
                         <span class="text-xl font-bold text-green-800 dark:text-green-200">{{ $clientActiveCount }}</span>
                     </div>
-                    <div class="flex justify-between items-center bg-red-50 dark:bg-red-900/50 p-3 rounded-md">
+                    <div class="flex justify-between items-center bg-red-200/95 dark:bg-red-400/50 p-3 rounded-md">
                         <span class="text-sm font-medium text-red-700 dark:text-red-300">Inactivos:</span>
                         <span class="text-xl font-bold text-red-800 dark:text-red-200">{{ $clientInactiveCount }}</span>
                     </div>
@@ -33,28 +33,27 @@
                 </a>
             </div>
 
-            <div class="bg-white/95 dark:bg-[#1a1a1a]/95 overflow-hidden shadow-xl sm:rounded-lg p-6 flex flex-col justify-between transition duration-300 hover:shadow-2xl hover:scale-[1.01] border-t-4 border-orange-500">
+            <div class="bg-white/95 dark:bg-[#1a1a1a]/95 overflow-hidden shadow-xl sm:rounded-lg p-6 flex flex-col justify-between transition duration-300 hover:shadow-2xl hover:scale-[1.01] border-t-4 border-orange-400">
                 <div>
                     <div class="flex items-center space-x-3 mb-4">
-                        <svg class="w-8 h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-8 h-8 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14c4.418 0 8 2.015 8 5v2H4v-2c0-2.985 3.582-5 8-5z"></path>
                         </svg>
-                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Entrenadores & Staff</h3>
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Staff</h3>
                     </div>
                     <div class="text-gray-600 dark:text-gray-400">
                         <p class="text-sm">Resumen de personal activo sobre el total.</p>
                     </div>
                 </div>
                 
-                {{-- NUEVO BLOQUE: Activos/Total para Entrenadores y Nutriólogos --}}
                 <div class="mt-6 space-y-3">
-                    <div class="flex justify-between items-center bg-orange-50 dark:bg-orange-900/50 p-3 rounded-md">
+                    <div class="flex justify-between items-center bg-orange-200 dark:bg-orange-300/50 p-3 rounded-md">
                         <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Entrenadores (Activos/Total):</span>
                         <span class="text-xl font-bold text-orange-800 dark:text-orange-200">
                             {{ $trainerActiveCount }}/{{ $trainerTotalCount }}
                         </span>
                     </div>
-                    <div class="flex justify-between items-center bg-orange-50 dark:bg-orange-900/50 p-3 rounded-md">
+                    <div class="flex justify-between items-center bg-orange-200 dark:bg-orange-300/50 p-3 rounded-md">
                         <span class="text-sm font-medium text-orange-700 dark:text-orange-300">Nutriólogos (Activos/Total):</span>
                         <span class="text-xl font-bold text-orange-800 dark:text-orange-200">
                             {{ $nutriologoActiveCount }}/{{ $nutriologoTotalCount }}
@@ -62,7 +61,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('admin.employees') }}" class="mt-4 text-orange-500 hover:text-orange-700 text-sm font-semibold flex items-center">
+                <a href="{{ route('admin.employees') }}" class="mt-4 text-orange-400 hover:text-orange-700 text-sm font-semibold flex items-center">
                     Ir a Gestión de Staff &rarr;
                 </a>
             </div>
@@ -79,7 +78,7 @@
                         <p class="text-sm">Anuncios y noticias activas en el sistema.</p>
                     </div>
                 </div>
-                <div class="mt-6 flex justify-between items-center bg-cyan-50 dark:bg-cyan-900/50 p-3 rounded-md">
+                <div class="mt-6 flex justify-between items-center bg-cyan-200 dark:bg-cyan-900/50 p-3 rounded-md">
                     <span class="text-sm font-medium text-cyan-700 dark:text-cyan-300">Total de Posts:</span>
                     <span class="text-3xl font-bold text-cyan-800 dark:text-cyan-200">{{ $postCount }}</span>
                 </div>
