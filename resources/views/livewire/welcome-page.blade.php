@@ -3,12 +3,10 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>FIT101 - Home</title>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
         @livewireStyles
         
         <style>
-            /* Línea divisoria vertical para Fixed Social (Izquierda) */
             .fixed-social::after {
                 content: "";
                 display: block;
@@ -18,7 +16,6 @@
                 background-color: #fff; 
             }
 
-            /* Línea divisoria vertical para Fixed Email (Derecha) */
             .fixed-email::after {
                 content: "";
                 display: block;
@@ -28,7 +25,6 @@
                 background-color: #fff; 
             }
 
-            /* Texto vertical para el email */
             .fixed-email a {
                 writing-mode: vertical-rl;
                 text-orientation: mixed;
@@ -78,7 +74,6 @@
                 <div class="container mx-auto text-center px-4 relative z-10">
     
                     <div class="mb-8"> 
-                        {{-- Logo para tema CLARO --}}
                         <img src="{{ asset('img/logo-1-light.png') }}" alt="Logo Gym Claro" 
                             class="h-20 w-auto mx-auto mb-4 block transition-opacity duration-300">
                     </div>
@@ -106,7 +101,7 @@
                         @endguest
                         @auth
                             @php
-                                $dashboardRoute = route('dashboard'); // ruta por defecto
+                                $dashboardRoute = route('dashboard'); 
 
                                 if (auth()->user()->role === 'administrador') {
                                     $dashboardRoute = route('admin.dashboard');
@@ -120,7 +115,6 @@
                                 class="flex flex-col md:flex-row items-center space-y-4 md:space-x-4 md:space-y-0"
                             >
                                 @if (!auth()->user()->is_active)
-                                    <!-- Botón que muestra el modal -->
                                     <button 
                                         @click="showModal = true"
                                         class="bg-[#7bcb01] hover:bg-[#5aa301] text-white font-bold py-3 px-8 text-lg rounded-lg shadow-xl transform hover:scale-105 transition duration-300"
@@ -128,7 +122,6 @@
                                         Mi Panel
                                     </button>
                                 @else
-                                    <!-- Redirección normal -->
                                     <a href="{{ $dashboardRoute }}" 
                                         class="bg-[#7bcb01] hover:bg-[#5aa301] text-white font-bold py-3 px-8 text-lg rounded-lg shadow-xl transform hover:scale-105 transition duration-300"
                                     >
@@ -136,7 +129,6 @@
                                     </a>
                                 @endif
 
-                                <!-- Botón de cierre de sesión -->
                                 <form method="POST" action="{{ route('logout') }}" class="inline-block">
                                     @csrf 
                                     <button type="submit" 
@@ -146,7 +138,6 @@
                                     </button>
                                 </form>
 
-                                <!-- Modal -->
                                 <div 
                                     x-show="showModal" 
                                     x-transition.opacity.scale.80
@@ -156,7 +147,6 @@
                                     <div 
                                         class="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl p-6 max-w-sm w-full text-center transform transition-all duration-300"
                                     >
-                                        <!-- Ícono de advertencia -->
                                         <div class="flex justify-center mb-4">
                                             <svg class="mx-auto h-12 w-12 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.3 16c-.77 1.333.192 3 1.732 3z" />

@@ -54,7 +54,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
         // Utiliza los métodos isEmployee() e isAdmin() del modelo User.
         // =============================================================
 
-        // 1. Redirigir a Empleado (Trainer/Nutriologo)
         if ($user->isEmployee()) {
              $this->redirect(route('employee.dashboard', absolute: false), navigate: true);
             return;
@@ -119,7 +118,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
     }
 }; ?>
 
-<div class="w-full max-w-lg bg-white dark:bg-[#1a1a1a]/95 rounded-xl shadow-2xl p-6 md:p-10 space-y-6 border border-gray-200 dark:border-[#7bcb01] mx-auto">
+<div class="w-full max-w-lg px-8 py-10 bg-white/70 dark:bg-[#1a1a1a]/70 shadow-2xl overflow-hidden rounded-xl backdrop-blur-sm transition-colors duration-300">
+    <style>
+        .text-lime { color: #7bcb01; }
+        .focus\:ring-lime { --tw-ring-color: #7bcb01; }
+        .focus\:border-lime { border-color: #7bcb01; }
+        .bg-lime-dark { background-color: #7bcb01; }
+        .hover\:bg-lime-darker:hover { background-color: #69b301; } 
+    </style>
     <div class="flex flex-col gap-6">
         <div class="flex justify-center mb-6">
             <img 
@@ -133,7 +139,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 class="hidden h-12 w-auto dark:block transition-opacity duration-300"
             >
         </div>
-        <x-auth-header :title="__('Iniciar Sesión')" :description="__('Ingresa tu email y contraseña para acceder')" class="!text-[#7bcb01] dark:!text-[#7bcb01]" />
+        <x-auth-header :title="__('INICIAR SESIÓN')" :description="__('Ingresa tu email y contraseña para acceder')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -148,6 +154,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 autofocus
                 autocomplete="email"
                 placeholder="email@example.com"
+                class="mt-2 block w-full border border-gray-300 dark:border-gray-100 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 dark:bg-[#1a1a1a]/95 dark:text-white"
             />
 
             <!-- Password -->
@@ -160,6 +167,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     autocomplete="current-password"
                     :placeholder="__('Password')"
                     viewable
+                    class="mt-2 block w-full border border-gray-300 dark:border-gray-100 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 dark:bg-[#1a1a1a]/95 dark:text-white"
                 />
             </div>
 
@@ -167,8 +175,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <flux:checkbox wire:model="remember" :label="__('Remember me')" />
 
             <div class="flex items-center justify-end">
-                <flux:button variant="primary" type="submit" class="w-full bg-transparent !text-[#7bcb01] !border-2 !border-[#7bcb01] text-lg rounded-lg !font-bold dark:!text-[#7bcb01] dark:!border-[#7bcb01] hover:!bg-transparent" data-test="login-button">
-                    {{ __('Ingresar') }}
+                <flux:button variant="primary" type="submit" class="w-full !bg-[#7bcb01] !text-white !border-2 !border-[#7bcb01] text-lg rounded-lg !font-bold dark:!border-[#7bcb01] hover:!bg-transparent" data-test="login-button">
+                    {{ __('INGRESAR') }}
                 </flux:button>
             </div>
         </form>

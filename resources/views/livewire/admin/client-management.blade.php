@@ -95,31 +95,24 @@
         
         <div class="p-5 bg-white dark:bg-[#1a1a1a]/90 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
             <div class="flex-grow w-full sm:w-auto">
-                <input wire:model.live.debounce.300ms="search" id="search" type="text"
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    type="text"
                     placeholder="Buscar por nombre o email..."
-                    class="w-full dark:bg-[#1a1a1a]/90 dark:text-white" />
+                    class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                />
             </div>
 
             <div class="w-full sm:w-48 flex-shrink-0 relative">
-                <select
-                    wire:model.live="filterStatus"
-                    id="filterStatus"
-                    class="w-full appearance-none pr-8 pl-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg
-                        bg-white dark:bg-[#1a1a1a]/90 dark:text-white
-                        focus:outline-none focus:ring-2 focus:ring-lime focus:border-lime
-                        cursor-pointer"
-                >
-                    @foreach ($statuses as $key => $label)
-                        <option value="{{ $key }}">{{ $label }}</option>
-                    @endforeach
-                </select>
-
-                <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                    </svg>
-                </div>
+                <flux:select 
+                        wire:model.live="filterStatus"
+                        class="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                        >
+                            @foreach ($statuses as $key => $label)
+                                <flux:select.option value="{{ $key }}">{{ $label }}</flux:select.option>
+                            @endforeach
+                    </flux:select>
+                
             </div>
         </div>
 

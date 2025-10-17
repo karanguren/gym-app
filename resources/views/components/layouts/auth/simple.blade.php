@@ -7,7 +7,7 @@
         <div class="absolute top-4 right-4 z-10">
             @livewire('theme-switcher')
         </div>
-        <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-[url('../../../public/img/fondo2.jpg')] bg-center">
+        <div class="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-[url('../../../public/img/fondo2.jpg')] bg-center bg-cover">
             <div class="flex w-full max-w-lg flex-col gap-2">
                 <a href="{{ route('home') }}" class="flex flex-col items-center gap-2 font-medium" wire:navigate>
                     <!-- <span class="flex h-9 w-9 mb-1 items-center justify-center rounded-md">

@@ -78,31 +78,24 @@
 
             <div class="p-5 bg-white dark:bg-[#1a1a1a]/95 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
                 <div class="flex-grow w-full sm:w-auto">
-                    <input wire:model.live.debounce.300ms="search" id="search" type="text"
+                    <flux:input
+                        wire:model.live.debounce.300ms="search"
+                        type="text"
                         placeholder="Buscar por nombre o email..."
-                        class="w-full dark:bg-[#1a1a1a]/95 dark:text-white" />
+                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                    />
                 </div>
 
                 <div class="w-full sm:w-48 flex-shrink-0 relative">
-                    <select
+                    <flux:select 
                         wire:model.live="filterRole"
-                        id="filterRole"
-                        class="w-full appearance-none pr-8 pl-3 py-2 border border-gray-300 rounded-lg
-                            bg-white dark:bg-[#1a1a1a]/95 dark:text-white dark:border-gray-700
-                            focus:outline-none focus:ring-2 focus:ring-lime focus:border-lime
-                            cursor-pointer"
-                    >
-                        <option value="all">Mostrar Todo</option>
-                        <option value="trainer">Entrenadores</option>
-                        <option value="nutriologo">Nutriólogos</option>
-                    </select>
-
-                    <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-500">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                            viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                        </svg>
-                    </div>
+                        class="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                        >
+                                <flux:select.option value="all">Mostrar Todo</flux:select.option>
+                                <flux:select.option value="trainer">Entrenadores</flux:select.option>
+                                <flux:select.option value="nutriologo">Nutriólogos</flux:select.option>
+                    </flux:select>
+                    
                 </div>
             </div>
 
@@ -151,30 +144,18 @@
                                 </td>
                                 
                                 <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium relative">
-                                    <select
-                                        {{-- Llama al método de confirmación antes de la acción real --}}
+                                    <flux:select 
                                         wire:change="confirmRoleChange({{ $user->id }}, $event.target.value, '{{ $fullName }}')"
-                                        class="w-full appearance-none pr-8 pl-3 py-2 border border-gray-300 rounded-lg
-                                            bg-white dark:bg-[#1a1a1a]/95 dark:text-white dark:border-gray-700
-                                            focus:outline-none focus:ring-2 focus:ring-lime focus:border-lime
-                                            cursor-pointer"
-                                    >
-                                        @foreach ($staffRoles as $roleKey => $roleLabel)
-                                            @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
-                                                    <option value="{{ $roleKey }}" @selected($user->role == $roleKey)>
-                                                    {{ $roleLabel }}
-                                                    </option>
-                                            @endif
-                                        @endforeach
-                                    </select>
-
-                                    <div class="pointer-events-none absolute inset-y-0 right-7 flex items-center text-gray-500">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
-                                            viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                        
+                                        class="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                                        >
+                                            @foreach ($staffRoles as $roleKey => $roleLabel)
+                                                @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
+                                                        <option value="{{ $roleKey }}" @selected($user->role == $roleKey)>
+                                                        {{ $roleLabel }}
+                                                        </option>
+                                                @endif
+                                            @endforeach
+                                    </flux:select>
                                 </td>
                                 
                                 <td class="px-6 py-4 text-center text-sm font-medium">
@@ -243,38 +224,71 @@
             <form wire:submit.prevent="createUser" class="space-y-4">
                 
                 <div>
-                    <label for="newName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre Completo</label>
-                    <input wire:model="newName" type="text" id="newName" required
-                           class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
+                    <flux:input
+                        wire:model="newName"
+                        :label="__('Nombre')"
+                        type="text"
+                        required
+                        autofocus
+                        autocomplete="newName"
+                        placeholder="Nombre"
+                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                    />
+                    @error('newName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                </div>
+                
+                <div>
+                    <flux:input
+                        wire:model="newLastname"
+                        :label="__('Apellido')"
+                        type="text"
+                        required
+                        autofocus
+                        autocomplete="newLastname"
+                        placeholder="Apellido"
+                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                    />
                     @error('newName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="newEmail" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                    <input wire:model="newEmail" type="email" id="newEmail" required
-                           class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
+                     <flux:input
+                        wire:model="newEmail"
+                        :label="__('Correo')"
+                        type="email"
+                        required
+                        autofocus
+                        autocomplete="email"
+                        placeholder="email@example.com"
+                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                    />
                     @error('newEmail') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="newPassword" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contraseña (Mín. 8 caracteres)</label>
-                    <input wire:model="newPassword" type="password" id="newPassword" required
-                           class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
+                    <flux:input
+                        wire:model="newPassword"
+                        :label="__('Contraseña')"
+                        type="password"
+                        required
+                        :placeholder="__('Contraseña (Mín. 8 caracteres)')"
+                        viewable
+                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                    />
                     @error('newPassword') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="newRole" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Rol Inicial</label>
-                    <select wire:model="newRole" id="newRole" required
-                             class="mt-1 block w-full rounded-lg dark:bg-[#1a1a1a]/90 dark:border-gray-700 dark:text-white">
+                    <flux:select 
+                        :label="__('Rol')" wire:model="newRole"
+                        class="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                        >
                         @foreach ($staffRoles as $roleKey => $roleLabel)
-                            @if ($roleKey !== 'cliente')
-                                <option value="{{ $roleKey }}">
-                                    {{ $roleLabel }}
-                                </option>
+                            @if ($roleKey !== 'cliente' && $roleKey !== 'administrador' )
+                                <flux:select.option value="{{ $roleKey }}">{{ $roleLabel }}</flux:select.option>
                             @endif
                         @endforeach
-                    </select>
+                    </flux:select>
                     @error('newRole') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                 </div>
                 

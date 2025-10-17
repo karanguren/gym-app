@@ -3,8 +3,8 @@
 namespace App\Livewire\Auth;
 
 use App\Models\User;
-use App\Models\Trainer; // 🎯 Importar el modelo Trainer
-use App\Models\Nutriologo; // 🎯 Importar el modelo Nutriologo
+use App\Models\Trainer; 
+use App\Models\Nutriologo; 
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\Rule;
@@ -17,7 +17,7 @@ class TrainerRegister extends Component
     public string $email = '';
     public string $password = '';
     public string $password_confirmation = '';
-    public string $role = ''; // Propiedad para capturar el rol seleccionado
+    public string $role = ''; 
 
     /**
      * Define las reglas de validación para el formulario.
@@ -29,7 +29,6 @@ class TrainerRegister extends Component
             'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'min:8', 'confirmed', Password::defaults()],
-            // Aseguramos que el rol sea uno de los dos permitidos
             'role' => ['required', 'in:trainer,nutriologo'], 
         ];
     }
@@ -39,12 +38,14 @@ class TrainerRegister extends Component
      */
     public function register()
     {
+        dd('probando');
+
         $validatedData = $this->validate();
 
         // 1. Crear el usuario en la tabla 'users'
         $user = User::create([
             'name' => $validatedData['name'],
-            'last_name' => $validatedData['last_name'], // Asegúrate de incluir el last_name
+            'last_name' => $validatedData['last_name'], 
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
             'role' => $this->role, 
@@ -64,6 +65,6 @@ class TrainerRegister extends Component
     public function render()
     {
         return view('livewire.auth.trainer-register')
-            ->layout('layouts.guest', ['title' => 'Registro de Staff']); // Ajusté el título para ser más genérico
+            ->layout('layouts.guest', ['title' => 'Registro de Staff']); 
     }
 }

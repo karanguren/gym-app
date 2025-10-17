@@ -32,29 +32,31 @@
         <form wire:submit="login" class="space-y-6">
             
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
-                <input 
-                    wire:model="email" 
-                    id="email" 
-                    type="email" 
-                    required 
-                    autofocus 
-                    placeholder="ejemplo@mail.com"
-                    class="block w-full px-4 py-2 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 border border-gray-300 dark:border-gray-100 dark:text-white transition duration-150"
-                >
+                <flux:input
+                    wire:model="email"
+                    :label="__('Correo')"
+                    type="email"
+                    required
+                    autofocus
+                    autocomplete="email"
+                    placeholder="email@example.com"
+                    class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                />
                 @error('email') <span class="mt-2 text-sm text-red-600 dark:text-red-500 font-medium">{{ $message }}</span> @enderror
             </div>
 
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
-                <input 
-                    wire:model="password" 
-                    id="password" 
-                    type="password" 
-                    required 
-                    placeholder="Ingresa tu contraseña"
-                    class="block w-full px-4 py-2 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 border border-gray-300 dark:border-gray-100 dark:text-white transition duration-150"
-                >
+                
+                <flux:input
+                    wire:model="password"
+                    :label="__('Contraseña')"
+                    type="password"
+                    required
+                    autocomplete="current-password"
+                    :placeholder="__('Ingresa tu contraseña')"
+                    viewable
+                    class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                />
                 @error('password') <span class="mt-2 text-sm text-red-600 dark:text-red-500 font-medium">{{ $message }}</span> @enderror
             </div>
 

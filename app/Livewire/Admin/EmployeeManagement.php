@@ -21,14 +21,15 @@ class EmployeeManagement extends Component
     // Propiedades para la creación de un nuevo usuario
     public $showCreateModal = false;
     public $newName = '';
+    public $newLastname = '';
     public $newEmail = '';
     public $newRole = 'trainer'; 
     public $newPassword = '';
 
     // Roles disponibles para Asignar
     public array $staffRoles = [
-        'trainer' => 'Entrenador (Staff)',
-        'nutriologo' => 'Nutriólogo (Staff)',
+        'trainer' => 'Entrenador',
+        'nutriologo' => 'Nutriólogo',
         'administrador' => 'Administrador',
         'cliente' => 'Cliente', 
     ];
@@ -37,10 +38,10 @@ class EmployeeManagement extends Component
     public bool $showConfirmationModal = false;
     public string $modalTitle = '';
     public string $modalMessage = '';
-    public string $modalAction = ''; // 'toggleStatus', 'deleteUser', or 'roleChange'
+    public string $modalAction = '';
     public int $targetUserId = 0;
     public string $targetUserName = '';
-    public string $pendingNewRole = ''; // <-- NUEVA PROPIEDAD para almacenar el rol pendiente
+    public string $pendingNewRole = ''; 
     // --- End Modal State ---
 
 
@@ -53,6 +54,7 @@ class EmployeeManagement extends Component
         
         return [
             'newName' => 'required|string|max:255',
+            'newLastname' => 'required|string|max:255',
             'newEmail' => 'required|string|email|max:255|unique:users,email',
             'newRole' => ['required', 'string', Rule::in($creationRoles)],
             'newPassword' => ['required', 'string', Password::min(8)],
@@ -221,6 +223,7 @@ class EmployeeManagement extends Component
 
         $user = User::create([
             'name' => $this->newName,
+            'last_name' => $this->newLastname,
             'email' => $this->newEmail,
             'role' => $this->newRole,
             'password' => Hash::make($this->newPassword),
@@ -228,8 +231,8 @@ class EmployeeManagement extends Component
             'email_verified_at' => now(), 
         ]);
 
-        $this->reset(['newName', 'newEmail', 'newPassword', 'newRole', 'showCreateModal']);
-        session()->flash('success', 'Cuenta de ' . $user->role . ' creada exitosamente: ' . $user->name . '.');
+        $this->reset(['newName', 'newLastname', 'newEmail', 'newPassword', 'newRole', 'showCreateModal']);
+        session()->flash('success', 'Cuenta de ' . $user->role . ' creada exitosamente: ' . $user->name . ' ' . $user->last_name . '.');
     }
 
 

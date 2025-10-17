@@ -17,7 +17,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password_confirmation = '';
 
     public function register(): void
-    {
+    {   
+        dd('probndo');
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'lastName' => ['required', 'string', 'max:255'],
@@ -42,7 +43,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
     }
 }; ?>
 
-<div class="w-full max-w-lg bg-white dark:bg-[#1a1a1a]/95 rounded-xl shadow-2xl p-6 md:p-10 space-y-6 border border-gray-200 dark:border-[#7bcb01] mx-auto">
+<div class="w-full max-w-lg px-8 py-10 bg-white/70 dark:bg-[#1a1a1a]/70 shadow-2xl overflow-hidden rounded-xl backdrop-blur-sm transition-colors duration-300">
     
     <style>
         .text-lime { color: #7bcb01; }
@@ -64,8 +65,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             class="hidden h-12 w-auto dark:block transition-opacity duration-300"
         >
     </div>
-    <div class="text-center">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mt-4">
+    <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-[#7bcb01] mt-4">
             ¡Comienza tu Entrenamiento!
         </h1>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
@@ -78,79 +79,94 @@ new #[Layout('components.layouts.auth')] class extends Component {
         <div class="grid grid-cols-2 gap-4">
             
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Nombre
-                </label>
-                <input wire:model="name" id="name" type="text" required autofocus autocomplete="given-name"
+                <flux:input
+                    wire:model="name"
+                    :label="__('Nombre')"
+                    type="text"
+                    required
+                    autofocus
+                    autocomplete="given-name"
                     placeholder="Nombre"
-                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150">
+                    class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                />
                 @error('name') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label for="lastName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Apellido
-                </label>
-                <input wire:model="lastName" id="lastName" type="text" required autocomplete="family-name"
+                <flux:input
+                    wire:model="lastName"
+                    :label="__('Apellido')"
+                    type="text"
+                    required
+                    autofocus
+                    autocomplete="family-name"
                     placeholder="Apellido"
-                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150">
+                    class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                />
                 @error('lastName') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
         
         <div>
-            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Correo Electrónico
-            </label>
-            <input wire:model="email" id="email" type="email" required autocomplete="email"
-                placeholder="email@ejemplo.com"
-                class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150">
+            <flux:input
+                wire:model="email"
+                :label="__('Correo')"
+                type="email"
+                required
+                autocomplete="email"
+                placeholder="email@example.com"
+                class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+            />
+            
             @error('email') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
         </div>
 
         <div class="space-y-4">
             <div>
-                <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Contraseña
-                </label>
-                <input wire:model="password" id="password" type="password" required autocomplete="new-password"
-                    placeholder="Contraseña segura"
-                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150">
+                <flux:input
+                    wire:model="password"
+                    :label="__('Contraseña')"
+                    type="password"
+                    required
+                    :placeholder="__('Contraseña (Mín. 8 caracteres)')"
+                    viewable
+                    class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                />
                 @error('password') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
 
             <div>
-                <label for="password_confirmation" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Confirmar Contraseña
-                </label>
-                <input wire:model="password_confirmation" id="password_confirmation" type="password" required autocomplete="new-password"
-                    placeholder="Repite la contraseña"
-                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-lime focus:border-lime dark:bg-[#1a1a1a]/95 dark:border-gray-600 dark:text-white transition duration-150">
+                <flux:input
+                    wire:model="password_confirmation"
+                    :label="__('Confirmar Contraseña')"
+                    type="password"
+                    required
+                    :placeholder="__('Repite la contraseña')"
+                    viewable
+                    class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                />
                 @error('password_confirmation') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
 
         <button type="submit"
-            class="w-full relative flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-gray-900 bg-lime-dark hover:bg-lime-darker focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime transition duration-150 ease-in-out"
+            class="mt-6 w-full relative block py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-white bg-lime-dark hover:bg-lime-darker focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime transition duration-150 ease-in-out"
             wire:loading.attr="disabled">
-            
-            {{-- Opción 1: Muestra "Registrar" cuando NO está cargando. Ocupa el espacio completo --}}
+
             <span wire:loading.remove>
-                Registrar
+                REGISTRAR
             </span>
             
-            {{-- Opción 2: Muestra el Spinner y "Registrando..." cuando SÍ está cargando. Ocupa el espacio completo y se centra --}}
-            <span wire:loading class="flex items-center justify-center">
-                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <span wire:loading class="flex ">
+                <svg class="animate-spin h-5 w-5 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Registrando...
+                REGISTRANDO...
             </span>
         </button>
 
         <div class="text-center mt-4">
-            {{-- Enlace de inicio de sesión actualizado con text-lime --}}
             <a href="{{ route('login') }}" wire:navigate class="text-sm font-medium text-lime hover:text-lime-darker dark:text-lime">
                 ¿Ya tienes cuenta? Inicia sesión aquí.
             </a>
