@@ -18,7 +18,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     public function register(): void
     {   
-        dd('probndo');
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
             'lastName' => ['required', 'string', 'max:255'],
@@ -89,7 +88,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     placeholder="Nombre"
                     class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
                 />
-                @error('name') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
 
             <div>
@@ -103,7 +101,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     placeholder="Apellido"
                     class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
                 />
-                @error('lastName') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
         
@@ -118,7 +115,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
             />
             
-            @error('email') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
         </div>
 
         <div class="space-y-4">
@@ -132,7 +128,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     viewable
                     class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
                 />
-                @error('password') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
 
             <div>
@@ -145,7 +140,6 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     viewable
                     class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
                 />
-                @error('password_confirmation') <p class="mt-2 text-xs text-red-500">{{ $message }}</p> @enderror
             </div>
         </div>
 
@@ -157,12 +151,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 REGISTRAR
             </span>
             
-            <span wire:loading class="flex ">
-                <svg class="animate-spin h-5 w-5 text-white mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <span wire:loading>
+                <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                REGISTRANDO...
             </span>
         </button>
 

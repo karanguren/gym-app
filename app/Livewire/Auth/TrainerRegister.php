@@ -38,7 +38,7 @@ class TrainerRegister extends Component
      */
     public function register()
     {
-        dd('probando');
+        // dd('probando');
 
         $validatedData = $this->validate();
 

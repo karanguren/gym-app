@@ -19,7 +19,6 @@
     </a>
 </div>
 
-{{-- 🎯 SALVAGUARDA CLAVE: !isset($routines) verifica si la variable es NULL. Esto previene el TypeError. --}}
 @if (!isset($routines) || $routines->isEmpty())
     <div class="text-center p-10 bg-gray-100 dark:bg-gray-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
         <svg class="w-12 h-12 text-gray-400 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>

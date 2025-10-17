@@ -25,7 +25,6 @@
                         </p>
                     </div>
                     
-                    {{-- Uso de la propiedad computada $selectedRoutineIds y FIX: ?? [] --}}
                     @if ($currentView === 'selector')
                         <button wire:click="changeView('routine')"
                             class="px-4 py-2 bg-lime-600 text-white font-semibold rounded-lg shadow-md hover:bg-lime-700 transition duration-150 disabled:opacity-50"
@@ -44,18 +43,15 @@
 
                 @if ($currentView === 'selector')
                     <div class="space-y-10">
-                        {{-- 🎯 NUEVA BARRA DE BÚSQUEDA --}}
                         <div class="mb-6">
-                            <input
+                            <flux:input
                                 wire:model.live.debounce.300ms="searchQuery"
                                 type="text"
                                 placeholder="Buscar ejercicio por nombre..."
-                                class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl shadow-inner focus:ring-lime-500 focus:border-lime-500 dark:bg-gray-800 dark:text-white transition duration-150"
-                            >
+                                class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
+                            />
                         </div>
-                        {{-- FIN BARRA DE BÚSQUEDA --}}
                             
-                        {{-- 🎯 CAMBIO CLAVE: Usamos la propiedad computada 'filteredExercises' --}}
                         @if ($this->filteredExercises->isEmpty())
                             <div class="text-center p-10 bg-gray-50 dark:bg-gray-800 rounded-lg">
                                 <p class="text-xl text-gray-500 dark:text-gray-400 font-medium">
@@ -67,20 +63,18 @@
                             </div>
                         @else
                             @foreach ($muscleGroupsMap as $tren => $groups)
-                                {{-- Sección para el Tren (Superior/Inferior) --}}
                                 <section 
                                     @if ($this->filteredExercises->keys()->intersect($groups)->isEmpty())
-                                        class="hidden" {{-- Oculta la sección de tren si no hay ejercicios filtrados en sus grupos --}}
+                                        class="hidden" 
                                     @endif
                                     class="border-b dark:border-gray-700 pb-6"
                                 >
-                                    <h2 class="text-2xl font-bold text-lime-600 dark:text-lime-400 mb-5">
+                                    <h2 class="text-2xl font-bold text-gray-600 dark:text-white mb-5">
                                         {{ $tren }}
                                     </h2>
 
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         @foreach ($groups as $group)
-                                            {{-- 🎯 CAMBIO CLAVE: Usa $this->filteredExercises en lugar de $exercises --}}
                                             @php
                                                 $exercisesInGroup = $this->filteredExercises[Str::lower($group)] ?? collect();
                                             @endphp
@@ -92,7 +86,6 @@
                                                     </h3>
 
                                                     <div class="space-y-2 max-h-96 overflow-y-auto pr-2">
-                                                        {{-- Usamos la variable $exercisesInGroup filtrada --}}
                                                         @foreach ($exercisesInGroup as $exercise)
                                                             <div class="flex items-center justify-between p-2 rounded-lg transition duration-150 
                                                                 {{ in_array($exercise->id, $this->selectedRoutineIds) 
@@ -101,22 +94,19 @@
                                                                 
                                                                 <div class="flex items-center space-x-3">
                                                                     
-                                                                    {{-- INICIO: IMAGEN PEQUEÑA (image_path) --}}
                                                                     @if ($exercise->image_path ?? false)
                                                                         <img src="{{ $exercise->image_path }}" alt="{{ $exercise->name }}" class="w-24 h-24 rounded object-cover flex-shrink-0 border border-gray-300 dark:border-gray-600">
                                                                     @else
                                                                         {{-- Icono de Fallback --}}
                                                                         <svg class="w-24 h-24 p-1 text-lime-600 dark:text-lime-400 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded-full" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.588-.388a.375.375 0 1 0 0 .75.375.375 1 0 0-.75ZM18.75 7.5h.008v.008h-.008V7.5ZM12 7.5a.75.75 0 0 1 .75-.75h.008v.008H12a.75.75 0 0 1-.75.75Z" /></svg>
                                                                     @endif
-                                                                    {{-- FIN: IMAGEN PEQUEÑA --}}
 
                                                                     <input 
                                                                         type="checkbox" 
                                                                         wire:click="toggleExercise({{ $exercise->id }})" 
                                                                         id="exercise-{{ $exercise->id }}"
-                                                                        {{-- La clave: revisa el array simple de IDs --}}
+                                                                        class="form-checkbox h-5 w-5 !text-lime-600 rounded !border-gray-300 focus:!ring-lime-500 focus:!border-lime-500"
                                                                         {{ in_array($exercise->id, $this->selectedRoutineIds) ? 'checked' : '' }}
-                                                                        class="form-checkbox h-5 w-5 text-lime-600 rounded border-gray-300 focus:ring-lime-500 focus:border-lime-500"
                                                                     >
                                                                     <label for="exercise-{{ $exercise->id }}" class="text-gray-900 dark:text-gray-100 cursor-pointer">
                                                                         {{ $exercise->name }}
@@ -284,7 +274,7 @@
                                 {{ empty($routineName) || count($this->selectedRoutineIds) === 0 ? 'disabled' : '' }}
                             >
                                 <span wire:loading.remove.delay wire:target="saveRoutine">
-                                    3. Guardar Rutina ({{ count($this->selectedRoutineIds) }} Ejercicios)
+                                    Guardar Rutina ({{ count($this->selectedRoutineIds) }} Ejercicios)
                                 </span>
                                 <span wire:loading.delay wire:target="saveRoutine" class="flex items-center justify-center">
                                     <svg class="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -405,5 +395,6 @@
     .remove-number-arrows[type=number] {
         -moz-appearance: textfield; /* Firefox */
     }
+
     </style>
 </div>

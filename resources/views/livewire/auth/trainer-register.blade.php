@@ -121,40 +121,23 @@
                 </div>
             </div>
 
-             <button type="submit"
-                class="mt-6 w-full relative flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-white bg-lime-dark hover:bg-lime-darker focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime transition duration-150 ease-in-out"
-                wire:loading.attr="disabled">
-
-                <span wire:loading.class="invisible">
+            <button type="submit"
+                class="mt-6 w-full relative block py-3 px-4 border border-transparent rounded-lg shadow-md text-sm font-bold text-white bg-lime-dark hover:bg-lime-darker focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-lime transition duration-150 ease-in-out"
+                wire:target="save"
+                wire:loading.attr="disabled"> <span wire:loading.class="invisible" wire:target="save">
                     REGISTRAR
                 </span>
                 
-                <span wire:loading class="absolute inset-0 flex items-center justify-center">
-                    <svg class="animate-spin h-5 w-5 text-gray-900 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <span wire:loading wire:target="save" class="absolute inset-0 flex items-center justify-center text-white hidden">
+                    
+                    <svg class="animate-spin h-5 w-5 text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
+                    
                     REGISTRANDO...
                 </span>
             </button>
-            <!-- <button 
-                type="submit"
-                wire:loading.attr="disabled"
-                wire:target="register"  
-                class="w-full inline-flex items-center justify-center px-4 py-3 bg-[#7bcb01] border border-transparent rounded-lg font-bold text-base text-white uppercase tracking-wider hover:bg-[#5aa301] active:bg-[#4a8a01] focus:outline-none focus:ring-2 focus:ring-[#7bcb01] focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-800 transition ease-in-out duration-300 shadow-md hover:shadow-lg">
-
-                <span wire:loading.remove wire:target="register" class="flex items-center justify-center">
-                    Registrar
-                </span>
-
-                <span wire:loading wire:target="register" class="flex items-center justify-center space-x-2">
-                    <svg class="animate-spin h-5 w-5 text-gray-900" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span>Registrando...</span>
-                </span>
-            </button> -->
 
             <div class="text-center pt-2">
                 <a href="{{ route('login') }}" wire:navigate class="text-sm font-medium text-lime hover:text-lime-darker dark:text-lime">
@@ -163,17 +146,4 @@
             </div>
         </form>
     </div>
-    <style>
-        /* 🚫 Oculta cualquier wire:loading al cargar la página */
-        [wire\:loading] {
-            display: none !important;
-        }
-
-        /* ✅ Muestra solo cuando está ejecutando el método register() */
-        [wire\:loading][wire\:target="register"] {
-            display: flex !important;
-        }
-    </style>
-
-
 </div>
