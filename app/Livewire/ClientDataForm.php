@@ -31,7 +31,6 @@ class ClientDataForm extends Component
 
     public $weight = '';
     public $height = '';
-    public $goal = '';
 
     public function mount()
     {
@@ -52,14 +51,11 @@ class ClientDataForm extends Component
             $this->emergency_contact = $user->profile->emergency_contact ?? '';
             $this->weight = $user->profile->weight ?? '';
             $this->height = $user->profile->height ?? '';
-            $this->goal = $user->profile->goal ?? '';
         }
     }
 
     protected function rules()
     {
-        // Obtener el ID del perfil del usuario autenticado para ignorarlo en la comprobación de unicidad
-        // Si el perfil no existe, devuelve null y la regla Rule::unique no ignora nada.
         $profileId = Auth::user()->profile->id ?? null;
         
         return [
@@ -73,7 +69,6 @@ class ClientDataForm extends Component
                     'required', 
                     'string', 
                     'max:30',
-                    // 👇 REGLA DE UNICIDAD MODIFICADA
                     Rule::unique('client_profiles', 'id_number')->ignore($profileId),
                 ],
                 'address' => 'nullable|string|max:500',
@@ -83,14 +78,12 @@ class ClientDataForm extends Component
             3 => [
                 'weight' => 'nullable|numeric|min:1|max:500', 
                 'height' => 'nullable|numeric|min:1|max:300',
-                'goal' => 'required|string|in:Ganar Músculo,Pérdida de Peso,Mejorar Resistencia,Mantenimiento',
             ],
         ];
     }
 
     public function nextStep()
     {
-        // Validar solo las reglas del paso actual antes de avanzar
         $this->validate(array_merge(...array_values([$this->rules()[$this->step]])));
         
         if ($this->step < 3) {
@@ -107,7 +100,6 @@ class ClientDataForm extends Component
 
     public function submitData()
     {
-        // Validar todas las reglas al final
         $allRules = array_merge(...array_values($this->rules()));
         $this->validate($allRules);
 
@@ -126,26 +118,21 @@ class ClientDataForm extends Component
             'emergency_contact' => $this->emergency_contact,
             'weight' => $this->weight,
             'height' => $this->height,
-            'goal' => $this->goal,
         ];
 
-        // Guardar foto de perfil si existe
         if ($this->profile_photo) {
             $profileData['profile_photo_path'] = $this->profile_photo->store('profile_photos', 'public');
         }
 
-        // Esta línea es la que ejecuta el insert/update
         $user->profile()->updateOrCreate(['user_id' => $user->id], $profileData);
 
         session()->flash('success', '¡Datos guardados! Tu perfil ha sido completado y está pendiente de verificación.');
         
-        // Redirigir después de guardar (asumiendo que ahora debe ir a la espera de verificación)
         return redirect()->route('verification.pending');
     }
 
     public function render()
     {
-        // El layout con el sidebar se aplicará automáticamente gracias a $this->layout
         return view('livewire.client-data-form');
     }
 }

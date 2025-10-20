@@ -14,7 +14,6 @@ class ClientProfile extends Model
      */
     protected $fillable = [
         'user_id', 
-        'goal',
         'last_name',
         'weight',
         'height',
@@ -26,7 +25,6 @@ class ClientProfile extends Model
         'address',
         'id_number',
 
-        // Asegúrate de que todos los campos que guardas en el formulario estén aquí.
     ];
 
     /**

@@ -203,27 +203,7 @@
                             @enderror
                         </div>
 
-                        <!-- Objetivo Fitness -->
-                        <div>
-                            <flux:label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Objetivo Fitness
-                            </flux:label>
-                            <flux:select
-                                wire:model="goal"
-                                class="mt-2 block w-full rounded-lg border border-[#7bcb01] shadow-sm
-                                    focus:border-[#7bcb01] focus:ring-[#7bcb01]
-                                    dark:bg-[#1a1a1a]/95 dark:border-[#7bcb01] dark:text-white"
-                            >
-                                <option value="">Selecciona tu objetivo</option>
-                                <option value="Perder Peso">Perder Peso</option>
-                                <option value="Ganar Músculo">Ganar Músculo</option>
-                                <option value="Mejorar Resistencia">Mejorar Resistencia</option>
-                                <option value="Mantenimiento">Mantenimiento</option>
-                            </flux:select>
-                            @error('goal')
-                                <span class="text-xs text-red-500">{{ $message }}</span>
-                            @enderror
-                        </div>
+                        
                     </div>
                 @endif
 

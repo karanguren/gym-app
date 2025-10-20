@@ -59,15 +59,24 @@ new #[Layout('components.layouts.auth')] class extends Component {
             return;
         }
 
-        // 2. Redirigir a Administrador
         if ($user->isAdmin()) {
             $this->redirect(route('admin.dashboard', absolute: false), navigate: true);
             return;
         }
         
-        // 3. Redirección por defecto: Cliente
-        // La ruta 'dashboard' maneja la lógica de perfil/verificación del cliente (routes/web.php).
-        $this->redirectIntended(default: route('profile.setup', absolute: false), navigate: true);
+        if (! $user->profile) {
+            $this->redirect(route('profile.setup', absolute: false), navigate: true);
+            return;
+        }
+
+        $clientProfile = $user->profile;
+
+        if (! $clientProfile->is_verified) {
+            $this->redirect(route('verification.pending', absolute: false), navigate: true);
+            return;
+        }
+
+        $this->redirectIntended(default: route('client.dashboard', absolute: false), navigate: true);
     }
 
     /**

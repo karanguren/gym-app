@@ -13,7 +13,7 @@ class ExerciseSeeder extends Seeder
     public function run(): void
     {
         // Limpiar la tabla antes de insertar
-        DB::table('exercises')->truncate();
+        // DB::table('exercises')->truncate();
 
         $exercises = [
             // --- TREN SUPERIOR: PECHO ---
