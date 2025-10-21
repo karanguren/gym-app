@@ -6,9 +6,10 @@ use Livewire\Component;
 use Livewire\Attributes\Computed;
 use App\Models\Exercise;
 use App\Models\Routine;
+use App\Models\RoutineExercise; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str; // 🎯 Importar la clase Str para la lógica de búsqueda
+use Illuminate\Support\Str;
 
 class RoutineBuilder extends Component
 {
@@ -16,17 +17,15 @@ class RoutineBuilder extends Component
     public string $layout = 'layouts.app'; 
     public string $routineName = '';
 
-    // 🎯 NUEVA PROPIEDAD: Para el campo de búsqueda en la vista
     public string $searchQuery = ''; 
     
-    // Propiedad que almacena todos los ejercicios (cargada en mount)
     public ?Collection $exercises = null; 
 
-    // Propiedad que se sincronizará con la propiedad computada selectedRoutineIds
     public array $selectedRoutineIds = [];
 
     /**
-     * ESTRUCTURA CLAVE: Almacena los sets y reps/kg por ejercicio.
+     * ESTRUCTURA CLAVE: Almacena los arrays de sets/reps/kg por ejercicio.
+     * Ejemplo: [exercise_id => [ ['reps' => 10, 'kg' => 60], ['reps' => 8, 'kg' => 65] ]]
      */
     public array $routineData = []; 
 
@@ -47,8 +46,7 @@ class RoutineBuilder extends Component
      * Carga los ejercicios una única vez al montar.
      */
     public function mount(): void
-     {
-        // Carga y agrupa todos los ejercicios por muscle_group.
+    {
         $this->exercises = Exercise::orderBy('muscle_group')
                                    ->get()
                                    ->groupBy('muscle_group')
@@ -57,10 +55,6 @@ class RoutineBuilder extends Component
 
     // --- PROPIEDADES COMPUTADAS ---
 
-    /**
-     * Propiedad Computada: Devuelve el array de ejercicios filtrados por $searchQuery.
-     * Esta es la colección que la vista 'selector' debe recorrer.
-     */
     #[Computed]
     public function filteredExercises(): Collection
     {
@@ -73,15 +67,11 @@ class RoutineBuilder extends Component
         $search = Str::lower($this->searchQuery);
         $filteredExercises = collect();
 
-        // Itera sobre los grupos (ej. 'pecho', 'espalda')
         foreach ($allExercises as $groupKey => $exercisesInGroup) {
-            // Filtra los ejercicios dentro del grupo
             $filtered = $exercisesInGroup->filter(function ($exercise) use ($search) {
-                // Comprueba si el nombre del ejercicio contiene la búsqueda
                 return Str::contains(Str::lower($exercise->name), $search);
             });
             
-            // Si el grupo filtrado no está vacío, lo añade al resultado.
             if ($filtered->isNotEmpty()) {
                 $filteredExercises->put($groupKey, $filtered);
             }
@@ -91,27 +81,19 @@ class RoutineBuilder extends Component
     }
 
 
-    /**
-     * Propiedad Computada: Devuelve solo los IDs de los ejercicios seleccionados
-     * (claves de $routineData). Usado para la vista y validación.
-     * @return array
-     */
     #[Computed]
     public function selectedRoutineIds(): array
     {
-        // Obtiene los IDs de los ejercicios seleccionados
         return array_keys($this->routineData);
     }
 
     #[Computed]
     public function selectedExercisesDetails(): Collection
     {
-        // Si la vista es 'selector' o no hay IDs, devolvemos una colección vacía para no hacer consultas innecesarias.
         if ($this->currentView === 'selector' || empty($this->selectedRoutineIds)) {
             return collect();
         }
         
-        // Solo se ejecuta esta consulta si la vista es 'routine' y si $selectedRoutineIds ha cambiado.
         return Exercise::whereIn('id', $this->selectedRoutineIds)
             ->get()
             ->keyBy('id');
@@ -124,32 +106,25 @@ class RoutineBuilder extends Component
         return [
             'routineName' => 'required|string|min:3|max:100',
             'routineData' => 'required|array|min:1', 
-            'routineData.*.*.reps' => 'required|integer|min:1|max:500',
+            'routineData.*.*.reps' => 'required|integer|min:1|max:500', 
             'routineData.*.*.kg' => 'nullable|numeric|min:0|max:5000', 
         ];
     }
     
-    // --- MÉTODOS DE INTERACCIÓN (sin cambios en su funcionalidad) ---
+    // --- MÉTODOS DE INTERACCIÓN ---
 
     public function toggleExercise(int $exerciseId): void
     {
         $id = $exerciseId;
 
-        if (in_array($id, $this->selectedRoutineIds)) {
-            // --- 1. DESELECCIONAR (Quitar) ---
-            $this->selectedRoutineIds = array_values(array_diff($this->selectedRoutineIds, [$id]));
+        if (isset($this->routineData[$id])) {
             unset($this->routineData[$id]);
-
         } else {
-            // --- 2. SELECCIONAR (Añadir) ---
-            $this->selectedRoutineIds[] = $id;
-
-            if (!isset($this->routineData[$id])) {
-                $this->routineData[$id] = [
-                    ['reps' => 10, 'kg' => 0] 
-                ];
-            }
+            $this->routineData[$id] = [
+                ['reps' => 10, 'kg' => 0] 
+            ];
         }
+        $this->selectedRoutineIds = array_keys($this->routineData);
     }
 
     public function addSet($exerciseId): void
@@ -168,6 +143,7 @@ class RoutineBuilder extends Component
             
             if (empty($this->routineData[$exerciseId])) {
                 unset($this->routineData[$exerciseId]);
+                $this->selectedRoutineIds = array_keys($this->routineData);
             }
         }
     }
@@ -196,26 +172,50 @@ class RoutineBuilder extends Component
         $this->selectedExerciseDetails = null;
     }
 
-    // --- GUARDAR RUTINA ---
+    // --- GUARDAR RUTINA (LÓGICA ACTUALIZADA) ---
 
     /**
-     * Guarda la rutina, limpia el estado y redirige al dashboard.
+     * Guarda la rutina principal y sus ejercicios planificados en routine_exercises.
      */
     public function saveRoutine(): void
     {
         $this->validate(); 
 
         try {
+            // 1. Crear el registro principal en la tabla `routines`
             $routine = Routine::create([
                 'user_id' => Auth::id(),
                 'name' => $this->routineName,
-                'exercise_ids' => $this->routineData, 
-                'notes' => 'Rutina creada por el cliente a través del Constructor de Rutinas.',
             ]);
+
+            $routineExercisesData = [];
+            $order = 1;
+
+            // 2. Preparar los datos para la inserción en la tabla `routine_exercises`
+            foreach ($this->routineData as $exerciseId => $sets) {
+                
+                $targetSets = count($sets); 
+                $firstSet = $sets[0] ?? ['reps' => 10, 'kg' => 0.0];
+                
+                $routineExercisesData[] = [
+                    'routine_id'    => $routine->id,
+                    'exercise_id'   => $exerciseId,
+                    'order'         => $order++,
+                    // Usando los nombres de columna de tu B.D.: sets_target y reps_target
+                    'sets_target'   => $targetSets, 
+                    'reps_target'   => $firstSet['reps'], 
+                    'weight_target' => $firstSet['kg'],
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ];
+            }
+
+            // 3. Inserción masiva del plan de ejercicios
+            RoutineExercise::insert($routineExercisesData);
 
             session()->flash('success', '¡Rutina "' . $routine->name . '" guardada exitosamente! Puedes consultarla en tu Dashboard.');
             
-            $this->redirect(route('dashboard'), navigate: true); 
+            $this->redirect(route('client.routines'), navigate: true); 
 
         } catch (\Exception $e) {
             session()->flash('error', 'Hubo un error al guardar la rutina. Intenta de nuevo. (Detalles: ' . $e->getMessage() . ')');
@@ -227,9 +227,7 @@ class RoutineBuilder extends Component
      */
      public function render()
     {
-        // Carga los detalles de los ejercicios seleccionados
         return view('livewire.routine-builder', [
-            // 🎯 CAMBIO: Pasamos la propiedad COMPUTADA 'filteredExercises' a la vista
             'exercises' => $this->filteredExercises, 
             'selectedExercisesDetails' => $this->selectedExercisesDetails, 
         ])->title('Arma tu Rutina'); 
