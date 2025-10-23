@@ -5,7 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Collection; // Importar Collection para el retorno de tipo
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Routine extends Model
 {
@@ -14,17 +15,29 @@ class Routine extends Model
     protected $fillable = [
         'user_id',
         'name',
-        'exercise_ids',
         'notes',
     ];
 
+
+    protected $appends = ['exercises_count'];
+
+    // ------------------------------------------------------------------
+    // ACCESORES
+    // ------------------------------------------------------------------
+
     /**
-     * El casting es esencial para que 'exercise_ids' se maneje como un array
-     * automáticamente por Eloquent.
+     * Accesor para obtener el número de ejercicios en la rutina.
+     * @return int
      */
-    protected $casts = [
-        'exercise_ids' => 'array',
-    ];
+    public function getExercisesCountAttribute(): int
+    {
+        // Usa la relación para contar las filas en routine_exercises
+        return $this->routineExercises()->count();
+    }
+
+    // ------------------------------------------------------------------
+    // RELACIONES
+    // ------------------------------------------------------------------
 
     /**
      * Relación: Una rutina pertenece a un usuario (cliente).
@@ -35,21 +48,23 @@ class Routine extends Model
     }
 
     /**
-     * Relación: Obtiene los objetos Exercise asociados a esta rutina.
-     * Esto permite cargar los detalles de los ejercicios de la DB.
-     * @return Collection
+     * Relación: Una rutina tiene muchos RoutineExercise (el pivote que guarda sets/reps).
      */
-    public function exercises(): Collection
+    public function routineExercises(): HasMany
     {
-        $exerciseIds = $this->exercise_ids;
-        
-        // 🎯 CORRECCIÓN CLAVE: Si exercise_ids es NULL o un array vacío,
-        // devolvemos una colección vacía. Esto evita el TypeError.
-        if (empty($exerciseIds)) {
-            return Collection::make();
-        }
+        // Ordena por la columna 'order' de la tabla intermedia
+        return $this->hasMany(RoutineExercise::class)->orderBy('order');
+    }
 
-        // Si tenemos IDs válidos, procedemos con la consulta.
-        return Exercise::whereIn('id', $exerciseIds)->get();
+    /**
+     * CRÍTICO: Relación BelongsToMany para acceder a la tabla pivote y sus datos.
+     * Esto asegura que los modelos Exercise tengan la propiedad ->pivot.
+     */
+    public function exercises(): BelongsToMany
+    {
+       return $this->belongsToMany(Exercise::class, 'routine_exercises')
+                    ->withPivot('target_sets', 'target_reps', 'target_weight', 'order', 'sets_details')
+                    ->withTimestamps()
+                    ->orderBy('routine_exercises.order');
     }
 }

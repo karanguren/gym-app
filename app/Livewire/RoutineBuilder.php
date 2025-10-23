@@ -25,7 +25,7 @@ class RoutineBuilder extends Component
 
     /**
      * ESTRUCTURA CLAVE: Almacena los arrays de sets/reps/kg por ejercicio.
-     * Ejemplo: [exercise_id => [ ['reps' => 10, 'kg' => 60], ['reps' => 8, 'kg' => 65] ]]
+     * Ejemplo: [exercise_id => [ ['reps' => 12, 'kg' => 40], ['reps' => 10, 'kg' => 45] ]]
      */
     public array $routineData = []; 
 
@@ -48,9 +48,12 @@ class RoutineBuilder extends Component
     public function mount(): void
     {
         $this->exercises = Exercise::orderBy('muscle_group')
-                                   ->get()
-                                   ->groupBy('muscle_group')
-                                   ->collect(); 
+                                       ->get()
+                                       ->groupBy('muscle_group')
+                                       ->collect(); 
+        
+        // Inicializa routineData si es necesario, por ejemplo, si se está editando
+        // Si no es edición, se mantiene como array vacío.
     }
 
     // --- PROPIEDADES COMPUTADAS ---
@@ -106,6 +109,7 @@ class RoutineBuilder extends Component
         return [
             'routineName' => 'required|string|min:3|max:100',
             'routineData' => 'required|array|min:1', 
+            // Validamos que cada set tenga reps y kg válidos
             'routineData.*.*.reps' => 'required|integer|min:1|max:500', 
             'routineData.*.*.kg' => 'nullable|numeric|min:0|max:5000', 
         ];
@@ -120,8 +124,9 @@ class RoutineBuilder extends Component
         if (isset($this->routineData[$id])) {
             unset($this->routineData[$id]);
         } else {
+            // Inicializa con un set por defecto
             $this->routineData[$id] = [
-                ['reps' => 10, 'kg' => 0] 
+                ['reps' => 10, 'kg' => 0.0] 
             ];
         }
         $this->selectedRoutineIds = array_keys($this->routineData);
@@ -129,7 +134,15 @@ class RoutineBuilder extends Component
 
     public function addSet($exerciseId): void
     {
-        $this->routineData[(int)$exerciseId][] = ['reps' => 10, 'kg' => 0];
+        // Usa el último set ingresado como valor por defecto para el nuevo set
+        $lastSetIndex = count($this->routineData[(int)$exerciseId]) - 1;
+        $lastSet = $this->routineData[(int)$exerciseId][$lastSetIndex];
+
+        // Añade el nuevo set
+        $this->routineData[(int)$exerciseId][] = [
+            'reps' => $lastSet['reps'] - 2 > 0 ? $lastSet['reps'] - 2 : $lastSet['reps'], // Sugerencia de drop set
+            'kg' => $lastSet['kg'] + 5.0, // Sugerencia de pirámide ascendente
+        ];
     }
 
     public function removeSet($exerciseId, $setIndex): void
@@ -139,8 +152,10 @@ class RoutineBuilder extends Component
         if (isset($this->routineData[$exerciseId]) && isset($this->routineData[$exerciseId][$setIndex])) {
             unset($this->routineData[$exerciseId][$setIndex]);
             
+            // Reindexar el array para evitar problemas en Livewire/Blade
             $this->routineData[$exerciseId] = array_values($this->routineData[$exerciseId]);
             
+            // Si no quedan sets, elimina el ejercicio de la rutina
             if (empty($this->routineData[$exerciseId])) {
                 unset($this->routineData[$exerciseId]);
                 $this->selectedRoutineIds = array_keys($this->routineData);
@@ -172,10 +187,11 @@ class RoutineBuilder extends Component
         $this->selectedExerciseDetails = null;
     }
 
-    // --- GUARDAR RUTINA (LÓGICA ACTUALIZADA) ---
+    // --- GUARDAR RUTINA (LÓGICA ACTUALIZADA PARA SETS VARIABLES) ---
 
     /**
      * Guarda la rutina principal y sus ejercicios planificados en routine_exercises.
+     * Ahora utiliza JSON para guardar los detalles individuales de cada set.
      */
     public function saveRoutine(): void
     {
@@ -197,14 +213,20 @@ class RoutineBuilder extends Component
                 $targetSets = count($sets); 
                 $firstSet = $sets[0] ?? ['reps' => 10, 'kg' => 0.0];
                 
+                // *** CAMBIO CRUCIAL: SERIALIZACIÓN A JSON ***
+                $setsDetailsJson = json_encode($sets);
+                
                 $routineExercisesData[] = [
                     'routine_id'    => $routine->id,
                     'exercise_id'   => $exerciseId,
                     'order'         => $order++,
-                    // Usando los nombres de columna de tu B.D.: sets_target y reps_target
+                    // sets_target: Cuenta total de sets
                     'sets_target'   => $targetSets, 
+                    // Estos dos campos se mantienen por convención o fallback (usan el primer set)
                     'reps_target'   => $firstSet['reps'], 
                     'weight_target' => $firstSet['kg'],
+                    // *** NUEVO CAMPO: Detalles de cada set (incluye todas las reps/kg) ***
+                    'sets_details'  => $setsDetailsJson,
                     'created_at'    => now(),
                     'updated_at'    => now(),
                 ];
@@ -219,13 +241,14 @@ class RoutineBuilder extends Component
 
         } catch (\Exception $e) {
             session()->flash('error', 'Hubo un error al guardar la rutina. Intenta de nuevo. (Detalles: ' . $e->getMessage() . ')');
+            // Log::error($e->getMessage()); // Descomentar para debugging
         }
     }
 
     /**
      * Renderiza la vista del componente.
      */
-     public function render()
+    public function render()
     {
         return view('livewire.routine-builder', [
             'exercises' => $this->filteredExercises, 

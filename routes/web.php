@@ -13,11 +13,13 @@ use App\Livewire\Auth\TrainerRegister;
 use App\Livewire\Employee\EmployeeDashboard;
 use App\Livewire\Employee\EmployeeProfileSetupForm; 
 use App\Livewire\RoutineBuilder; 
-// use App\Livewire\Trainer\TrainerDashboard; // 🎯 NUEVA IMPORTACIÓN (Asumiendo que existe)
-// use App\Livewire\Nutrition\NutritionDashboard; // 🎯 NUEVA IMPORTACIÓN (Asumiendo que existe) 
+use App\Livewire\ClientRoutines;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; 
 use Livewire\Volt\Volt; 
+use App\Livewire\RoutineWorkout;
+
+
 
 // ------------------------------------------------------------------
 // 🏠 RUTA PRINCIPAL
@@ -89,9 +91,18 @@ Route::middleware(['auth', 'verified', 'role:cliente'])->group(function () {
     // 3. RUTA DEL DASHBOARD ESPECÍFICO DEL CLIENTE (Mantiene tu componente Dashboard.php)
     Route::get('/client/dashboard', Dashboard::class)->name('client.dashboard'); 
 
+    // 🎯 AÑADIDA: Ruta para listar las rutinas del cliente
+    Route::get('/mis-rutinas', ClientRoutines::class)
+        ->name('client.routines');
+
     Route::get('/armar-rutina', RoutineBuilder::class)->name('client.routine-builder');
 
     Volt::route('/routine-builder', 'routine-builder')->name('routine.builder');
+
+    // 🎯 CORREGIDA: Ajustada para usar un slug más claro y evitar conflictos
+    Route::get('/rutinas/{routine}/entrenar', RoutineWorkout::class)
+    ->name('routine.workout')
+    ->middleware('auth'); // El middleware ya está en el grupo, pero se deja por claridad
     
     // RUTAS DE CONFIGURACIÓN DEL USUARIO
     Route::redirect('settings', 'settings/profile');

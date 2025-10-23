@@ -5,12 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
-// Usamos 'Pivot' en lugar de 'Model' ya que esta es una tabla intermedia/pivote
 class RoutineExercise extends Pivot 
 {
     use HasFactory;
 
-    // Aunque extiende Pivot, definir la tabla es buena práctica si el nombre no sigue la convención
     protected $table = 'routine_exercises'; 
 
     protected $fillable = [
@@ -20,9 +18,13 @@ class RoutineExercise extends Pivot
         'target_sets',
         'target_reps',
         'target_weight',
+        'sets_details',
     ];
 
-    // Opcional: Relaciones de conveniencia
+    protected $casts = [
+        'sets_details' => 'array', 
+    ];
+
     public function routine()
     {
         return $this->belongsTo(Routine::class);
