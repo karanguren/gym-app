@@ -2,18 +2,19 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Livewire\ClientDataForm;
+use App\Livewire\ClientProgress;
+use App\Livewire\RoutineBuilder; 
+use App\Livewire\ClientRoutines;
 use App\Livewire\Admin\AdminLogin;
-use App\Livewire\Admin\ClientManagement;
-use App\Livewire\Admin\EmployeeManagement;
 use App\Livewire\Admin\PostManagement;
 use App\Livewire\Admin\DashboardSummary;
+use App\Livewire\Admin\ClientManagement;
+use App\Livewire\Admin\EmployeeManagement;
 use App\Livewire\Pages\Dashboard;
 use App\Livewire\Pages\VerificationPending;
 use App\Livewire\Auth\TrainerRegister;
 use App\Livewire\Employee\EmployeeDashboard;
 use App\Livewire\Employee\EmployeeProfileSetupForm; 
-use App\Livewire\RoutineBuilder; 
-use App\Livewire\ClientRoutines;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; 
 use Livewire\Volt\Volt; 
@@ -103,6 +104,9 @@ Route::middleware(['auth', 'verified', 'role:cliente'])->group(function () {
     Route::get('/rutinas/{routine}/entrenar', RoutineWorkout::class)
     ->name('routine.workout')
     ->middleware('auth'); // El middleware ya está en el grupo, pero se deja por claridad
+
+    // Ruta para ver el progreso y las estadísticas del cliente
+    Route::get('/client/progress', ClientProgress::class)->name('client.progress');
     
     // RUTAS DE CONFIGURACIÓN DEL USUARIO
     Route::redirect('settings', 'settings/profile');

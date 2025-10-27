@@ -1,193 +1,322 @@
-<div x-data="{ 
-        // 1. Añadir estado para el modal de salida
-        showExitModal: false 
+<div class="py-6 sm:py-12" 
+    x-data="{ 
+        showFinalizeModal: false, 
+        toast: { show: false, message: '', type: 'success' },
+        showToast(data) {
+            this.toast.message = data.message;
+            this.toast.type = data.type || 'success';
+            this.toast.show = true;
+            setTimeout(() => { this.toast.show = false; }, 3000);
+        }
     }" 
-    @keydown.escape.window="showExitModal = false" 
-    class="py-6 sm:py-12"
-    
-    wire:poll.1000ms.{{ $isRunning ? '' : 'off' }}="updateTimer"
->
+    x-init="@this.on('show-toast', (event) => showToast(event[0]))" 
+    x-cloak>
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-
-        @if (session()->has('success') || session()->has('error') || session()->has('info') || session()->has('warning'))
+        
+        @if (session()->has('success') || session()->has('error') || session()->has('warning'))
             <div class="p-4 mb-4 text-sm rounded-lg 
                 @if (session()->has('success')) text-green-800 bg-green-50 dark:bg-green-900/50 dark:text-green-300 @endif
                 @if (session()->has('error')) text-red-800 bg-red-50 dark:bg-red-900/50 dark:text-red-300 @endif
-                @if (session()->has('info')) text-blue-800 bg-blue-50 dark:bg-blue-900/50 dark:text-blue-300 @endif
                 @if (session()->has('warning')) text-yellow-800 bg-yellow-50 dark:bg-yellow-900/50 dark:text-yellow-300 @endif" role="alert">
-                {{ session('success') ?? session('error') ?? session('info') ?? session('warning') }}
+                {{ session('success') ?? session('error') ?? session('warning') }}
             </div>
         @endif
-        
+
+
         <a href="{{ route('client.routines') }}" class="text-lime-600 hover:text-lime-700 dark:text-lime-400 dark:hover:text-lime-300 transition duration-150 mb-4 inline-flex items-center text-sm font-medium">
-             <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
             Volver a Rutinas
         </a>
 
-        <div class="bg-white/90 dark:bg-[#1a1a1a]/95 shadow-2xl sm:rounded-xl p-6 md:p-10">
-            
-            <header class="mb-8 border-b dark:border-gray-700 pb-4 flex justify-between items-center">
+        <div class="bg-white/95 dark:bg-[#1a1a1a]/95 shadow-2xl sm:rounded-xl p-6 md:p-10">
+
+            <header class="mb-8 border-b dark:border-gray-700 pb-4">
+                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-[#7bcb01] flex items-center">
+                    <svg class="w-8 h-8 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12l6-4.5 6 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 21v-9z"/><path d="M9 11v6"/><path d="M12 9v8"/><path d="M15 11v6"/></svg>
+                    Entrenando: {{ $routine->name }}
+                </h1>
+                <p class="mt-1 text-gray-600 dark:text-gray-400">
+                    Registra tu progreso set por set. ¡Buena suerte con tu entrenamiento!
+                </p>
+            </header>
+
+            {{-- Cronómetro y Controles --}}
+            <div class="flex flex-col sm:flex-row items-center justify-between p-4 mb-8 bg-gray-50 dark:bg-gray-800 rounded-xl shadow-inner border dark:border-gray-700">
                 
-                <div class="flex flex-col">
-                    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-[#7bcb01]">
-                        Entrenamiento: {{ $routine->name }}
-                    </h1>
-                    <p class="mt-1 text-gray-600 dark:text-gray-400 text-sm italic">
-                        Iniciado por: {{ $routine->user->name ?? 'Cliente' }}
-                    </p>
+                {{-- Tiempo --}}
+                <div class="text-5xl font-mono font-bold dark:text-white mb-4 sm:mb-0">
+                    <span wire:poll.visible.1000ms="updateTimer">{{ $this->formattedTime }}</span>
                 </div>
-                
-                {{-- CRONÓMETRO Y CONTROLES --}}
-                <div class="flex items-center space-x-4">
-                    <div class="text-3xl font-mono font-bold text-gray-800 dark:text-white">
-                        {{ $this->formattedTime }}
-                    </div>
-                    
+
+                {{-- Controles --}}
+                <div class="flex space-x-3">
                     @if (!$isRunning)
-                        <button wire:click="startTimer" wire:loading.attr="disabled"
-                            class="px-4 py-2 bg-lime-600 text-white font-semibold rounded-lg shadow-md hover:bg-lime-700 transition duration-150 disabled:opacity-50">
-                            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v18l14-9L5 3z"></path></svg>
-                            Iniciar
+                        <button wire:click="startTimer" type="button" class="flex items-center bg-[#7bcb01] hover:bg-[#5aa301] text-white font-bold py-3 px-6 rounded-full transition duration-300 shadow-lg">
+                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            @if ($seconds > 0)
+                                Reanudar
+                            @else
+                                Iniciar
+                            @endif
                         </button>
                     @else
-                        <button wire:click="pauseTimer" wire:loading.attr="disabled"
-                            class="px-4 py-2 bg-yellow-600 text-white font-semibold rounded-lg shadow-md hover:bg-yellow-700 transition duration-150 disabled:opacity-50">
-                            <svg class="w-5 h-5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <button wire:click="pauseTimer" type="button" class="flex items-center bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 shadow-lg">
+                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                             Pausar
                         </button>
                     @endif
-                    
-                    <button @click="showExitModal = true"
-                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition duration-150">
+
+                    <!-- <button @click="showFinalizeModal = true" type="button" class="flex items-center bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full transition duration-300 shadow-lg disabled:opacity-50" @if(!$isRunning && $seconds == 0) disabled @endif>
+                        <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3l-2.4-2.4c-.2-.2-.5-.3-.7-.3H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V9.4c0-.3-.1-.5-.3-.7l-2.4-2.4z"/><path d="M12 18v-6h6"/></svg>
                         Finalizar
+                    </button> -->
+                    <button @click="showFinalizeModal = true"
+                            type="button" 
+                            class="flex items-center py-3 px-6 rounded-full text-white transition duration-300 
+                            @if ($this->isEverySetCompleted) bg-[#7bcb01] hover:bg-[#5aa301] @else bg-gray-500 cursor-not-allowed opacity-70 @endif"
+                            title="Finalizar Entrenamiento"
+                            @disabled(!$this->isEverySetCompleted)> 
+                            <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                            Finalizar
                     </button>
                 </div>
-            </header>
+            </div>
 
-            {{-- Lista de Ejercicios y Sets --}}
-            <div class="space-y-8">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4 border-b dark:border-gray-700 pb-2">
-                    Ejercicios
-                </h2>
 
-                @foreach ($routine->routineExercises as $re)
+            {{-- Listado de Ejercicios y Progreso --}}
+            <div class="space-y-10">
+                @foreach ($routineExercises as $index => $routineExercise) 
                     @php
-                        $sets = $workoutData[$re->id] ?? [];
+                        // Obtenemos el ID del ejercicio de la rutina para usarlo como clave en workoutData
+                        $reId = $routineExercise->id;
+                        $exerciseName = $routineExercise->exercise->name ?? 'Ejercicio Desconocido';
+                        $muscleGroup = $routineExercise->exercise->muscle_group ?? 'N/A';
+                        
+                        // Fallback de sets: Si $workoutData no tiene sets para este RE_ID, inicializa con el target básico
+                        $sets = $workoutData[$reId] ?? [
+                            [
+                                'target_reps' => $routineExercise->target_reps ?? 10,
+                                'target_kg' => $routineExercise->target_weight ?? 0.0,
+                                'done' => false,
+                                'result_reps' => $routineExercise->target_reps ?? 10,
+                                'result_kg' => $routineExercise->target_weight ?? 0.0,
+                            ]
+                        ];
                     @endphp
 
-                    <div class="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-lg border-l-4 border-lime-600/70">
-                        <h3 class="text-xl font-bold text-gray-900 dark:text-lime-400 mb-3 flex justify-between items-center">
-                            <span>{{ $re->order }}. {{ $re->exercise->name }}</span>
-                            <span class="text-sm font-normal text-gray-500 dark:text-gray-400 capitalize">
-                                Grupo: {{ $re->exercise->muscle_group }}
-                            </span>
-                        </h3>
-
-                        {{-- Contenedor de Sets --}}
-                        <div class="space-y-2 border-t dark:border-gray-700 pt-3">
-                            @forelse ($sets as $setIndex => $set)
-                                <div class="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 p-3 rounded-lg transition duration-150 
-                                     {{ $set['done'] ? 'bg-lime-100 dark:bg-lime-900/50 border border-lime-500/70' : 'bg-gray-50 dark:bg-gray-700/50' }}">
-                                    
-                                    {{-- Indicador de Set --}}
-                                    <span class="font-bold w-full sm:w-16 flex-shrink-0 text-sm {{ $set['done'] ? 'text-lime-700 dark:text-lime-300' : 'text-gray-600 dark:text-gray-200' }}">
-                                        Set {{ $setIndex + 1 }}
-                                    </span>
-                                    
-                                    {{-- Repeticiones/Peso Planificado --}}
-                                    <div class="flex-1 text-sm text-gray-600 dark:text-gray-300 hidden sm:block">
-                                        Plan: 
-                                        <span class="font-semibold">{{ $set['target_reps'] }}</span> Reps @ 
-                                        <span class="font-semibold">{{ $set['target_kg'] }}</span> KG
-                                    </div>
-                                    
-                                    {{-- Inputs de Resultado (Para Edición) --}}
-                                    <div class="flex items-center space-x-3 flex-wrap">
-                                        <label class="text-xs text-gray-500 dark:text-gray-400">
-                                            Reps
-                                            <input type="number" step="1" 
-                                                wire:model.live="workoutData.{{ $re->id }}.{{ $setIndex }}.result_reps"
-                                                class="remove-number-arrows w-16 p-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600 focus:ring-lime-500 focus:border-lime-500"
-                                            >
-                                        </label>
-                                        <label class="text-xs text-gray-500 dark:text-gray-400">
-                                            KG
-                                            <input type="number" step="0.5" 
-                                                wire:model.live="workoutData.{{ $re->id }}.{{ $setIndex }}.result_kg"
-                                                class="remove-number-arrows w-16 p-1 text-sm border rounded dark:bg-gray-700 dark:border-gray-600 focus:ring-lime-500 focus:border-lime-500"
-                                            >
-                                        </label>
-                                    </div>
-
-                                    {{-- Botones de Acción --}}
-                                    <div class="flex items-center space-x-2">
-                                        
-                                        <button wire:click="removeSet({{ $re->id }}, {{ $setIndex }})"
-                                            class="text-red-500 hover:text-red-700 p-1 rounded-full transition"
-                                            title="Eliminar set">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                        
-                                        {{-- Botón de Set Completado --}}
-                                        <button wire:click="toggleSetCompleted({{ $re->id }}, {{ $setIndex }})"
-                                            class="text-xs px-3 py-1 rounded font-semibold transition duration-150 
-                                                   {{ $set['done'] ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-lime-500 hover:bg-lime-600 text-white' }}">
-                                            {{ $set['done'] ? 'Deshacer' : 'Completado' }}
-                                        </button>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-sm text-gray-500 italic p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">No hay sets planificados para este ejercicio.</p>
-                            @endforelse
-                        </div>
+                    <div id="exercise-{{ $reId }}" class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
                         
-                        {{-- Botón para Añadir Set --}}
-                        <div class="mt-4">
-                            <button wire:click="addSet({{ $re->id }})"
-                                class="text-xs px-3 py-1 border border-lime-300 bg-lime-100 dark:bg-lime-800 text-lime-700 dark:text-lime-200 rounded hover:bg-lime-200 dark:hover:bg-lime-700 transition font-medium">
-                                + Añadir Set Extra
+                        {{-- Cabecera del Ejercicio --}}
+                        <div class="flex justify-between items-start mb-4 border-b pb-3 dark:border-gray-700">
+                            <div>
+                                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+                                    {{ $index + 1 }}. {{ $exerciseName }}
+                                </h2>
+                                <p class="text-sm font-medium text-lime-600 dark:text-lime-400 uppercase">
+                                    {{ $muscleGroup }}
+                                </p>
+                            </div>
+                            <button wire:click="showInstructions({{ $reId }})" type="button" class="text-sm font-semibold text-gray-500 hover:text-lime-600 dark:text-gray-400 dark:hover:text-lime-500 transition duration-150 p-2 rounded-full">
+                                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
                             </button>
                         </div>
                         
+                        {{-- Tabla de Sets --}}
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead class="bg-gray-50 dark:bg-gray-700">
+                                    <tr>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                                            Set
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                                            Objetivo (Reps x Kg)
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                                            Resultado Reps
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                                            Resultado Kg
+                                        </th>
+                                        <th scope="col" class="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
+                                            Acción
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                    @foreach ($sets as $setIndex => $set)
+                                        <tr wire:key="set-{{ $reId }}-{{ $setIndex }}" class="@if ($set['done']) bg-lime-50/50 dark:bg-gray-900/50 @endif">
+                                            
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                                {{ $setIndex + 1 }}
+                                            </td>
+
+                                            <td class="px-3 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                                                {{ $set['target_reps'] }} Reps x {{ number_format($set['target_kg'], 1) }} Kg
+                                            </td>
+
+                                            {{-- Input Reps --}}
+                                            <td class="px-3 py-3 whitespace-nowrap">
+                                                <input type="number" 
+                                                        wire:model.live.debounce.300ms="workoutData.{{ $reId }}.{{ $setIndex }}.result_reps" 
+                                                        class="w-20 text-center form-input rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm remove-number-arrows" 
+                                                        min="0"
+                                                        placeholder="{{ $set['target_reps'] }}"
+                                                />
+                                            </td>
+
+                                            {{-- Input Kg --}}
+                                            <td class="px-3 py-3 whitespace-nowrap">
+                                                <input type="number" 
+                                                        wire:model.live.debounce.300ms="workoutData.{{ $reId }}.{{ $setIndex }}.result_kg" 
+                                                        class="w-20 text-center form-input rounded-lg border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white text-sm remove-number-arrows" 
+                                                        step="0.5" 
+                                                        min="0"
+                                                        placeholder="{{ number_format($set['target_kg'], 1) }}"
+                                                />
+                                            </td>
+                                            
+                                            {{-- Botones de Acción --}}
+                                            <td class="px-3 py-3 whitespace-nowrap text-right text-sm font-medium flex space-x-2 justify-center items-center">
+                                                
+                                                {{-- Toggle Done --}}
+                                                <button wire:click="toggleSetCompleted({{ $reId }}, {{ $setIndex }})" 
+                                                        type="button" 
+                                                        title="{{ $set['done'] ? 'Marcar como Incompleto' : 'Marcar como Completo' }}"
+                                                        class="p-2 rounded-full transition duration-150 
+                                                                {{ $set['done'] ? 'bg-lime-500 hover:bg-lime-600 text-white shadow-md' : 'bg-gray-200 hover:bg-gray-300 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-300' }}">
+                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                                                </button>
+
+                                                {{-- Botón Eliminar Set --}}
+                                                <button wire:click="confirmRemoveSet({{ $reId }}, {{ $setIndex }})" 
+                                                        type="button" 
+                                                        title="Eliminar Set"
+                                                        class="p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 transition duration-150 dark:bg-red-900/40 dark:hover:bg-red-900/60 dark:text-red-400">
+                                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+                                                </button>
+                                            </td>
+
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- Botón para Añadir Set --}}
+                        <div class="mt-4 flex justify-end">
+                            <button wire:click="addSet({{ $reId }})" type="button" class="flex items-center text-sm font-medium text-lime-600 hover:text-lime-700 dark:text-lime-400 dark:hover:text-lime-300 transition duration-150 p-2 rounded-lg border border-lime-200 dark:border-lime-700/50 hover:bg-lime-50 dark:hover:bg-gray-700/50">
+                                <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                                Añadir Set Extra
+                            </button>
+                        </div>
                     </div>
+
                 @endforeach
             </div>
-            
+
         </div>
-        
-        {{-- 4. MODAL DE CONFIRMACIÓN DE SALIDA --}}
-        <div x-show="showExitModal" x-transition.opacity x-cloak
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div x-show="showExitModal" x-transition.scale.80
-                class="bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl p-6 max-w-sm w-full">
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-4">
-                    ¿Finalizar Entrenamiento?
+
+    </div>
+
+
+    {{-- Modal de INSTRUCCIONES --}}
+    @if ($showInstructionsModal && $selectedExerciseDetails)
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4" @click.self="closeInstructionsModal">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full p-6" @click.stop>
+                <h3 class="text-xl font-bold text-gray-900 dark:text-[#7bcb01] border-b pb-3 mb-4">
+                    Instrucciones: {{ $selectedExerciseDetails['name'] }}
                 </h3>
-                <p class="text-gray-600 dark:text-gray-400 mb-6">
-                    El tiempo registrado es de **{{ $this->formattedTime }}**. ¿Deseas finalizar y guardar (o salir sin guardar)?
-                </p>
-                <div class="flex justify-end space-x-3">
-                    <button @click="showExitModal = false"
-                        class="py-2 px-4 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition">
-                        Cancelar
-                    </button>
-                    <a href="{{ route('client.routines') }}"
-                       class="py-2 px-4 text-gray-700 dark:text-gray-300 rounded-lg transition border border-red-300 hover:bg-red-100 dark:hover:bg-red-900/50">
-                        Salir sin Guardar
-                    </a>
-                    {{-- Llama al método de guardado en el componente --}}
-                    <button wire:click="finishWorkout" 
-                        @click="showExitModal = false"
-                        class="py-2 px-4 bg-lime-600 hover:bg-lime-700 text-white font-bold rounded-lg transition">
-                        Guardar y Terminar
+                <div class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-96 overflow-y-auto">
+                    {!! nl2br(e($selectedExerciseDetails['instructions'])) !!}
+                </div>
+                <div class="mt-6 pt-4 border-t dark:border-gray-700 flex justify-end">
+                    <button wire:click="closeInstructionsModal" type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">
+                        Cerrar
                     </button>
                 </div>
             </div>
         </div>
-        {{-- FIN MODAL --}}
+    @endif
 
+    {{-- Modal de CONFIRMACIÓN DE ELIMINACIÓN DE SET --}}
+    @if ($showDeleteConfirmationModal)
+        <div class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4" @click.self="cancelRemoveSet">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-sm w-full p-6" @click.stop>
+                <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-2">
+                    Confirmar Eliminación
+                </h3>
+                <p class="text-gray-700 dark:text-gray-300 mb-6">
+                    ¿Estás seguro de que deseas eliminar permanentemente el Set #{{ $setIndexToDelete + 1 }}?
+                </p>
+                <div class="flex justify-end space-x-3">
+                    <button wire:click="cancelRemoveSet" type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">
+                        Cancelar
+                    </button>
+                    <button wire:click="removeSet" type="button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                        Sí, Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    {{-- Modal de CONFIRMACIÓN DE FINALIZACIÓN --}}
+    <div x-show="showFinalizeModal" class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4" x-cloak>
+        <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-md w-full p-6" @click.outside="showFinalizeModal = false">
+            
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                Finalizar Entrenamiento
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300 mb-6">
+                ¿Estás seguro de que quieres finalizar este entrenamiento? Se registrará tu progreso y el tiempo total.
+            </p>
+            
+            <div class="flex justify-end space-x-3">
+                <button @click="showFinalizeModal = false" 
+                        type="button" 
+                        class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">
+                    Cancelar
+                </button>
+                {{-- CRÍTICO: Usamos 'finishWorkout' --}}
+                <button wire:click="finishWorkout"
+                        wire:loading.attr="disabled"
+                        @click="showFinalizeModal = false"
+                        type="button" 
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                    Confirmar y Guardar
+                </button>
+            </div>
+        </div>
     </div>
-    
+
+    {{-- CRÍTICO: TOASTER / NOTIFICACIONES LIVEWIRE --}}
+    <div class="fixed bottom-4 right-4 z-[999]" x-cloak>
+        <div x-show="toast.show" 
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 translate-y-2"
+             @click.away="toast.show = false"
+             :class="{
+                 'bg-green-500': toast.type === 'success',
+                 'bg-red-500': toast.type === 'error',
+                 'bg-blue-500': toast.type === 'info',
+                 'bg-yellow-500': toast.type === 'warning'
+             }"
+             class="max-w-xs w-full text-white p-4 rounded-lg shadow-xl font-semibold transform transition duration-300 cursor-pointer flex items-center space-x-3">
+            
+            <svg x-show="toast.type === 'success'" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <svg x-show="toast.type === 'error'" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+            <svg x-show="toast.type === 'info'" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+
+            <span x-text="toast.message" class="flex-grow"></span>
+        </div>
+    </div>
+
     <style>
         .remove-number-arrows::-webkit-outer-spin-button,
         .remove-number-arrows::-webkit-inner-spin-button {

@@ -48,15 +48,47 @@ class RoutineBuilder extends Component
     public function mount(): void
     {
         $this->exercises = Exercise::orderBy('muscle_group')
-                                       ->get()
-                                       ->groupBy('muscle_group')
-                                       ->collect(); 
+                                    ->get()
+                                    ->groupBy('muscle_group')
+                                    ->collect(); 
         
         // Inicializa routineData si es necesario, por ejemplo, si se está editando
         // Si no es edición, se mantiene como array vacío.
     }
 
     // --- PROPIEDADES COMPUTADAS ---
+
+    /**
+     * Verifica si la rutina tiene nombre y al menos un ejercicio con sets válidos.
+     * Esto se usará para habilitar/deshabilitar el botón de guardar.
+     */
+    #[Computed]
+    public function canSaveRoutine(): bool
+    {
+        // 1. Verificar que el nombre no esté vacío
+        if (empty(trim($this->routineName))) {
+            return false;
+        }
+
+        // 2. Verificar que exista al menos un ejercicio en la rutina
+        if (empty($this->routineData)) {
+            return false;
+        }
+
+        // 3. Opcional: Podrías añadir validación aquí para asegurar que todos los sets tienen reps > 0
+        // Aunque la validación final se hace en saveRoutine, es bueno para la UX.
+        foreach ($this->routineData as $sets) {
+            foreach ($sets as $set) {
+                // Si falta reps o es menor a 1, asumimos que la rutina no está lista.
+                if (!isset($set['reps']) || $set['reps'] < 1) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
 
     #[Computed]
     public function filteredExercises(): Collection
