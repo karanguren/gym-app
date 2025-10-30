@@ -5,6 +5,8 @@ use App\Livewire\ClientDataForm;
 use App\Livewire\ClientProgress;
 use App\Livewire\RoutineBuilder; 
 use App\Livewire\ClientRoutines;
+use App\Livewire\TrainerSelection;
+use App\Livewire\RoutineWorkout;
 use App\Livewire\Admin\AdminLogin;
 use App\Livewire\Admin\PostManagement;
 use App\Livewire\Admin\DashboardSummary;
@@ -14,12 +16,11 @@ use App\Livewire\Pages\Dashboard;
 use App\Livewire\Pages\VerificationPending;
 use App\Livewire\Auth\TrainerRegister;
 use App\Livewire\Employee\EmployeeDashboard;
+use App\Livewire\Employee\AssignRoutine;
 use App\Livewire\Employee\EmployeeProfileSetupForm; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; 
 use Livewire\Volt\Volt; 
-use App\Livewire\RoutineWorkout;
-
 
 
 // ------------------------------------------------------------------
@@ -37,8 +38,6 @@ Route::middleware('guest')->group(function () {
     
     // 🎯 Registro dedicado para Staff (Entrenadores/Nutriólogos)
     Route::get('/register/staff', TrainerRegister::class)->name('staff.register');
-    // Puedes crear una ruta similar para Nutriólogos si el registro es diferente:
-    // Route::get('/register/nutriologo', NutriologoRegister::class)->name('nutriologo.register'); 
     
 });
 
@@ -49,16 +48,16 @@ Route::middleware(['auth', 'verified', 'role:administrador'])->prefix('admin')->
     
     Route::get('/dashboard', DashboardSummary::class)->name('admin.dashboard');
     
-    // 1. Gestión de CLIENTES
+    // Gestión de CLIENTES
     Route::get('/clients', ClientManagement::class)->name('admin.clients');
     
-    // 2. Gestión de EMPLEADOS/STAFF (Ahora maneja Trainer y Nutriologo)
+    // Gestión de EMPLEADOS/STAFF 
     Route::get('/employees', EmployeeManagement::class)->name('admin.employees');
     
-    // 3. Ruta de Publicaciones
+    // Ruta de Publicaciones
     Route::get('/posts', PostManagement::class)->name('admin.posts');
 
-    // 4. RUTA DE LOGOUT DEL ADMINISTRADOR (POST para seguridad)
+    // RUTA DE LOGOUT DEL ADMINISTRADOR (POST para seguridad)
     Route::post('/logout', function (Request $request) {
         Auth::guard('web')->logout();
         $request->session()->invalidate();
@@ -76,6 +75,8 @@ Route::middleware(['auth', 'verified', 'role:trainer,nutriologo'])->prefix('empl
     Route::get('/profile-setup', EmployeeProfileSetupForm::class)->name('employee.profile.setup');
 
     Route::get('/dashboard', EmployeeDashboard::class)->name('employee.dashboard');
+
+    Route::get('/assign-routine', AssignRoutine::class)->name('assign-routine');
 });
 
 
@@ -86,27 +87,29 @@ Route::middleware(['auth', 'verified', 'role:cliente'])->group(function () {
 
     Route::get('/client/profile-setup', ClientDataForm::class)->name('profile.setup');
     
-    // 2. Ruta de espera después de enviar los datos
+    // Ruta de espera después de enviar los datos
     Route::get('/verification-pending', VerificationPending::class)->name('verification.pending'); 
     
-    // 3. RUTA DEL DASHBOARD ESPECÍFICO DEL CLIENTE (Mantiene tu componente Dashboard.php)
+    // RUTA DEL DASHBOARD DEL CLIENTE 
     Route::get('/client/dashboard', Dashboard::class)->name('client.dashboard'); 
 
-    // 🎯 AÑADIDA: Ruta para listar las rutinas del cliente
-    Route::get('/mis-rutinas', ClientRoutines::class)
-        ->name('client.routines');
+    // Ruta para listar las rutinas del cliente
+    Route::get('/mis-rutinas', ClientRoutines::class)->name('client.routines');
 
     Route::get('/armar-rutina', RoutineBuilder::class)->name('client.routine-builder');
 
     Volt::route('/routine-builder', 'routine-builder')->name('routine.builder');
 
-    // 🎯 CORREGIDA: Ajustada para usar un slug más claro y evitar conflictos
+    // Ruta de entrenamiento
     Route::get('/rutinas/{routine}/entrenar', RoutineWorkout::class)
     ->name('routine.workout')
-    ->middleware('auth'); // El middleware ya está en el grupo, pero se deja por claridad
+    ->middleware('auth'); 
 
     // Ruta para ver el progreso y las estadísticas del cliente
     Route::get('/client/progress', ClientProgress::class)->name('client.progress');
+
+    // SELECCIÓN DE ENTRENADOR
+    Route::get('/entrenador', TrainerSelection::class)->name('client.trainer-selection'); 
     
     // RUTAS DE CONFIGURACIÓN DEL USUARIO
     Route::redirect('settings', 'settings/profile');
@@ -132,7 +135,7 @@ Route::middleware(['auth', 'verified'])->get('/dashboard', function () {
     // Por defecto, redirige al dashboard del cliente
     return redirect()->route('client.dashboard'); 
         
-})->name('dashboard'); // Esta ruta ya NO carga el componente Dashboard, ¡solo redirige!
+})->name('dashboard');
 
 
 // ------------------------------------------------------------------

@@ -14,6 +14,7 @@ class Routine extends Model
 
     protected $fillable = [
         'user_id',
+        'creator_id',
         'name',
         'notes',
     ];
@@ -45,6 +46,15 @@ class Routine extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relación: Obtiene el creador de la rutina (el entrenador, cliente o admin).
+     * Usa el campo creator_id de la tabla routines.
+     */
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'creator_id'); // creator_id es el que la diseñó
     }
 
     /**

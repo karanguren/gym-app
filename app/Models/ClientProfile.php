@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 
 class ClientProfile extends Model
@@ -24,6 +25,8 @@ class ClientProfile extends Model
         'emergency_contact',
         'address',
         'id_number',
+        'assigned_trainer_id',
+        'current_routine_id', 
 
     ];
 
@@ -33,5 +36,15 @@ class ClientProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function assignedTrainer()
+    {
+        return $this->belongsTo(User::class, 'assigned_trainer_id');
+    }
+
+    public function currentRoutine(): BelongsTo
+    {
+        return $this->belongsTo(Routine::class, 'current_routine_id');
     }
 }
