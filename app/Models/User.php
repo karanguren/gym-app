@@ -26,6 +26,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'client_type',
     ];
 
     /**
@@ -104,6 +105,16 @@ class User extends Authenticatable
     public function isStaff(): bool
     {
         return $this->isAdmin() || $this->isTrainer() || $this->isNutriologo();
+    }
+
+    public function isRegularClient(): bool
+    {
+        return $this->isClient() && $this->client_type === 'regular';
+    }
+
+    public function isPersonalizedClient(): bool
+    {
+        return $this->isClient() && $this->client_type === 'personalized';
     }
 
     

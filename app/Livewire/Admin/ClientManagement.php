@@ -21,8 +21,21 @@ class ClientManagement extends Component
     public $showConfirmationModal = false;
     public $modalTitle = '';
     public $modalMessage = '';
-    public $modalActionMethod = ''; // Método a ejecutar al confirmar (ej: 'executeDeleteUser')
-    public $targetId = null; // ID del registro (User ID o Profile ID) afectado
+    public $modalActionMethod = ''; 
+    public $targetId = null; 
+
+    // --- PROPIEDADES para Cambio de Tipo de Cliente ---
+    public $showTypeChangeModal = false;
+    public $clientToEditId = null; 
+    public $clientToEditName = '';
+    public $currentClientType = ''; 
+    public $newClientType = ''; 
+    
+    // Tipos de cliente disponibles para el select
+    public $availableClientTypes = [
+        'regular' => 'Regular',
+        'personalized' => 'Personalizado',
+    ];
 
     // --- Propiedades de Clientes Pendientes ---
     /** @var Collection */
@@ -56,6 +69,18 @@ class ClientManagement extends Component
     {
         $this->showConfirmationModal = false;
         $this->reset(['modalTitle', 'modalMessage', 'modalActionMethod', 'targetId']);
+        $this->closeTypeChangeModal(); 
+    }
+
+    public function closeTypeChangeModal(): void
+    {
+        $this->reset([
+            'showTypeChangeModal', 
+            'clientToEditId', 
+            'clientToEditName', 
+            'currentClientType', 
+            'newClientType'
+        ]);
     }
 
     protected function dispatchToast(string $type, string $message): void
@@ -246,12 +271,70 @@ class ClientManagement extends Component
         $this->closeModal();
     }
 
+    // =======================================================
+    // NUEVA FUNCIONALIDAD: CAMBIO DE TIPO DE CLIENTE
+    // =======================================================
+
+    /**
+     * Abre el modal para cambiar el tipo de cliente, cargando los datos.
+     * @param int $userId
+     */
+    public function openTypeChangeModal(int $userId): void
+    {
+        $user = User::find($userId);
+
+        if (!$user || !$user->isClient()) {
+            $this->dispatchToast('error', 'El usuario no es un cliente válido.');
+            $this->closeTypeChangeModal();
+            return;
+        }
+
+        $this->clientToEditId = $userId;
+        $this->clientToEditName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
+        $this->currentClientType = $user->client_type;
+        // Inicializar el nuevo tipo con el actual para la selección predeterminada
+        $this->newClientType = $user->client_type; 
+        $this->showTypeChangeModal = true;
+    }
+
+
+    /**
+     * cambio de tipo de cliente.
+     */
+    public function updateClientType()
+    {
+        $this->validate([
+            'newClientType' => 'required|in:regular,personalized',
+        ]);
+
+        $user = User::find($this->clientToEditId);
+
+        if (!$user || !$user->isClient()) {
+            $this->dispatchToast('error', 'Error al encontrar el cliente para actualizar.');
+            $this->closeTypeChangeModal();
+            return;
+        }
+
+        if ($user->client_type === $this->newClientType) {
+            $this->dispatchToast('info', 'El tipo de cliente ya es ' . $this->availableClientTypes[$this->newClientType] . '. No se realizó ningún cambio.');
+            $this->closeTypeChangeModal();
+            return;
+        }
+
+        $user->client_type = $this->newClientType;
+        $user->save();
+
+        $this->dispatchToast('success', 'Tipo de cliente de ' . $this->clientToEditName . ' actualizado a ' . $this->availableClientTypes[$this->newClientType] . ' exitosamente.');
+
+        $this->closeTypeChangeModal();
+    }
+
     public function render()
     {
         $statuses = [
             'all' => 'Mostrar Todos',
-            'active' => 'Usuarios Activos', // is_active = true
-            'inactive' => 'Usuarios Inactivos', // is_active = false
+            'active' => 'Usuarios Activos', 
+            'inactive' => 'Usuarios Inactivos', 
         ];
 
         $query = User::query()
@@ -260,7 +343,6 @@ class ClientManagement extends Component
             ->where('id', '!=', Auth::id())
             ->orderBy('name');
 
-        // Filtramos la tabla por la nueva columna 'is_active'
         if ($this->filterStatus === 'active') {
             $query->where('is_active', true);
         } elseif ($this->filterStatus === 'inactive') {
