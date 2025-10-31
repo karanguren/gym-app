@@ -184,7 +184,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             <flux:checkbox wire:model="remember" :label="__('Remember me')" />
 
             <div class="flex items-center justify-end">
-                <flux:button variant="primary" type="submit" class="w-full !bg-[#7bcb01] !text-white !border-2 !border-[#7bcb01] text-lg rounded-lg !font-bold dark:!border-[#7bcb01] hover:!bg-transparent" data-test="login-button">
+                <flux:button variant="primary" type="submit" class="w-full !bg-[#7bcb01]/70 !text-white !border-2 !border-[#7bcb01] text-lg rounded-lg !font-bold dark:!border-[#7bcb01] hover:!bg-transparent" data-test="login-button">
                     {{ __('INGRESAR') }}
                 </flux:button>
             </div>
