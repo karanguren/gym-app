@@ -16,8 +16,14 @@ use App\Livewire\Pages\Dashboard;
 use App\Livewire\Pages\VerificationPending;
 use App\Livewire\Auth\TrainerRegister;
 use App\Livewire\Employee\EmployeeDashboard;
-use App\Livewire\Employee\AssignRoutine;
 use App\Livewire\Employee\EmployeeProfileSetupForm; 
+use App\Livewire\Employee\TrainerClients;
+use App\Livewire\Employee\TrainerDashboard;
+
+
+use App\Livewire\Employee\CreateEditRoutine;
+use App\Livewire\Employee\AssignRoutine; 
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; 
 use Livewire\Volt\Volt; 
@@ -70,13 +76,32 @@ Route::middleware(['auth', 'verified', 'role:administrador'])->prefix('admin')->
 // ------------------------------------------------------------------
 // 🧑‍💼 ZONA DE EMPLEADOS (Roles 'trainer' y 'nutriologo') - UNIFICADA
 // ------------------------------------------------------------------
-Route::middleware(['auth', 'verified', 'role:trainer,nutriologo'])->prefix('employee')->group(function () {
+Route::middleware(['auth', 'verified', 'role:trainer,nutriologo'])->prefix('employee')->name('employee.')->group(function () {
 
-    Route::get('/profile-setup', EmployeeProfileSetupForm::class)->name('employee.profile.setup');
+    Route::get('/profile-setup', EmployeeProfileSetupForm::class)->name('profile.setup'); 
 
-    Route::get('/dashboard', EmployeeDashboard::class)->name('employee.dashboard');
+    Route::get('/dashboard', EmployeeDashboard::class)->name('dashboard'); 
 
-    Route::get('/assign-routine', AssignRoutine::class)->name('assign-routine');
+    // LISTA DE CLIENTES
+    Route::get('/clients', TrainerClients::class)->name('clients');
+    
+    // Crear Rutina Plantilla (Creación general)
+    Route::get('/rutinas/crear', CreateEditRoutine::class)->name('routines.create');
+
+    // Crear Rutina Exclusiva para un Cliente
+    Route::get('/rutinas/crear/cliente/{userId}', CreateEditRoutine::class)->name('routines.create-for-client');
+
+    // 3. Editar Rutina (Plantilla o Exclusiva)
+    Route::get('/rutinas/{routineId}/editar', CreateEditRoutine::class)->name('routines.edit');
+
+
+        // RUTA D: ASIGNAR (COPIAR) UNA PLANTILLA A UN CLIENTE
+        Route::get('/routines/assign/{routineId}/{userId}', AssignRoutine::class)
+        ->name('routines.assign'); // employee.routines.assign
+            
+        // 4. Ruta para el constructor de rutinas (para crear nuevas plantillas)
+        Route::get('/routine/builder', RoutineBuilder::class)
+            ->name('routine.builder'); // employee.routine.builder
 });
 
 
@@ -101,9 +126,7 @@ Route::middleware(['auth', 'verified', 'role:cliente'])->group(function () {
     Volt::route('/routine-builder', 'routine-builder')->name('routine.builder');
 
     // Ruta de entrenamiento
-    Route::get('/rutinas/{routine}/entrenar', RoutineWorkout::class)
-    ->name('routine.workout')
-    ->middleware('auth'); 
+    Route::get('/rutinas/{routine}/entrenar', RoutineWorkout::class)->name('routine.workout')->middleware('auth'); 
 
     // Ruta para ver el progreso y las estadísticas del cliente
     Route::get('/client/progress', ClientProgress::class)->name('client.progress');

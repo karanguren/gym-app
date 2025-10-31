@@ -234,6 +234,7 @@ class RoutineBuilder extends Component
             $routine = Routine::create([
                 'user_id' => Auth::id(),
                 'name' => $this->routineName,
+                'creator_id' => Auth::id(),
             ]);
 
             $routineExercisesData = [];

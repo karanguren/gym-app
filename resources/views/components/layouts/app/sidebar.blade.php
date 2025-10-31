@@ -66,7 +66,7 @@
                                 class="text-gray-900 dark:text-[#7bcb01] hover:bg-gray-100 dark:hover:bg-gray-800"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
-                                {{ __('Panel Admin') }}
+                                {{ __('INICIO') }}
                             </flux:navlist.item>
                         @elseif ($user->role === 'trainer' || $user->role === 'nutriologo')
                             <flux:navlist.item 
@@ -76,7 +76,7 @@
                                 class="text-gray-900 dark:text-[#7bcb01] hover:bg-gray-100 dark:hover:bg-gray-800"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
-                                {{ __('Panel Empleado') }}
+                                {{ __('INICIO') }}
                             </flux:navlist.item>
                         @else 
                             <flux:navlist.item 
@@ -86,7 +86,7 @@
                                 class="text-gray-900 dark:text-[#7bcb01] hover:bg-gray-100 dark:hover:bg-gray-800"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
-                                {{ __('Dashboard Cliente') }}
+                                {{ __('INICIO') }}
                             </flux:navlist.item>
                         @endif
                         
@@ -155,7 +155,7 @@
                     {{-- Grupo 4: Opciones para EMPLEADOS --}}
                     @if ($user->role === 'trainer')
                     <flux:navlist.group :heading="__('Staff')" class="grid text-gray-900 dark:text-[#7bcb01]">
-                        <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mis Clientes y Rutinas') }}</flux:navlist.item>
+                        <flux:navlist.item icon="users" href="{{ route('employee.clients') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mis Clientes y Rutinas') }}</flux:navlist.item>
                         <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Chat con Clientes') }}</flux:navlist.item>
                         <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Horario') }}</flux:navlist.item>
                     </flux:navlist.group>

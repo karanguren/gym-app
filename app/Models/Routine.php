@@ -17,6 +17,7 @@ class Routine extends Model
         'creator_id',
         'name',
         'notes',
+        'is_template',
     ];
 
 
