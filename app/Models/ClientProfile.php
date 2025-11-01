@@ -27,6 +27,8 @@ class ClientProfile extends Model
         'id_number',
         'assigned_trainer_id',
         'current_routine_id', 
+        'assignment_status', 
+        'requested_trainer_id', 
 
     ];
 

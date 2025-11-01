@@ -21,6 +21,15 @@ class TrainerSelection extends Component
     // Propiedad para el perfil del cliente actual
     public $clientProfile = null;
 
+    // --- PROPIEDADES AÑADIDAS PARA GESTIÓN DE MODALES CON LIVEWIRE ---
+    // Usadas para controlar la visibilidad del modal de solicitud. Se enlaza con @entangle en la vista.
+    public bool $showSelectionModal = false;
+    // Usada para controlar la visibilidad del modal de desvinculación. Se enlaza con @entangle en la vista.
+    public bool $showDetachModal = false; 
+    // Almacena el ID del entrenador que el usuario quiere seleccionar.
+    public ?int $selectedTrainerId = null; 
+    // -----------------------------------------------------------------
+
     // Mantener la paginación de Livewire limpia para la búsqueda
     protected $queryString = [
         'search' => ['except' => ''],
@@ -42,9 +51,13 @@ class TrainerSelection extends Component
 
     public function refreshProfile()
     {
+        // Refresca el perfil del cliente de la base de datos
         $this->clientProfile = Auth::user()->profile->fresh();
     }
 
+    /**
+     * Envía un evento a Alpine.js para mostrar la notificación Toast.
+     */
     public function showToast($message, $type = 'success')
     {
         $this->toastMessage = $message;
@@ -56,65 +69,128 @@ class TrainerSelection extends Component
         ]);
     }
 
+    // --- MÉTODOS DE CONTROL DEL MODAL DE SELECCIÓN ---
+
     /**
-     * Proceso para que el cliente seleccione un entrenador.
-     * @param int $trainerId El ID del usuario entrenador a seleccionar.
+     * Abre el modal de confirmación para seleccionar un entrenador.
      */
-    public function selectTrainer(int $trainerId)
+    public function openSelectionModal(int $trainerId, string $trainerName)
     {
-        // 1. Verificar si el cliente tiene un perfil
-        if (!$this->clientProfile) {
-            $this->showToast('Error: No se encontró tu perfil de cliente.', 'error');
+        // 1. Verificar el estado de la asignación antes de abrir el modal
+        if ($this->clientProfile->assignment_status === 'pending') {
+            $this->showToast('Ya tienes una solicitud pendiente. Por favor, espera la respuesta o desvincula al entrenador.', 'warning');
             return;
         }
 
-        // 2. Verificar que el ID no sea el del propio cliente (evitar auto-asignación)
-        if ((int)$trainerId === (int)Auth::id()) {
-            $this->showToast('No puedes asignarte a ti mismo como entrenador.', 'error');
+        // 2. Almacenar el ID y abrir el modal
+        $this->selectedTrainerId = $trainerId;
+        // Alpine.js recibirá el nombre a través del click y el estado de showSelectionModal vía entangle
+        $this->showSelectionModal = true;
+    }
+
+    /**
+     * Cierra el modal de confirmación de selección.
+     */
+    public function closeSelectionModal()
+    {
+        $this->showSelectionModal = false;
+        $this->selectedTrainerId = null;
+    }
+
+    // --- MÉTODOS DE CONTROL DEL MODAL DE DESVINCULACIÓN ---
+
+    /**
+     * Abre el modal de confirmación para desvincular al entrenador.
+     */
+    public function openDetachModal()
+    {
+        // 1. Verificar si hay algo que desvincular (accepted, pending o rejected)
+        if (!in_array($this->clientProfile->assignment_status, ['accepted', 'pending', 'rejected'])) {
+            $this->showToast('No tienes un entrenador asignado o una solicitud pendiente/rechazada para desvincular.', 'info');
             return;
         }
 
-        // 3. Verificar si el entrenador existe (opcional, pero buena práctica)
-        $trainer = User::find($trainerId);
-        if (!$trainer) {
-             $this->showToast('Error: Entrenador no encontrado.', 'error');
+        // 2. Abrir el modal
+        $this->showDetachModal = true;
+    }
+
+    /**
+     * Cierra el modal de desvinculación.
+     */
+    public function closeDetachModal()
+    {
+        $this->showDetachModal = false;
+    }
+
+    // --- MÉTODOS DE LÓGICA DE NEGOCIO ---
+
+    /**
+     * Ejecuta la lógica para enviar la solicitud de entrenador.
+     * Se llama al confirmar el modal de selección.
+     */
+    public function selectTrainer()
+    {
+        if (!$this->selectedTrainerId) {
+            $this->showToast('Error: No se seleccionó un entrenador válido.', 'error');
+            $this->closeSelectionModal();
             return;
         }
 
         try {
-            // Asignamos el ID del entrenador seleccionado al perfil del cliente
-            $this->clientProfile->assigned_trainer_id = $trainerId;
-            $this->clientProfile->save();
+            // Asignar el nuevo entrenador como 'requested' y cambiar el estado
+            // La línea 'requested_trainer_id' se ve CORRECTA aquí.
+            $this->clientProfile->update([
+                'requested_trainer_id' => $this->selectedTrainerId,
+                'assignment_status' => 'pending',
+                'assigned_trainer_id' => null, // Asegurar que el asignado es nulo si se está pidiendo uno nuevo
+            ]);
 
-            // Refrescamos la propiedad para que la vista se actualice
+            // Obtener el nombre para el toast
+            $trainerName = User::find($this->selectedTrainerId)->name ?? 'un entrenador';
+            
+            // Cerrar modal y notificar
+            $this->closeSelectionModal();
             $this->clientProfile->fresh();
             
-            $this->showToast('¡Has seleccionado a ' . $trainer->name . ' como tu entrenador!', 'success');
+            $this->showToast('Solicitud enviada a ' . $trainerName . ' exitosamente. Esperando aprobación.', 'success');
 
         } catch (\Exception $e) {
-            $this->showToast('Error al seleccionar el entrenador: ' . $e->getMessage(), 'error');
+            // Si Laravel está lanzando una excepción, ¡revísala en el log! Podría ser la asignación masiva.
+            $this->showToast('Error al solicitar entrenador: ' . $e->getMessage(), 'error');
         }
     }
 
     /**
-     * Proceso para que el cliente desvincule a su entrenador actual.
+     * Ejecuta la lógica para desvincular al entrenador actual.
+     * Se llama al confirmar el modal de desvinculación.
      */
-    public function unselectTrainer()
+    public function detachTrainer()
     {
-        // 1. Verificar si el cliente tiene un perfil
-        if (!$this->clientProfile || is_null($this->clientProfile->assigned_trainer_id)) {
-            $this->showToast('No tienes ningún entrenador asignado para desvincular.', 'info');
-            return;
-        }
-
-        $trainerName = $this->clientProfile->assignedTrainer->name ?? 'tu entrenador';
-
         try {
-            // Desasignamos (establecemos en NULL)
-            $this->clientProfile->assigned_trainer_id = null;
-            $this->clientProfile->save();
+            $status = $this->clientProfile->assignment_status;
+            
+            // Usamos un bloque try-catch seguro para el nombre del entrenador
+            try {
+                $trainerName = $this->clientProfile->assignedTrainer->name ?? $this->clientProfile->requestedTrainer->name ?? 'el entrenador';
+            } catch (\Exception $e) {
+                // Si la relación no existe o es nula, usamos el valor por defecto
+                $trainerName = 'el entrenador';
+            }
 
-            // Refrescamos la propiedad
+            if (!in_array($status, ['accepted', 'pending', 'rejected'])) {
+                 $this->showToast('No tienes un entrenador asignado o una solicitud pendiente/rechazada para desvincular.', 'info');
+                 $this->closeDetachModal();
+                 return;
+            }
+
+            // Limpiar ambos campos y establecer el estado a 'unassigned'
+            $this->clientProfile->update([
+                'assigned_trainer_id' => null,
+                'requested_trainer_id' => null,
+                'assignment_status' => 'unassigned',
+            ]);
+
+            $this->closeDetachModal();
             $this->clientProfile->fresh();
 
             $this->showToast('Has desvinculado a ' . $trainerName . ' exitosamente.', 'info');
@@ -126,11 +202,11 @@ class TrainerSelection extends Component
 
     /**
      * Carga los usuarios que son entrenadores.
-     * En un sistema real, usarías roles para filtrar. Aquí asumimos `role = 'trainer'`.
      */
     private function loadTrainers()
     {
         $search = '%' . $this->search . '%';
+        // Asumiendo que 'assigned_trainer_id' está en clientProfile, usamos el ID del entrenador asignado.
         $currentTrainerId = $this->clientProfile->assigned_trainer_id ?? 0;
 
         return User::query()
@@ -157,6 +233,6 @@ class TrainerSelection extends Component
 
         return view('livewire.trainer-selection', [
             'trainers' => $trainers,
-        ]);
+        ])->title('Selección de Entrenador');
     }
 }
