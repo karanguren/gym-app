@@ -66,23 +66,22 @@
                             <td class="px-4 py-2 text-gray-600 dark:text-white">{{ $profile->user->email ?? 'N/A' }}</td>
                             <td class="px-4 py-2 text-center">
                                 <div class="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap">
-                                    {{-- Botón Aprobar --}}
+                                    {{-- Botón Aprobar (Outline) --}}
                                     <button
                                         wire:click="confirmToggleVerification({{ $profile->user->id }}, '{{ $fullName }}')"
-                                        class="text-sm px-3 py-2 rounded-full font-bold bg-[#7bcb01]/75 hover:bg-lime-darker text-white shadow transition-transform duration-200 hover:scale-105"
+                                        class="text-sm w-28 px-3 py-1.5 rounded-full font-bold shadow-md transition-transform duration-200 hover:scale-105 border-2
+                                        bg-transparent border-[#7bcb01] text-[#7bcb01] hover:bg-[#7bcb01]/10 dark:border-[#7bcb01] dark:text-[#7bcb01] dark:hover:bg-lime-950"
                                     >
                                         Aprobar
                                     </button>
-                                    {{-- Botón Rechazar (Cambiado a Icono) --}}
+
+                                    {{-- Botón Rechazar (Outline) --}}
                                     <button
                                         wire:click="confirmRejectClient({{ $profile->id }}, '{{ $fullName }}')"
-                                        title="Rechazar Cliente"
-                                        class="p-2 rounded-full font-bold bg-red-600/90 hover:bg-red-700 text-white shadow transition-transform duration-200 hover:scale-110 flex items-center justify-center h-9 w-9"
+                                        class="text-sm w-28 sm:w-32 px-3 py-1.5 rounded-full font-bold shadow-md transition-transform duration-200 hover:scale-105 border-2
+                                        bg-transparent border-red-600 text-red-600 dark:text-red-500 hover:bg-red-100 dark:hover:bg-red-900 dark:hover:text-white"
                                     >
-                                        <!-- Icono de Bote de Basura/Rechazar -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                            <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.5H2.5a.75.75 0 0 0 0 1.5h15a.75.75 0 0 0 0-1.5H14v-.5A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0ZM5.77 17.5a.75.75 0 0 0 .75-.689l.86-9.178A.75.75 0 0 0 6.63 7h6.74a.75.75 0 0 0-.75 1.033l-.86 9.178a.75.75 0 0 0 .736.812h-.008a.75.75 0 0 0 .737-.812l.86-9.178a.75.75 0 0 0-.737-1.033h-6.74a.75.75 0 0 0-.75 1.033l.86 9.178a.75.75 0 0 0 .737.812h-.008Z" clip-rule="evenodd" />
-                                        </svg>
+                                        Rechazar
                                     </button>
                                 </div>
                             </td>
@@ -97,7 +96,7 @@
     {{-- ======================================================= --}}
     {{-- FILTROS, BÚSQUEDA Y TABLA --}}
     {{-- ======================================================= --}}
-    <div class="bg-white/90 dark:bg-[#1a1a1a]/90 dark:text-white shadow-xl rounded-xl overflow-hidden border border-gray-300">
+    <div class="bg-white/90 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-gray-300">
 
         <div class="p-5 bg-white dark:bg-[#1a1a1a]/90 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
             <div class="flex-grow w-full sm:w-auto">
@@ -149,9 +148,9 @@
                             <td class="px-6 py-3 text-gray-600 dark:text-gray-300">{{ $user->profile?->emergency_contact ?? 'N/A' }}</td>
                             <td class="px-6 py-3">
                                 @if ($user->client_type === 'personalized')
-                                    <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">Personalizado</span>
+                                    <span class="inline-block w-30 text-center px-3 py-1 text-sm font-bold rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300">Personalizado</span>
                                 @else
-                                    <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700/40 dark:text-gray-300">Regular</span>
+                                    <span class="inline-block w-30 text-center px-3 py-1 text-sm font-bold rounded-full bg-gray-100 text-gray-700 dark:bg-gray-700/80 dark:text-gray-300">Regular</span>
                                 @endif
                             </td>
                             <td class="px-6 py-3">
@@ -163,41 +162,38 @@
                             </td>
                             <td class="px-6 py-3 text-center">
                                 <div class="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap">
-
-                                    {{-- Botón 1: Activar/Desactivar --}}
+                                    {{-- Botón 1: Activar/Desactivar (Outline Text Button) --}}
                                     <button
                                         wire:click="confirmToggleVerification({{ $user->id }}, '{{ $fullName }}')"
-                                        class="text-sm px-3 py-2 rounded-full font-bold shadow transition-transform duration-200 hover:scale-105
+                                        class="text-sm px-3 py-1.5 rounded-full font-bold shadow-md transition-transform duration-200 hover:scale-105 border-2
                                         {{ $user->is_active
-                                            ? 'bg-yellow-500/90 hover:bg-yellow-600 text-white'
-                                            : 'bg-[#7bcb01]/75 hover:bg-lime-darker text-white' }}">
+                                            ? 'bg-transparent border-yellow-500 text-yellow-600 hover:bg-yellow-100 dark:border-yellow-400 dark:text-yellow-400 dark:hover:bg-yellow-950' /* Desactivar (Amarillo Outline) */
+                                            : 'bg-transparent border-[#7bcb01] text-[#7bcb01] hover:bg-[#7bcb01]/10 dark:border-[#7bcb01] dark:text-[#7bcb01] dark:hover:bg-lime-950' /* Activar (Lima Outline) */
+                                        }}">
                                         {{ $user->is_active ? 'Desactivar' : 'Activar' }}
                                     </button>
 
-                                    {{-- Botón 2: Cambio de Tipo de Cliente (NUEVO) --}}
+                                    {{-- Botón 2: Cambio de Tipo de Cliente (Outline Text Button) --}}
                                     <button
                                         wire:click="openTypeChangeModal({{ $user->id }})"
                                         title="Cambiar Tipo de Cliente"
-                                        class="p-2 rounded-full font-bold bg-gray-400/90 hover:bg-gray-500 text-white shadow transition-transform duration-200 hover:scale-110 flex items-center justify-center h-9 w-9"
+                                        class="text-sm px-3 py-1.5 rounded-full font-bold shadow-md transition-transform duration-200 hover:scale-105 border-2
+                                        bg-transparent border-gray-400 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 dark:hover:text-white"
                                     >
-                                        <!-- Icono de Usuario/Engranaje -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                            <path d="M7 6a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.58 0l-1.39-1.39a.25.25 0 0 0-.35 0L7.58 9a.75.75 0 0 1-.58-.75V6ZM15 3.75a.75.75 0 0 0-.75-.75h-2.5a.75.75 0 0 1-.75-.75V2.25c0-.414.336-.75.75-.75h2.5c.414 0 .75.336.75.75v.5A.75.75 0 0 1 15 3.75ZM6 3.75a.75.75 0 0 0-.75-.75H2.75A1.75 1.75 0 0 0 1 4.75v10.5c0 .966.784 1.75 1.75 1.75h14.5A1.75 1.75 0 0 0 18 15.25v-10.5c0-.966-.784-1.75-1.75-1.75h-2.5a.75.75 0 0 0-.75.75v.5c0 .414-.336.75-.75.75h-2.5A.75.75 0 0 0 8 3.75v.5c0 .414-.336.75-.75.75h-2.5A.75.75 0 0 0 4 4.75v-1A.75.75 0 0 0 3.25 3H2.75a.25.25 0 0 1-.25-.25v-1A.75.75 0 0 0 1.25 1H.75A.75.75 0 0 0 0 1.75v1.5c0 .414.336.75.75.75h.25a.75.75 0 0 0 .75.75h3.5a.75.75 0 0 0 .75-.75v-1.5c0-.414-.336-.75-.75-.75H5.75A.75.75 0 0 0 5 2.25v1.5A.75.75 0 0 0 5.75 4.5h.5c.414 0 .75-.336.75-.75v-1.5A.75.75 0 0 0 6 1.75v1.5a.75.75 0 0 0 .75.75h.5c.414 0 .75-.336.75-.75V1.75A.75.75 0 0 0 7.75 1H.75A.75.75 0 0 0 0 1.75v1.5c0 .414.336.75.75.75h.25A.75.75 0 0 0 1.75 5h.25a.75.75 0 0 0 .75.75h3.5A.75.75 0 0 0 6.75 5h.5c.414 0 .75-.336.75-.75V3.75A.75.75 0 0 0 7.75 3h.5c.414 0 .75-.336.75-.75V1.75A.75.75 0 0 0 9.75 1H17.25c.414 0 .75.336.75.75v14.5c0 .966-.784 1.75-1.75 1.75H2.75A.75.75 0 0 1 2 16.5V6.75A.75.75 0 0 1 2.75 6H17.25c.414 0 .75-.336.75-.75v-1A.75.75 0 0 0 17.25 4H2.75A.25.25 0 0 1 2.5 3.75V2.25c0-.414.336-.75.75-.75h2.5c.414 0 .75.336.75.75v.5A.75.75 0 0 0 6 3.75V4.5A.75.75 0 0 0 6.75 5h.5a.75.75 0 0 0 .75-.75v-1.5A.75.75 0 0 0 7.75 2.25v1.5a.75.75 0 0 0 .75.75h3.5a.75.75 0 0 0 .75-.75v-1.5A.75.75 0 0 0 13.75 2.25v.5a.75.75 0 0 0 .75.75h2.5A.75.75 0 0 0 17 3.75V4.5A.75.75 0 0 0 17.75 5h.5c.414 0 .75-.336.75-.75v-1.5A.75.75 0 0 0 18.25 2.25v1.5A.75.75 0 0 0 19 4.5h.25A.75.75 0 0 0 20 3.75v-1.5c0-.414-.336-.75-.75-.75H17.25c-.414 0-.75.336-.75.75v1.5c0 .414.336.75.75.75h.5a.75.75 0 0 0 .75-.75v-1.5A.75.75 0 0 0 18.25 1H2.75A.75.75 0 0 0 2 1.75v.5a.75.75 0 0 0 .75.75h3.5A.75.75 0 0 0 7 2.25v-.5A.75.75 0 0 0 6.25 1.75H2.75ZM7 6a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-.58 0l-1.39-1.39a.25.25 0 0 0-.35 0L7.58 9a.75.75 0 0 1-.58-.75V6Z"/>
-                                        </svg>
+                                        Cambiar Tipo
                                     </button>
 
-                                    {{-- Botón 3: Eliminar (Ícono de Cubo de Basura) --}}
+                                    {{-- Botón 3: Eliminar (Outline Text Button) --}}
                                     <button
                                         wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
                                         title="Eliminar Usuario"
-                                        class="p-2 rounded-full font-bold bg-red-600/90 hover:bg-red-700 text-white shadow transition-transform duration-200 hover:scale-110 flex items-center justify-center h-9 w-9"
+                                        class="text-sm px-3 py-1.5 rounded-full font-bold shadow-md transition-transform duration-200 hover:scale-105 border-2
+                                        bg-transparent border-red-600 text-red-600 dark:text-red-500 hover:bg-red-100 dark:hover:bg-red-900 dark:hover:text-white"
                                     >
-                                        <!-- Icono de Bote de Basura/Eliminar -->
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                            <path fill-rule="evenodd" d="M8.75 1A2.75 2.75 0 0 0 6 3.75v.5H2.5a.75.75 0 0 0 0 1.5h15a.75.75 0 0 0 0-1.5H14v-.5A2.75 2.75 0 0 0 11.25 1h-2.5ZM10 4.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0ZM5.77 17.5a.75.75 0 0 0 .75-.689l.86-9.178A.75.75 0 0 0 6.63 7h6.74a.75.75 0 0 0-.75 1.033l-.86 9.178a.75.75 0 0 0 .736.812h-.008a.75.75 0 0 0 .737-.812l.86-9.178a.75.75 0 0 0-.737-1.033h-6.74a.75.75 0 0 0-.75 1.033l.86 9.178a.75.75 0 0 0 .737.812h-.008Z" clip-rule="evenodd" />
-                                        </svg>
+                                        Eliminar
                                     </button>
                                 </div>
+                                
                             </td>
                         </tr>
                     @empty
@@ -217,7 +213,7 @@
     </div>
 
     {{-- ======================================================= --}}
-    {{-- MODAL DE CONFIRMACIÓN GENERAL (EXISTENTE) --}}
+    {{-- MODAL DE CONFIRMACIÓN GENERAL  --}}
     {{-- ======================================================= --}}
     <div
         x-data="{

@@ -49,7 +49,7 @@
         .text-state-active { color: #5aa101; }
     </style>
 
-    <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
+    <div class="max-w mx-auto py-10 sm:px-6 lg:px-8">
         
         <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
             <span>Gestión de Staff</span>
@@ -160,21 +160,24 @@
                                 
                                 <td class="px-6 py-4 text-center text-sm font-medium">
                                     <div class="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
-                                        
+                                        {{-- BOTÓN ACTIVAR/DESACTIVAR (Outline) --}}
                                         <button 
                                             wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
-                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold shadow transition duration-150 hover:scale-[1.02]
+                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold shadow transition duration-150 hover:scale-[1.02] 
+                                            border-2 
                                             @if($user->is_active) 
-                                                bg-yellow-500/90 hover:bg-yellow-600 text-white
+                                                border-yellow-500 hover:bg-yellow-500 text-yellow-500 hover:text-white 
                                             @else 
-                                                bg-[#7bcb01]/75 hover:bg-lime-darker text-white 
+                                                border-[#7bcb01] hover:bg-[#7bcb01] text-[#7bcb01] hover:text-white 
                                             @endif">
                                             {{ $user->is_active ? 'Desactivar' : 'Activar' }}
                                         </button>
 
+                                        {{-- BOTÓN ELIMINAR (Outline) --}}
                                         <button 
                                             wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
-                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold bg-red-600/90 hover:bg-red-700 text-white shadow">
+                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold shadow transition duration-150 hover:scale-[1.02] 
+                                            border-2 border-red-600 hover:bg-red-600 text-red-600 hover:text-white">
                                             Eliminar
                                         </button>
                                     </div>
