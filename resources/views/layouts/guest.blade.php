@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Acceso Admin</title>
-        <script>
+        <!-- <script>
             (function () {
                 const storedTheme = localStorage.getItem('theme');
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -18,7 +18,8 @@
                     document.documentElement.classList.remove('dark');
                 }
             })();
-        </script>
+        </script> -->
+        
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans text-gray-900 antialiased">

@@ -6,9 +6,9 @@
         .bg-lime-dark { background-color: #7bcb01; }
         .hover\:bg-lime-darker:hover { background-color: #69b301; } 
     </style>
-    <div class="absolute top-4 right-4 z-10">
+    <!-- <div class="absolute top-4 right-4 z-10">
         @livewire('theme-switcher')
-    </div>
+    </div> -->
 
     <div class="w-full sm:max-w-md px-8 py-10 bg-white/70 dark:bg-[#1a1a1a]/70 shadow-2xl overflow-hidden rounded-xl backdrop-blur-sm transition-colors duration-300">
         

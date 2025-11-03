@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-<head>
-@include('partials.head')
-<script>
+    <head>
+        <!-- <script>
             (function () {
                 const storedTheme = localStorage.getItem('theme');
                 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 
-                // Determinar el tema: Preferencia guardada > Configuración del sistema
+                // Prioridad: 1. Guardado por usuario, 2. Preferencia del sistema, 3. 'light' por defecto
                 const themeToApply = storedTheme || (prefersDark ? 'dark' : 'light');
                 
                 if (themeToApply === 'dark') {
@@ -16,8 +15,9 @@
                     document.documentElement.classList.remove('dark');
                 }
             })();
-        </script>
-</head>
+        </script> -->
+        @include('partials.head')
+    </head>
     <body class="min-h-screen bg-white antialiased dark:bg-[#1a1a1a]/95 ">
         <flux:sidebar sticky stashable class="border-e border-[#7bcb01] bg-white dark:border-[#7bcb01] dark:bg-[#1a1a1a]/95">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
@@ -45,9 +45,9 @@
                         <img src="{{ asset('img/logo-dark.png') }}" alt="Logo Oscuro" class="hidden h-6 w-auto dark:block transition-opacity duration-300" >
                     </a>
                     
-                    <div class="me-0"> 
+                    <!-- <div class="me-0"> 
                         @livewire('theme-switcher')
-                    </div>
+                    </div> -->
                 </div>
                 
                 {{-- NAVEGACIÓN DINÁMICA BASADA EN ROLES --}}

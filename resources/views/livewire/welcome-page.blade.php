@@ -59,9 +59,9 @@
                             class="hidden h-9 w-auto dark:block">
                     </a>
                     
-                    <div class='flex'>
+                    <!-- <div class='flex'>
                         @livewire('theme-switcher')
-                    </div>
+                    </div> -->
                 </div>
             </header>
 
