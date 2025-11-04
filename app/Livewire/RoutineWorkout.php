@@ -200,8 +200,13 @@ class RoutineWorkout extends Component
 
         if ($re && $re->exercise) {
             $this->selectedExerciseDetails = [
-                'name' => $re->exercise->name,
-                'instructions' => $re->exercise->instructions ?? $re->exercise->description ?? 'No hay instrucciones disponibles para este ejercicio.', 
+                'name'           => $re->exercise->name,
+                'instructions'   => $re->exercise->instructions ?? $re->exercise->description ?? 'No hay instrucciones disponibles para este ejercicio.',
+                'muscle_group'   => $re->exercise->muscle_group ?? 'N/A', 
+                'gif_path'       => $re->exercise->gif_path ?? null,
+                'description'    => $re->exercise->description ?? 'No hay descripción disponible.',
+                'instructions'   => $re->exercise->instructions ?? 'No hay pasos de ejecución disponibles.', 
+                'tips'           => $re->exercise->tips ?? 'No hay consejos disponibles.', 
             ];
             $this->showInstructionsModal = true;
         }

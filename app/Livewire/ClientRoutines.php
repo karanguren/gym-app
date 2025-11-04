@@ -30,7 +30,7 @@ class ClientRoutines extends Component
         if (Auth::check() && Auth::user()->role === 'cliente') {
             $userId = Auth::id();
 
-            $this->routines = Routine::where('user_id', $userId)
+            $this->routines = Routine::where('creator_id', $userId)
                                      ->orderBy('created_at', 'desc')
                                      ->get();
         } 

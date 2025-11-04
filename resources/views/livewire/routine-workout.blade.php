@@ -33,7 +33,7 @@
             <header class="mb-8 border-b dark:border-gray-700 pb-4">
                 <h1 class="text-3xl font-extrabold text-gray-900 dark:text-[#7bcb01] flex items-center">
                     <svg class="w-8 h-8 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12l6-4.5 6 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 21v-9z"/><path d="M9 11v6"/><path d="M12 9v8"/><path d="M15 11v6"/></svg>
-                    Entrenando: {{ $routine->name }}
+                    {{ $routine->name }}
                 </h1>
                 <p class="mt-1 text-gray-600 dark:text-gray-400">
                     Registra tu progreso set por set. ¡Buena suerte con tu entrenamiento!
@@ -222,19 +222,77 @@
 
     {{-- Modal de INSTRUCCIONES --}}
     @if ($showInstructionsModal && $selectedExerciseDetails)
-        <div class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4" @click.self="closeInstructionsModal">
+        <div class="fixed inset-0 bg-black/70 bg-opacity-70 z-40 flex items-center justify-center p-4" @click.self="closeInstructionsModal">
             <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl max-w-lg w-full p-6" @click.stop>
-                <h3 class="text-xl font-bold text-gray-900 dark:text-[#7bcb01] border-b pb-3 mb-4">
-                    Instrucciones: {{ $selectedExerciseDetails['name'] }}
-                </h3>
-                <div class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-96 overflow-y-auto">
-                    {!! nl2br(e($selectedExerciseDetails['instructions'])) !!}
-                </div>
-                <div class="mt-6 pt-4 border-t dark:border-gray-700 flex justify-end">
-                    <button wire:click="closeInstructionsModal" type="button" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">
-                        Cerrar
-                    </button>
-                </div>
+                
+                <div class="border-b border-gray-700 pb-4 mb-4 flex items-center justify-between">
+                            <h3 class="text-2xl font-extrabold leading-tight text-white">
+                                <span class="text-lime-400">{{ $selectedExerciseDetails['name'] }}</span>
+                            </h3>
+                            <button wire:click="closeInstructionsModal" @click="open = false" class="text-gray-400 hover:text-white transition duration-200">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        {{-- CONTENIDO DEL MODAL --}}
+                        <div class="mt-4 space-y-6 max-h-[65vh] overflow-y-auto pr-3 -mr-2 custom-scrollbar">
+                            
+                            @if ($selectedExerciseDetails['gif_path'] ?? false)
+                                <div class="w-full relative pb-[100%] overflow-hidden rounded-xl bg-gray-800 flex items-center justify-center shadow-lg border-2 border-lime-600">
+                                    <img src="{{ $selectedExerciseDetails['gif_path'] }}" 
+                                        alt="GIF de {{ $selectedExerciseDetails['name'] }}" 
+                                        class="absolute inset-0 w-full h-full object-contain"
+                                    >
+                                </div>
+                            @endif
+
+                            <p class="text-sm font-semibold text-lime-400 capitalize"> 
+                                Grupo Muscular: <span class="font-normal text-gray-300">{{ $selectedExerciseDetails['muscle_group'] }}</span>
+                            </p>
+                            
+                            {{-- SECCIÓN PREPARACIÓN (Ahora usa description - resumen) --}}
+                            <div class="border-t border-gray-700 pt-5">
+                                <h4 class="text-xl font-bold text-white mb-2">
+                                    Preparación (Resumen)
+                                </h4>
+                                <p class="text-gray-300 leading-relaxed">
+                                    {{ $selectedExerciseDetails['description'] }}
+                                </p>
+                            </div>
+
+                            {{-- SECCIÓN EJECUCIÓN (Ahora usa instructions - pasos) --}}
+                            <div class="border-t border-gray-700 pt-5">
+                                <h4 class="text-xl font-bold text-white mb-2">
+                                    Ejecución
+                                </h4>
+                                <p class="text-gray-300 leading-relaxed">
+                                    {{ $selectedExerciseDetails['instructions'] }}
+                                </p>
+                            </div>
+
+                            {{-- SECCIÓN CONSEJOS CLAVES (Ahora usa tips) --}}
+                            <div class="border-t border-gray-700 pt-5">
+                                <h4 class="text-xl font-bold text-white mb-2">
+                                    Consejos Claves
+                                </h4>
+                                <p class="text-gray-300 leading-relaxed">
+                                    {{ $selectedExerciseDetails['tips'] }}
+                                </p>
+                            </div>
+
+                        </div>
+                        {{-- FIN: CONTENIDO DEL MODAL --}}
+
+                        <div class="mt-8 pt-5 border-t border-gray-700 flex justify-end">
+                            <button wire:click="closeInstructionsModal" 
+                                @click="open = false"
+                                type="button" 
+                                class="bg-lime-600 hover:bg-lime-700 text-white font-bold py-2 px-8 rounded-lg transition duration-300 ease-in-out shadow-lg transform hover:scale-105">
+                                Entendido / Cerrar
+                            </button>
+                        </div>
             </div>
         </div>
     @endif
@@ -279,7 +337,6 @@
                         class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">
                     Cancelar
                 </button>
-                {{-- CRÍTICO: Usamos 'finishWorkout' --}}
                 <button wire:click="finishWorkout"
                         wire:loading.attr="disabled"
                         @click="showFinalizeModal = false"
@@ -318,6 +375,33 @@
     </div>
 
     <style>
+        <style>
+        /* Para navegadores basados en Webkit (Chrome, Safari) */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px; /* Ancho de la scrollbar */
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #333; /* Fondo de la pista de la scrollbar */
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #7bcb01; /* Color del "pulgar" de la scrollbar */
+            border-radius: 10px; /* Bordes redondeados del pulgar */
+            border: 2px solid #333; /* Espacio alrededor del pulgar */
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background-color: #5aa301; /* Color del pulgar al pasar el ratón */
+        }
+
+        /* Para Firefox */
+        .custom-scrollbar {
+            scrollbar-width: thin; /* "auto" o "none" */
+            scrollbar-color: #7bcb01 #333; /* color-del-pulgar color-de-la-pista */
+        }
+
         .remove-number-arrows::-webkit-outer-spin-button,
         .remove-number-arrows::-webkit-inner-spin-button {
             -webkit-appearance: none;
