@@ -95,23 +95,14 @@
                     {{-- Grupo 2: Opciones para CLIENTES --}}
                     @if ($user->role === 'cliente' && $clientIsVerified)
                         <flux:navlist.group :heading="__('Cliente')" class="grid text-gray-900 dark:text-[#7bcb01]">
-                                {{-- CLIENTE VERIFICADO: Muestra todas las opciones --}}
-                            <flux:navlist.item icon="users" href="{{ route('client.routine-builder') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Armar mi Rutina') }}</flux:navlist.item>
-                            <flux:navlist.item icon="users" href="{{ route('client.progress') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Progreso') }}</flux:navlist.item>
+                            <flux:navlist.item icon="pencil-square" href="{{ route('client.routine-builder') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Armar mi Rutina') }}</flux:navlist.item>
+                            <flux:navlist.item icon="bolt" href="{{ route('client.routines') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mis Rutinas') }}</flux:navlist.item>
+                            <flux:navlist.item icon="chart-bar" href="{{ route('client.progress') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Progreso') }}</flux:navlist.item>
                             @if ($user->client_type === 'personalized')
-                            <flux:navlist.item 
-                                icon="users"
-                                href="{{ route('client.trainer-selection') }}" 
-                                class="text-gray-900 dark:text-[#7bcb01]" 
-                                icon-class="text-[#7bcb01]" 
-                                wire:navigate>
-                                {{ __('Entrenador Personal') }}
-                            </flux:navlist.item>
+                                <flux:navlist.item icon="user" href="{{ route('client.trainer-selection') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate> {{ __('Entrenador Personal') }} </flux:navlist.item>
                             @endif
-                            <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Reservas') }}</flux:navlist.item>
+                            <!-- <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Reservas') }1}</flux:navlist.item> -->
                             <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Foro') }}</flux:navlist.item>
-                        
-                            
                         </flux:navlist.group>
                     @endif
                     

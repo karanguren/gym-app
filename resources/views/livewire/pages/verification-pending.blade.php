@@ -1,12 +1,12 @@
-<div>
+<div class="div-principal">
     <div class="min-h-screen flex flex-col items-center justify-center">
-        <div class="max-w-lg w-full text-center bg-white dark:bg-[#1a1a1a] sm:p-10 rounded-xl shadow-2xl border-t-4 border-t-[#7bcb01]">
+        <div class="max-w-lg w-full card-tb-ve">
             
-            <svg class="mx-auto h-16 w-16 text-[#7bcb01] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <svg class="mx-auto h-16 w-16 svg-ve " fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             
-            <h1 class="mt-4 text-3xl font-extrabold text-gray-900 dark:text-white">
+            <h1 class="titulos-card">
                 Solicitud en Revisión
             </h1>
             
@@ -25,7 +25,7 @@
             <div class="mt-8">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full p-2 !bg-[#7bcb01] !text-white !border-2 !border-[#7bcb01] text-lg rounded-lg !font-bold dark:!border-[#7bcb01] hover:!bg-transparent">
+                    <button type="submit" class="w-full btn-ouline-ve">
                         Cerrar Sesión
                     </button>
                 </form>
