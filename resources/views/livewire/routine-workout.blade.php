@@ -108,7 +108,7 @@
 
 
             {{-- Listado de Ejercicios y Progreso --}}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 @foreach ($routineExercises as $index => $routineExercise)
                     @php
                         $reId = $routineExercise->id;
@@ -142,7 +142,7 @@
                                     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
                                 </button> --}}
                             <button type="button" wire:click="showInstructions({{ $reId }})"
-                                class="btn-ouline-rounded-ve" title="Ver Instrucciones">
+                                class="btn-outline-rounded-ve" title="Ver Instrucciones">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -152,8 +152,8 @@
 
                         {{-- Tabla de Sets --}}
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 table-fixed">
-                                <thead class="bg-gray-50 dark:bg-gray-700">
+                            <table class="tables table-fixed">
+                                <thead class="tables-th">
                                     <tr>
                                         <th scope="col"
                                             class="w-1/12 px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
@@ -161,11 +161,11 @@
                                         </th>
                                         <th scope="col"
                                             class="w-4/12 px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
-                                            Reps 
+                                            Reps
                                         </th>
                                         <th scope="col"
                                             class="w-4/12 px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
-                                            Kg 
+                                            Kg
                                         </th>
                                         <th scope="col"
                                             class="w-3/12 px-2 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
@@ -173,13 +173,12 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
+                                <tbody class="tables-tbody">
                                     @foreach ($sets as $setIndex => $set)
                                         <tr wire:key="set-{{ $reId }}-{{ $setIndex }}"
                                             class="@if ($set['done']) bg-lime-50/50 dark:bg-gray-900/50 @endif">
 
-                                            <td
-                                                class="px-2 py-3 text-sm font-medium text-gray-900 dark:text-white">
+                                            <td class="px-2 py-3 text-sm font-medium text-gray-900 dark:text-white">
                                                 {{ $setIndex + 1 }}
                                             </td>
 
@@ -188,28 +187,23 @@
 
                                                 <flux:input
                                                     wire:model.live.debounce.300ms="workoutData.{{ $reId }}.{{ $setIndex }}.result_reps"
-                                                    placeholder="{{ $set['target_reps'] }}"
-                                                    min="2"
-                                                    type="number"
-                                                    class="w-full inputs text-center"
-                                                />
+                                                    placeholder="{{ $set['target_reps'] }}" min="2"
+                                                    type="number" class="w-full inputs text-center" />
                                             </td>
 
                                             {{-- Input Kg --}}
                                             <td class="px-2 py-3">
-                                                
+
                                                 <flux:input
                                                     wire:model.live.debounce.300ms="workoutData.{{ $reId }}.{{ $setIndex }}.result_kg"
-                                                    placeholder="{{ number_format($set['target_kg'], 1) }}" 
-                                                    min="2"
-                                                    step="0.5"
-                                                    type="number"
-                                                    class="w-full inputs text-center"
-                                                />
+                                                    placeholder="{{ number_format($set['target_kg'], 1) }}"
+                                                    min="2" step="0.5" type="number"
+                                                    class="w-full inputs text-center" />
                                             </td>
 
                                             {{-- Botones de Acción --}}
-                                            <td class="px-2 py-3 text-right text-sm font-medium flex space-x-1 justify-center items-center">
+                                            <td
+                                                class="px-2 py-3 text-right text-sm font-medium flex space-x-1 justify-center items-center">
 
                                                 {{-- Toggle Done --}}
                                                 <button
@@ -250,7 +244,7 @@
                         {{-- Botón para Añadir Set --}}
                         <div class="mt-4 flex justify-end">
                             <button wire:click="addSet({{ $reId }})" type="button"
-                                class="flex btn-ouline-ve">
+                                class="flex btn-outline-ve">
                                 <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" width="24"
                                     height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -269,8 +263,7 @@
 
         {{-- Modal de INSTRUCCIONES --}}
         @if ($showInstructionsModal && $selectedExerciseDetails)
-            <div class="bg-modal flex items-center justify-center p-4"
-                @click.self="closeInstructionsModal">
+            <div class="bg-modal flex items-center justify-center p-4" @click.self="closeInstructionsModal">
                 <div class="modal-instrucciones" @click.stop>
 
                     <div class="border-b border-gray-700 pb-4 mb-4 flex items-center justify-between">
@@ -338,7 +331,7 @@
 
                     <div class="mt-8 pt-5 border-t border-gray-700 flex justify-end">
                         <button wire:click="closeInstructionsModal" @click="open = false" type="button"
-                            class="btn-ouline-ve">
+                            class="btn-outline-ve">
                             Entendido
                         </button>
                     </div>
@@ -348,8 +341,7 @@
 
         {{-- Modal de CONFIRMACIÓN DE ELIMINACIÓN DE SET --}}
         @if ($showDeleteConfirmationModal)
-            <div class="bg-modal flex items-center justify-center p-4"
-                @click.self="cancelRemoveSet">
+            <div class="bg-modal flex items-center justify-center p-4" @click.self="cancelRemoveSet">
                 <div class="card-tb-ro-v2 max-w-sm w-full" @click.stop>
                     <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-2">
                         Confirmar Eliminación
@@ -358,12 +350,10 @@
                         ¿Estás seguro de que deseas eliminar permanentemente el Set #{{ $setIndexToDelete + 1 }}?
                     </p>
                     <div class="flex justify-end space-x-3">
-                        <button wire:click="cancelRemoveSet" type="button"
-                            class="btn-ouline-ve">
+                        <button wire:click="cancelRemoveSet" type="button" class="btn-outline-ve">
                             Cancelar
                         </button>
-                        <button wire:click="removeSet" type="button"
-                            class="btn-ouline-ro">
+                        <button wire:click="removeSet" type="button" class="btn-outline-ro">
                             Sí, Eliminar
                         </button>
                     </div>
@@ -373,10 +363,8 @@
 
 
         {{-- Modal de CONFIRMACIÓN DE FINALIZACIÓN --}}
-        <div x-show="showFinalizeModal"
-            class="bg-modal flex items-center justify-center p-4" x-cloak>
-            <div class="card-tb-ve-v2 max-w-md w-full"
-                @click.outside="showFinalizeModal = false">
+        <div x-show="showFinalizeModal" class="bg-modal flex items-center justify-center p-4" x-cloak>
+            <div class="card-tb-ve-v2 max-w-md w-full" @click.outside="showFinalizeModal = false">
 
                 <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
                     Finalizar Entrenamiento
@@ -387,13 +375,11 @@
                 </p>
 
                 <div class="flex justify-end space-x-3">
-                    <button @click="showFinalizeModal = false" type="button"
-                        class="btn-ouline-ro">
+                    <button @click="showFinalizeModal = false" type="button" class="btn-outline-ro">
                         Cancelar
                     </button>
                     <button wire:click="finishWorkout" wire:loading.attr="disabled"
-                        @click="showFinalizeModal = false" type="button"
-                        class="btn-ouline-ve">
+                        @click="showFinalizeModal = false" type="button" class="btn-outline-ve">
                         Confirmar y Guardar
                     </button>
                 </div>

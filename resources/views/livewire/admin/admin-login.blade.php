@@ -1,8 +1,8 @@
 <div class="relative min-h-screen w-full flex flex-col items-center justify-center p-4 bg-[url('../../../public/img/fondo2.jpg')] bg-center bg-cover" >
     <style>
         .text-lime { color: #7bcb01; }
-        .focus\:ring-lime { --tw-ring-color: #7bcb01; }
-        .focus\:border-lime { border-color: #7bcb01; }
+        /* .focus\:ring-lime { --tw-ring-color: #7bcb01; } */
+        /* .focus\:border-lime { border-color: #7bcb01; } */
         .bg-lime-dark { background-color: #7bcb01; }
         .hover\:bg-lime-darker:hover { background-color: #69b301; } 
     </style>

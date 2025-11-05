@@ -1,5 +1,5 @@
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+<div class="div-principal">
+    <div class="max-w mx-auto sm:px-6 lg:px-8">
         @if ($userRole === 'trainer')
             <!-- Carga el componente Livewire completo del entrenador, pasando el usuario como prop -->
             @livewire('employee.trainer-dashboard', ['user' => $user])

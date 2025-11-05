@@ -53,7 +53,7 @@
                 <h2
                     class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
                     <span class="title">Gestión de Staff</span>
-                    <button wire:click="$set('showCreateModal', true)" class="w-28 sm:w-32 btn-ouline-ve">
+                    <button wire:click="$set('showCreateModal', true)" class="w-28 sm:w-32 btn-outline-ve">
                         + Crear Nuevo
                     </button>
                 </h2>
@@ -167,14 +167,14 @@
                                                 {{-- BOTÓN ACTIVAR/DESACTIVAR (Outline) --}}
                                                 <button
                                                     wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
-                                                    class=" w-28 sm:w-32 @if ($user->is_active) btn-ouline-am @else btn-ouline-ve @endif">
+                                                    class=" w-28 sm:w-32 @if ($user->is_active) btn-outline-am @else btn-outline-ve @endif">
                                                     {{ $user->is_active ? 'Desactivar' : 'Activar' }}
                                                 </button>
 
                                                 {{-- BOTÓN ELIMINAR (Outline) --}}
                                                 <button
                                                     wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
-                                                    class=" w-28 sm:w-32 btn-ouline-ro">
+                                                    class=" w-28 sm:w-32 btn-outline-ro">
                                                     Eliminar
                                                 </button>
                                             </div>
@@ -264,10 +264,10 @@
 
                         <div class="mt-6 pt-4 border-t dark:border-gray-700 flex justify-end space-x-3">
                             <button type="button" wire:click="$set('showCreateModal', false)" @click="open = false"
-                                class="btn-ouline-ro">
+                                class="btn-outline-ro">
                                 Cancelar
                             </button>
-                            <button type="submit" wire:loading.attr="disabled" class="btn-ouline-ve">
+                            <button type="submit" wire:loading.attr="disabled" class="btn-outline-ve">
                                 <span wire:loading.remove wire:target="createUser">Crear Staff</span>
                                 <span wire:loading wire:target="createUser">Creando...</span>
                             </button>
@@ -302,12 +302,10 @@
                             <p class="text-sm text-gray-600 dark:text-gray-300 mb-5">{!! nl2br($modalMessage) !!}</p>
 
                             <div class="flex justify-end space-x-3 mt-5">
-                                <button wire:click="closeModal"
-                                    class="btn-ouline-ro">
+                                <button wire:click="closeModal" class="btn-outline-ro">
                                     Cancelar
                                 </button>
-                                <button @click="confirmAction()"
-                                    class="btn-ouline-ve">
+                                <button @click="confirmAction()" class="btn-outline-ve">
                                     Confirmar
                                 </button>
                             </div>

@@ -3,11 +3,11 @@
         <div class="md:p-8">
 
             <header class="mb-10 border-b dark:border-gray-700 pb-4">
-                <h1 class="text-4xl font-extrabold text-gray-900 dark:text-[#7bcb01] flex items-center">
-                    <svg class="w-8 h-8 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                <h1 class="titles">
+                    {{-- <svg class="w-8 h-8 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> --}}
                     Mi Progreso
                 </h1>
-                <p class="mt-2 text-gray-600 dark:text-gray-400">
+                <p class="description">
                     Sigue tu evolución de fuerza y el historial de tus entrenamientos.
                 </p>
             </header>
@@ -24,17 +24,17 @@
             @else
                 
                 {{-- 1. TARJETAS DE ESTADÍSTICAS GENERALES --}}
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Estadísticas Clave</h2>
+                <h2 class="subtitles">Estadísticas Clave</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
                     
                     {{-- Total Entrenamientos --}}
-                    <div class="bg-lime-50 dark:bg-gray-800 p-6 rounded-xl shadow-md border-l-4 border-[#7bcb01] dark:border-[#5aa301]">
+                    <div class="card-tl-ve !p-6">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Entrenamientos Completados</p>
                         <p class="mt-1 text-3xl font-extrabold text-gray-900 dark:text-[#7bcb01]">{{ $totalWorkouts }}</p>
                     </div>
 
                     {{-- Duración Promedio --}}
-                    <div class="bg-blue-50 dark:bg-gray-800 p-6 rounded-xl shadow-md border-l-4 border-blue-500 dark:border-blue-600">
+                    <div class="card-tl-az !p-6">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Duración Promedio</p>
                         <p class="mt-1 text-3xl font-extrabold text-gray-900 dark:text-blue-500">
                             {{ $this->formatSeconds($avgDuration) }}
@@ -42,7 +42,7 @@
                     </div>
 
                     {{-- Máxima Duración --}}
-                    <div class="bg-red-50 dark:bg-gray-800 p-6 rounded-xl shadow-md border-l-4 border-red-500 dark:border-red-600">
+                    <div class="card-tl-ro !p-6">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Entrenamiento Más Largo</p>
                         <p class="mt-1 text-3xl font-extrabold text-gray-900 dark:text-red-500">
                             {{ $this->formatSeconds($maxDuration) }}
@@ -52,15 +52,15 @@
                 </div>
 
                 {{-- 2. TABLA DE PROGRESO DE FUERZA (PESO MÁXIMO) --}}
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                <h2 class="subtitles">
                     Progreso de Fuerza (Máximo Kg) 
                     <svg class="w-5 h-5 ml-2 text-[#7bcb01]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 17.58A5 5 0 0 0 18 10c-1.2 0-2.43.3-3.4.88L12 2v10l3.4-1.88a5 5 0 0 0 3.4.88 5 5 0 0 0 0-10"/></svg>
                 </h2>
 
                 <div class="shadow overflow-hidden border border-gray-200 dark:border-gray-700 sm:rounded-lg">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                            <thead class="bg-gray-50 dark:bg-gray-700">
+                        <table class="tables">
+                            <thead class="tables-th">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Ejercicio
@@ -70,7 +70,7 @@
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                            <tbody class="tables-tbody">
                                 @forelse ($sortedProgress as $progress)
                                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
