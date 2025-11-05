@@ -1,377 +1,332 @@
-<div x-data="{}">
-    <style>
-        .text-lime { color: #7bcb01 !important; }
-        .bg-lime { background-color: #7bcb01 !important; }
-        .hover\:bg-lime-darker:hover { background-color: #69b301 !important; }
-        .border-lime { border-color: #7bcb01 !important; }
+<div class="div-principal">
+    <div class="max-w mx-auto sm:px-6 lg:px-8">
+        <div class="md:p-8">
+            <style>
+                [x-cloak] {
+                    display: none !important;
+                }
 
-        input, select {
-            padding: 0.6rem 0.8rem !important;
-            border-radius: 0.75rem !important;
-            border-width: 1.5px !important;
-            border-color: #d1d5db !important;
-            transition: all 0.2s ease-in-out;
-        }
-        input:focus, select:focus {
-            border-color: #7bcb01 !important;
-            box-shadow: 0 0 0 3px rgba(123, 203, 1, 0.25) !important;
-            outline: none;
-        }
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                        transform: scale(0.9);
+                    }
 
-        button {
-            transition: all 0.25s ease-in-out !important;
-        }
+                    to {
+                        opacity: 1;
+                        transform: scale(1);
+                    }
+                }
 
-        .card-border-lime {
-            border: 1.5px solid #7bcb01;
-        }
+                .animate-fadeIn {
+                    animation: fadeIn 0.5s ease-out forwards;
+                }
 
-        [x-cloak] { display: none !important; }
+                @keyframes check {
+                    from {
+                        stroke-dasharray: 0, 30;
+                        opacity: 0.5;
+                    }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
+                    to {
+                        stroke-dasharray: 30, 0;
+                        opacity: 1;
+                    }
+                }
 
-        @keyframes check {
-            from { stroke-dasharray: 0, 30; opacity: 0.5; }
-            to { stroke-dasharray: 30, 0; opacity: 1; }
-        }
-        .animate-check path {
-            stroke-dasharray: 30, 0;
-            animation: check 0.6s ease-out forwards;
-        }
-        
-        .bg-state-active { background-color: rgba(123, 203, 1, 0.15); }
-        .text-state-active { color: #5aa101; }
-    </style>
+                .animate-check path {
+                    stroke-dasharray: 30, 0;
+                    animation: check 0.6s ease-out forwards;
+                }
 
-    <div class="max-w mx-auto py-10 sm:px-6 lg:px-8">
-        
-        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
-            <span>Gestión de Staff</span>
-            <button 
-                wire:click="$set('showCreateModal', true)"
-                class="bg-lime hover:bg-lime-darker text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-300 text-sm">
-                + Crear Nuevo
-            </button>
-        </h2>
+                .bg-state-active {
+                    background-color: rgba(123, 203, 1, 0.15);
+                }
 
-        @if (session()->has('success'))
-            <div class="bg-green-100 dark:bg-green-800 border-l-4 border-green-500 text-green-700 dark:text-green-200 p-4 mb-4 rounded-md">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if (session()->has('error'))
-            <div class="bg-red-100 dark:bg-red-800 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 mb-4 rounded-md">
-                {{ session('error') }}
-            </div>
-        @endif
+                .text-state-active {
+                    color: #5aa101;
+                }
+            </style>
 
-        {{-- ======================================================= --}}
-        {{-- FILTROS, BÚSQUEDA Y LISTA --}}
-        {{-- ======================================================= --}}
-        <div class="bg-white/95 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-gray-300">
+            <div class="max-w mx-auto py-10 sm:px-6 lg:px-8">
 
-            <div class="p-5 bg-white dark:bg-[#1a1a1a]/95 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
-                <div class="flex-grow w-full sm:w-auto">
-                    <flux:input
-                        wire:model.live.debounce.300ms="search"
-                        type="text"
-                        placeholder="Buscar por nombre o email..."
-                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                    />
-                </div>
+                <h2
+                    class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
+                    <span class="title">Gestión de Staff</span>
+                    <button wire:click="$set('showCreateModal', true)" class="w-28 sm:w-32 btn-ouline-ve">
+                        + Crear Nuevo
+                    </button>
+                </h2>
 
-                <div class="w-full sm:w-48 flex-shrink-0 relative">
-                    <flux:select 
-                        wire:model.live="filterRole"
-                        class="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                        >
+                @if (session()->has('success'))
+                    <div
+                        class="bg-green-100 dark:bg-green-800 border-l-4 border-green-500 text-green-700 dark:text-green-200 p-4 mb-4 rounded-md">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if (session()->has('error'))
+                    <div
+                        class="bg-red-100 dark:bg-red-800 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 mb-4 rounded-md">
+                        {{ session('error') }}
+                    </div>
+                @endif
+
+                {{-- ======================================================= --}}
+                {{-- FILTROS, BÚSQUEDA Y LISTA --}}
+                {{-- ======================================================= --}}
+                <div
+                    class="bg-white/95 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-gray-300">
+
+                    <div
+                        class="p-5 bg-white dark:bg-[#1a1a1a]/95 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
+                        <div class="flex-grow w-full sm:w-auto">
+                            <flux:input wire:model.live.debounce.300ms="search" type="text"
+                                placeholder="Buscar por nombre o email..." class:input="!w-full inputs" />
+                        </div>
+
+                        <div class="w-full sm:w-48 flex-shrink-0 relative">
+                            <flux:select wire:model.live="filterRole" class="!w-full inputs">
                                 <flux:select.option value="all">Mostrar Todo</flux:select.option>
                                 <flux:select.option value="trainer">Entrenadores</flux:select.option>
                                 <flux:select.option value="nutriologo">Nutriólogos</flux:select.option>
-                    </flux:select>
-                    
-                </div>
-            </div>
+                            </flux:select>
 
-            {{-- TABLA DE EMPLEADOS --}}
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-800">
-                    <thead class="bg-white/95 dark:bg-zinc-800">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Staff</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Rol Actual</th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Estado</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">Cambiar Rol</th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                        @forelse ($users as $user)
-                            @php
-                                $fullName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
-                            @endphp
-                            <tr class="hover:bg-lime/10 transition" wire:key="{{ $user->id }}">
-                                <td class="px-6 py-4">
-                                    <div class="text-sm font-medium text-gray-900 dark:text-white">{{ $fullName !== '' ? $fullName : 'N/A' }}</div>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}</div>
-                                </td>
-                                
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
-                                        @if($user->role == 'trainer')
-                                            bg-green-100/50 text-green-800 dark:bg-green-800/50 dark:text-green-300 
-                                        @elseif($user->role == 'nutriologo')
-                                            bg-blue-100/50 text-blue-800 dark:bg-blue-800/50 dark:text-blue-300
-                                        @else 
-                                            bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300
-                                        @endif">
-                                        {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
-                                    </span>
-                                </td>
-                                
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if ($user->is_active)
-                                        <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-state-active text-state-active">Activo</span>
-                                    @else
-                                        <span class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-red-100/50 text-red-700 dark:bg-red-900/50 dark:text-red-300">Inactivo</span>
-                                    @endif
-                                </td>
-                                
-                                <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium relative">
-                                    <flux:select 
-                                        wire:change="confirmRoleChange({{ $user->id }}, $event.target.value, '{{ $fullName }}')"
-                                        class="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                                        >
-                                            @foreach ($staffRoles as $roleKey => $roleLabel)
-                                                @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
-                                                        <option value="{{ $roleKey }}" @selected($user->role == $roleKey)>
-                                                        {{ $roleLabel }}
+                        </div>
+                    </div>
+
+                    {{-- TABLA DE EMPLEADOS --}}
+                    <div class="overflow-x-auto">
+                        <table class="tables">
+                            <thead class="tables-th">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Staff
+                                    </th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Rol
+                                        Actual</th>
+                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
+                                        Estado</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">
+                                        Cambiar Rol</th>
+                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">
+                                        Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tables-tbody">
+                                @forelse ($users as $user)
+                                    @php
+                                        $fullName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
+                                    @endphp
+                                    <tr class="hover:bg-lime/10 transition" wire:key="{{ $user->id }}">
+                                        <td class="px-6 py-4">
+                                            <div class="text-sm font-medium text-gray-900 dark:text-white">
+                                                {{ $fullName !== '' ? $fullName : 'N/A' }}</div>
+                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}
+                                            </div>
+                                        </td>
+
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span
+                                                class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
+                                                @if ($user->role == 'trainer') bg-green-100/50 text-green-800 dark:bg-green-800/50 dark:text-green-300 
+                                                @elseif($user->role == 'nutriologo')
+                                                    bg-blue-100/50 text-blue-800 dark:bg-blue-800/50 dark:text-blue-300
+                                                @else 
+                                                    bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
+                                                {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
+                                            </span>
+                                        </td>
+
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if ($user->is_active)
+                                                <span
+                                                    class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-state-active text-state-active">Activo</span>
+                                            @else
+                                                <span
+                                                    class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-red-100/50 text-red-700 dark:bg-red-900/50 dark:text-red-300">Inactivo</span>
+                                            @endif
+                                        </td>
+
+                                        <td
+                                            class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium relative">
+                                            <flux:select
+                                                wire:change="confirmRoleChange({{ $user->id }}, $event.target.value, '{{ $fullName }}')"
+                                                class="!w-full inputs">
+                                                @foreach ($staffRoles as $roleKey => $roleLabel)
+                                                    @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
+                                                        <option value="{{ $roleKey }}"
+                                                            @selected($user->role == $roleKey)>
+                                                            {{ $roleLabel }}
                                                         </option>
-                                                @endif
-                                            @endforeach
-                                    </flux:select>
-                                </td>
-                                
-                                <td class="px-6 py-4 text-center text-sm font-medium">
-                                    <div class="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
-                                        {{-- BOTÓN ACTIVAR/DESACTIVAR (Outline) --}}
-                                        <button 
-                                            wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
-                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold shadow transition duration-150 hover:scale-[1.02] 
-                                            border-2 
-                                            @if($user->is_active) 
-                                                border-yellow-500 hover:bg-yellow-500 text-yellow-500 hover:text-white 
-                                            @else 
-                                                border-[#7bcb01] hover:bg-[#7bcb01] text-[#7bcb01] hover:text-white 
-                                            @endif">
-                                            {{ $user->is_active ? 'Desactivar' : 'Activar' }}
-                                        </button>
+                                                    @endif
+                                                @endforeach
+                                            </flux:select>
+                                        </td>
 
-                                        {{-- BOTÓN ELIMINAR (Outline) --}}
-                                        <button 
-                                            wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
-                                            class="text-sm w-28 sm:w-32 px-3 py-2 rounded-full font-bold shadow transition duration-150 hover:scale-[1.02] 
-                                            border-2 border-red-600 hover:bg-red-600 text-red-600 hover:text-white">
-                                            Eliminar
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                                    No se encontró staff que coincida con los filtros.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="p-4 border-t dark:border-gray-700">
-                {{ $users->links() }}
-            </div>
-        </div>
-    </div>
+                                        <td class="px-6 py-4 text-center text-sm font-medium">
+                                            <div class="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
+                                                {{-- BOTÓN ACTIVAR/DESACTIVAR (Outline) --}}
+                                                <button
+                                                    wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
+                                                    class=" w-28 sm:w-32 @if ($user->is_active) btn-ouline-am @else btn-ouline-ve @endif">
+                                                    {{ $user->is_active ? 'Desactivar' : 'Activar' }}
+                                                </button>
 
-    {{-- ======================================================= --}}
-    {{-- MODAL DE CREACIÓN DE EMPLEADO --}}
-    {{-- ======================================================= --}}
-    <div 
-        x-data="{ open: @entangle('showCreateModal').live }" 
-        x-show="open" 
-        x-transition.opacity.scale.80 
-        x-cloak 
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-    >
-        <div 
-            x-show="open" 
-            x-transition:enter="ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-            @click.away="open = false" 
-            class="bg-white dark:bg-[#1a1a1a]/90 rounded-xl shadow-2xl p-6 max-w-lg w-full transform transition-all duration-300 text-left border border-gray-700" 
-        >
-            <div class="border-b dark:border-gray-700 pb-3 mb-6">
-                <h3 class="text-2xl font-bold leading-6 text-gray-900 dark:text-white text-lime">
-                    Registrar Nuevo Miembro del Staff
-                </h3>
-            </div>
-            
-            <form wire:submit.prevent="createUser" class="space-y-4">
-                
-                <div>
-                    <flux:input
-                        wire:model="newName"
-                        :label="__('Nombre')"
-                        type="text"
-                        required
-                        autofocus
-                        autocomplete="newName"
-                        placeholder="Nombre"
-                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                    />
-                    @error('newName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-                
-                <div>
-                    <flux:input
-                        wire:model="newLastname"
-                        :label="__('Apellido')"
-                        type="text"
-                        required
-                        autofocus
-                        autocomplete="newLastname"
-                        placeholder="Apellido"
-                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                    />
-                    @error('newName') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
+                                                {{-- BOTÓN ELIMINAR (Outline) --}}
+                                                <button
+                                                    wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
+                                                    class=" w-28 sm:w-32 btn-ouline-ro">
+                                                    Eliminar
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5"
+                                            class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                            No se encontró staff que coincida con los filtros.
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
 
-                <div>
-                     <flux:input
-                        wire:model="newEmail"
-                        :label="__('Correo')"
-                        type="email"
-                        required
-                        autofocus
-                        autocomplete="email"
-                        placeholder="email@example.com"
-                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                    />
-                    @error('newEmail') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
-                    <flux:input
-                        wire:model="newPassword"
-                        :label="__('Contraseña')"
-                        type="password"
-                        required
-                        :placeholder="__('Contraseña (Mín. 8 caracteres)')"
-                        viewable
-                        class:input="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                    />
-                    @error('newPassword') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-
-                <div>
-                    <flux:select 
-                        :label="__('Rol')" wire:model="newRole"
-                        class="!w-full border !border-gray-600 dark:!border-gray-100 focus:!border-[#7bcb01] focus:!ring-2 focus:!outline focus:!ring-[#7bcb01] shadow-sm"
-                        >
-                        @foreach ($staffRoles as $roleKey => $roleLabel)
-                            @if ($roleKey !== 'cliente' && $roleKey !== 'administrador' )
-                                <flux:select.option value="{{ $roleKey }}">{{ $roleLabel }}</flux:select.option>
-                            @endif
-                        @endforeach
-                    </flux:select>
-                    @error('newRole') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                </div>
-                
-                <div class="mt-6 pt-4 border-t dark:border-gray-700 flex justify-end space-x-3">
-                    <button type="button" 
-                        wire:click="$set('showCreateModal', false)" 
-                        @click="open = false"
-                        class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition font-bold">
-                        Cancelar
-                    </button>
-                    <button type="submit" 
-                             wire:loading.attr="disabled"
-                             class="bg-lime hover:bg-lime-darker text-white font-bold py-2 px-6 rounded-lg transition duration-300 disabled:opacity-50">
-                        <span wire:loading.remove wire:target="createUser">Crear Staff</span>
-                        <span wire:loading wire:target="createUser">Creando...</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- ======================================================= --}}
-    {{-- MODAL DE CONFIRMACIÓN --}}
-    {{-- ======================================================= --}}
-    <div 
-        x-data="{ 
-            show: @entangle('showConfirmationModal'), 
-            success: false,
-            confirmAction() {
-                $wire.call('executeModalAction').then(() => {
-                    this.success = true;
-                    setTimeout(() => {
-                        this.show = false;
-                        this.success = false;
-                        $wire.call('closeModal'); 
-                    }, 1800);
-                });
-            }
-        }" 
-        x-show="show" 
-        x-cloak
-        class="fixed inset-0 z-[9999] flex items-center justify-center bg-zinc-900/60 backdrop-blur-sm"
-        x-transition.opacity
-    >
-        <div 
-            class="bg-white dark:bg-[#1a1a1a]/90 rounded-xl shadow-2xl max-w-lg w-full p-6 border-t-4 border-lime transform transition-all relative overflow-hidden"
-            x-transition.scale
-        >
-
-            <template x-if="!success">
-                <div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{{ $modalTitle }}</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-5">{!! nl2br($modalMessage) !!}</p>
-
-                    <div class="flex justify-end space-x-3 mt-5">
-                        <button 
-                            wire:click="closeModal"
-                            class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700 transition font-bold"
-                        >
-                            Cancelar
-                        </button>
-                        <button 
-                            @click="confirmAction()" 
-                            class="px-4 py-2 rounded-lg bg-lime hover:bg-lime-darker text-white font-semibold shadow transition"
-                        >
-                            Confirmar
-                        </button>
+                    <div class="p-4 border-t dark:border-gray-700">
+                        {{ $users->links() }}
                     </div>
                 </div>
-            </template>
+            </div>
 
-            <template x-if="success">
-                <div class="flex flex-col items-center justify-center text-center py-8 animate-fadeIn">
-                    <svg class="w-16 h-16 text-lime mb-3 animate-check" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <p class="text-lg font-semibold text-gray-800 dark:text-white">Acción realizada con éxito</p>
+            {{-- ======================================================= --}}
+            {{-- MODAL DE CREACIÓN DE EMPLEADO --}}
+            {{-- ======================================================= --}}
+            <div x-data="{ open: @entangle('showCreateModal').live }" x-show="open" x-transition.opacity.scale.80 x-cloak class="bg-modal">
+                <div x-show="open" x-transition:enter="ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                    x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" @click.away="open = false"
+                    class="max-w-lg w-full card-tb-ve-v2">
+                    <div class="border-b dark:border-gray-700 pb-3 mb-6">
+                        <h3 class="titles-modal">
+                            Registrar Nuevo Miembro del Staff
+                        </h3>
+                    </div>
+
+                    <form wire:submit.prevent="createUser" class="space-y-4">
+
+                        <div>
+                            <flux:input wire:model="newName" :label="__('Nombre')" type="text" required autofocus
+                                autocomplete="newName" placeholder="Nombre" class:input="!w-full inputs" />
+                            @error('newName')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <flux:input wire:model="newLastname" :label="__('Apellido')" type="text" required
+                                autofocus autocomplete="newLastname" placeholder="Apellido"
+                                class:input="!w-full inputs" />
+                            @error('newName')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <flux:input wire:model="newEmail" :label="__('Correo')" type="email" required autofocus
+                                autocomplete="email" placeholder="email@example.com" class:input="!w-full inputs" />
+                            @error('newEmail')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <flux:input wire:model="newPassword" :label="__('Contraseña')" type="password" required
+                                :placeholder="__('Contraseña (Mín. 8 caracteres)')" viewable
+                                class:input="!w-full inputs" />
+                            @error('newPassword')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <flux:select :label="__('Rol')" wire:model="newRole" class="!w-full inputs">
+                                @foreach ($staffRoles as $roleKey => $roleLabel)
+                                    @if ($roleKey !== 'cliente' && $roleKey !== 'administrador')
+                                        <flux:select.option value="{{ $roleKey }}">{{ $roleLabel }}
+                                        </flux:select.option>
+                                    @endif
+                                @endforeach
+                            </flux:select>
+                            @error('newRole')
+                                <span class="text-red-500 text-xs mt-1">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="mt-6 pt-4 border-t dark:border-gray-700 flex justify-end space-x-3">
+                            <button type="button" wire:click="$set('showCreateModal', false)" @click="open = false"
+                                class="btn-ouline-ro">
+                                Cancelar
+                            </button>
+                            <button type="submit" wire:loading.attr="disabled" class="btn-ouline-ve">
+                                <span wire:loading.remove wire:target="createUser">Crear Staff</span>
+                                <span wire:loading wire:target="createUser">Creando...</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </template>
+            </div>
 
+            {{-- ======================================================= --}}
+            {{-- MODAL DE CONFIRMACIÓN --}}
+            {{-- ======================================================= --}}
+            <div x-data="{
+                show: @entangle('showConfirmationModal'),
+                success: false,
+                confirmAction() {
+                    $wire.call('executeModalAction').then(() => {
+                        this.success = true;
+                        setTimeout(() => {
+                            this.show = false;
+                            this.success = false;
+                            $wire.call('closeModal');
+                        }, 1800);
+                    });
+                }
+            }" x-show="show" x-cloak class="bg-modal" x-transition.opacity>
+                <div class="max-w-lg w-full card-tb-ve-v2 transform transition-all relative overflow-hidden"
+                    x-transition.scale>
+
+                    <template x-if="!success">
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-3">{{ $modalTitle }}</h3>
+                            <p class="text-sm text-gray-600 dark:text-gray-300 mb-5">{!! nl2br($modalMessage) !!}</p>
+
+                            <div class="flex justify-end space-x-3 mt-5">
+                                <button wire:click="closeModal"
+                                    class="btn-ouline-ro">
+                                    Cancelar
+                                </button>
+                                <button @click="confirmAction()"
+                                    class="btn-ouline-ve">
+                                    Confirmar
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="success">
+                        <div class="flex flex-col items-center justify-center text-center py-8 animate-fadeIn">
+                            <svg class="w-16 h-16 text-lime mb-3 animate-check" fill="none" stroke="currentColor"
+                                stroke-width="3" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <p class="text-lg font-semibold text-gray-800 dark:text-white">Acción realizada con éxito
+                            </p>
+                        </div>
+                    </template>
+
+                </div>
+            </div>
         </div>
     </div>
 </div>
