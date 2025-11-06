@@ -56,7 +56,7 @@
                     {{-- Grupo 1: Opciones BASE y Dashboard según Rol --}}
                     <flux:navlist.group 
                         :heading="__('Plataforma')" 
-                        class="grid text-gray-900 dark:text-[#7bcb01]">
+                        class="grid text-gray-900 dark:text-[#7bcb01] text-sm">
                         
                         @if ($user->role === 'administrador')
                             <flux:navlist.item 
@@ -244,7 +244,6 @@
             </flux:header>
 
         {{ $slot }}
-
         @fluxScripts
     </body>
 </html>

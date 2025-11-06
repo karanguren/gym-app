@@ -10,11 +10,10 @@ use App\Models\RoutineExercise;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log; // Agregado para Log::error
 
 class RoutineBuilder extends Component
 {
-    // --- PROPIEDADES PÚBLICAS ---
-    public string $layout = 'layouts.app'; 
     public string $routineName = '';
 
     public string $searchQuery = ''; 
@@ -23,10 +22,7 @@ class RoutineBuilder extends Component
 
     public array $selectedRoutineIds = [];
 
-    /**
-     * ESTRUCTURA CLAVE: Almacena los arrays de sets/reps/kg por ejercicio.
-     * Ejemplo: [exercise_id => [ ['reps' => 12, 'kg' => 40], ['reps' => 10, 'kg' => 45] ]]
-     */
+    
     public array $routineData = []; 
 
     // Propiedades para la lógica de la interfaz
@@ -48,15 +44,11 @@ class RoutineBuilder extends Component
     public function mount(): void
     {
         $this->exercises = Exercise::orderBy('muscle_group')
-                                    ->get()
-                                    ->groupBy('muscle_group')
-                                    ->collect(); 
-        
-        // Inicializa routineData si es necesario, por ejemplo, si se está editando
-        // Si no es edición, se mantiene como array vacío.
+            ->get()
+            ->groupBy('muscle_group')
+            ->collect(); 
     }
 
-    // --- PROPIEDADES COMPUTADAS ---
 
     /**
      * Verifica si la rutina tiene nombre y al menos un ejercicio con sets válidos.
@@ -141,7 +133,6 @@ class RoutineBuilder extends Component
         return [
             'routineName' => 'required|string|min:3|max:100',
             'routineData' => 'required|array|min:1', 
-            // Validamos que cada set tenga reps y kg válidos
             'routineData.*.*.reps' => 'required|integer|min:1|max:500', 
             'routineData.*.*.kg' => 'nullable|numeric|min:0|max:5000', 
         ];
@@ -158,7 +149,7 @@ class RoutineBuilder extends Component
         } else {
             // Inicializa con un set por defecto
             $this->routineData[$id] = [
-                ['reps' => 10, 'kg' => 0.0] 
+                ['reps' => 10, 'kg' => 2] 
             ];
         }
         $this->selectedRoutineIds = array_keys($this->routineData);
@@ -198,7 +189,10 @@ class RoutineBuilder extends Component
     public function changeView($view): void
     {
         if ($view === 'routine' && empty($this->selectedRoutineIds)) {
-            session()->flash('error', 'Debes seleccionar al menos un ejercicio para armar la rutina.');
+
+
+            $this->dispatch('notify', message: 'Debes seleccionar al menos un ejercicio para armar la rutina.', type: 'error', duration: 3500 );
+
             return;
         }
         $this->currentView = $view;
@@ -253,12 +247,9 @@ class RoutineBuilder extends Component
                     'routine_id'    => $routine->id,
                     'exercise_id'   => $exerciseId,
                     'order'         => $order++,
-                    // sets_target: Cuenta total de sets
                     'sets_target'   => $targetSets, 
-                    // Estos dos campos se mantienen por convención o fallback (usan el primer set)
                     'reps_target'   => $firstSet['reps'], 
                     'weight_target' => $firstSet['kg'],
-                    // *** NUEVO CAMPO: Detalles de cada set (incluye todas las reps/kg) ***
                     'sets_details'  => $setsDetailsJson,
                     'created_at'    => now(),
                     'updated_at'    => now(),
@@ -268,13 +259,15 @@ class RoutineBuilder extends Component
             // 3. Inserción masiva del plan de ejercicios
             RoutineExercise::insert($routineExercisesData);
 
-            session()->flash('success', '¡Rutina "' . $routine->name . '" guardada exitosamente! Puedes consultarla en tu Dashboard.');
+            // CAMBIO: Usar 'notify' en lugar de 'show-toast'
+            $this->dispatch('notify', message: '¡Rutina "' . $routine->name . '" guardada exitosamente! Puedes consultarla en tu Dashboard.', type: 'success', duration: 3500 );
             
             $this->redirect(route('client.routines'), navigate: true); 
 
         } catch (\Exception $e) {
-            session()->flash('error', 'Hubo un error al guardar la rutina. Intenta de nuevo. (Detalles: ' . $e->getMessage() . ')');
-            // Log::error($e->getMessage()); // Descomentar para debugging
+            // CAMBIO: Usar 'notify' en lugar de 'show-toast'
+            $this->dispatch('notify', message: 'Hubo un error al guardar la rutina. Intenta de nuevo. (Detalles: ' . $e->getMessage() . ')', type: 'error', duration: 3500 );
+            Log::error($e->getMessage()); // Descomentar para debugging
         }
     }
 

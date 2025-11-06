@@ -1,30 +1,7 @@
 <div class="div-principal">
-    <div class="max-w mx-auto sm:px-6 lg:px-8" x-data="{
-        showFinalizeModal: false,
-        toast: { show: false, message: '', type: 'success' },
-    
-        showToast(payload) {
-            const data = Array.isArray(payload) && payload.length > 0 ? payload[0] : payload;
-    
-            if (data && data.message) {
-                this.toast.message = data.message;
-                this.toast.type = data.type || 'success';
-                this.toast.show = true;
-                setTimeout(() => { this.toast.show = false; }, 3000);
-            }
-        }
-    }" x-init="@this.on('show-toast', (data) => showToast(data))" x-cloak>
+    <div class="max-w mx-auto sm:px-6 lg:px-8" 
+        >
         <div class="md:p-8">
-
-            @if (session()->has('success') || session()->has('error') || session()->has('warning'))
-                <div class="p-4 mb-4 text-sm rounded-lg 
-                    @if (session()->has('success')) text-green-800 bg-green-50 dark:bg-green-900/50 dark:text-green-300 @endif
-                    @if (session()->has('error')) text-red-800 bg-red-50 dark:bg-red-900/50 dark:text-red-300 @endif
-                    @if (session()->has('warning')) text-yellow-800 bg-yellow-50 dark:bg-yellow-900/50 dark:text-yellow-300 @endif"
-                    role="alert">
-                    {{ session('success') ?? (session('error') ?? session('warning')) }}
-                </div>
-            @endif
 
             <header
                 class="mb-8 border-b dark:border-gray-700 pb-4 flex flex-col sm:flex-row justify-between sm:items-center space-y-3 sm:space-y-0">
@@ -40,7 +17,7 @@
                 <div class="w-full sm:w-auto">
                     @if ($currentView === 'selector')
                         <button wire:click="changeView('routine')" class="w-full sm:w-auto btn-outline-ve"
-                            {{ count($this->selectedRoutineIds) === 0 ? 'disabled' : '' }}>
+                            >
                             Ver Rutina ({{ count($this->selectedRoutineIds) }})
                         </button>
                     @else
@@ -105,12 +82,10 @@
                                                             title="Ver instrucciones de {{ $exercise->name }}"
                                                             type="button">
                                                             @if ($exercise->image_path ?? false)
-                                                                {{-- Se mantiene el w-16 para mejor visualización en móvil --}}
                                                                 <img src="{{ $exercise->image_path }}"
                                                                     alt="{{ $exercise->name }}"
                                                                     class="w-16 h-16 rounded object-cover flex-shrink-0 border border-gray-300 dark:border-gray-600">
                                                             @else
-                                                                {{-- Icono de Fallback (Ancho fijo) --}}
                                                                 <svg class="w-16 h-16 p-1 text-lime-600 dark:text-lime-400 flex-shrink-0 bg-gray-200 dark:bg-gray-700 rounded-lg"
                                                                     xmlns="http://www.w3.org/2000/svg" fill="none"
                                                                     viewBox="0 0 24 24" stroke-width="1.5"
@@ -130,12 +105,10 @@
                                                             <label for="exercise-{{ $exercise->id }}"
                                                                 class="text-gray-900 dark:text-gray-100 cursor-pointer block leading-snug text-base flex-grow min-w-0 select-none">
 
-                                                                {{-- Nombre del Ejercicio --}}
                                                                 <span class="block font-medium truncate">
                                                                     {{ $exercise->name }}
                                                                 </span>
 
-                                                                {{-- **NUEVO:** Grupo Muscular Debajo del Nombre --}}
                                                                 <span
                                                                     class="block text-xs font-normal text-gray-500 dark:text-gray-400 capitalize mt-0.5">
                                                                     {{ Str::ucfirst($group) }}
@@ -145,7 +118,6 @@
                                                     </div>
 
                                                     <div class="flex-shrink-0 ml-2">
-                                                        {{-- Espacio para posibles botones de acción adicionales --}}
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -314,125 +286,13 @@
             @endif
 
             @if ($showModal && $selectedExerciseDetails)
-                <div x-data="{ open: @entangle('showModal').live }" x-show="open" x-transition.opacity.scale.80 x-cloak
-                    class="flex items-center justify-center p-4 sm:p-6 bg-modal">
-                    <div x-show="open" x-transition:enter="ease-out duration-300"
-                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" @click.away="open = false"
-                        class="modal-instrucciones">
-                        <div class="border-b border-gray-700 pb-4 mb-4 flex items-center justify-between">
-                            <h3 class="text-2xl font-extrabold leading-tight text-white">
-                                <span class="text-lime-400">{{ $selectedExerciseDetails->name }}</span>
-                            </h3>
-                            <button @click="open = false"
-                                class="text-gray-400 hover:text-white transition duration-200">
-                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        {{-- CONTENIDO DEL MODAL --}}
-                        <div class="mt-4 space-y-6 max-h-[65vh] overflow-y-auto pr-3 -mr-2 custom-scrollbar">
-
-                            @if ($selectedExerciseDetails->gif_path ?? false)
-                                <div
-                                    class="w-full relative pb-[100%] overflow-hidden rounded-xl bg-gray-800 flex items-center justify-center shadow-lg border-2 border-lime-600">
-                                    <img src="{{ $selectedExerciseDetails->gif_path }}"
-                                        alt="GIF de {{ $selectedExerciseDetails->name }}"
-                                        class="absolute inset-0 w-full h-full object-contain">
-                                </div>
-                            @endif
-
-                            <p class="text-sm font-semibold text-lime-400 capitalize">
-                                Grupo Muscular: <span
-                                    class="font-normal text-gray-300">{{ $selectedExerciseDetails->muscle_group }}</span>
-                            </p>
-
-                            {{-- SECCIÓN PREPARACIÓN (Ahora usa description - resumen) --}}
-                            <div class="border-t border-gray-700 pt-5">
-                                <h4 class="text-xl font-bold text-white mb-2">
-                                    Preparación (Resumen)
-                                </h4>
-                                <p class="text-gray-300 leading-relaxed">
-                                    {{ $selectedExerciseDetails->description }}
-                                </p>
-                            </div>
-
-                            {{-- SECCIÓN EJECUCIÓN (Ahora usa instructions - pasos) --}}
-                            <div class="border-t border-gray-700 pt-5">
-                                <h4 class="text-xl font-bold text-white mb-2">
-                                    Ejecución
-                                </h4>
-                                <p class="text-gray-300 leading-relaxed">
-                                    {{ $selectedExerciseDetails->instructions }}
-                                </p>
-                            </div>
-
-                            {{-- SECCIÓN CONSEJOS CLAVES (Ahora usa tips) --}}
-                            <div class="border-t border-gray-700 pt-5">
-                                <h4 class="text-xl font-bold text-white mb-2">
-                                    Consejos Claves
-                                </h4>
-                                <p class="text-gray-300 leading-relaxed">
-                                    {{ $selectedExerciseDetails->tips }}
-                                </p>
-                            </div>
-
-                        </div>
-                        {{-- FIN: CONTENIDO DEL MODAL --}}
-
-                        <div class="mt-8 pt-5 border-t border-gray-700 flex justify-end">
-                            <button wire:click="closeModal" @click="open = false" type="button"
-                                class="py-2 px-8 btn-outline-ve">
-                                Entendido
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                <x-exercise-instructions-modal 
+                    :show-modal="'showModal'" 
+                    :exercise="$selectedExerciseDetails" 
+                />
             @endif
 
-        </div>
 
-        <div x-show="toast.show" x-cloak x-transition:enter="ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
-            x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
-            x-transition:leave-end="opacity-0 translate-y-2" @click="toast.show = false" {{-- Clic para cerrar --}}
-            class="fixed bottom-5 right-5 z-50 transform transition duration-300 cursor-pointer"
-            :class="{
-                'bg-green-600': toast.type === 'success',
-                'bg-red-600': toast.type === 'error',
-                'bg-blue-600': toast.type === 'info',
-                'bg-yellow-600': toast.type === 'warning'
-            }">
-            <div
-                class="max-w-xs w-full text-white p-4 rounded-lg shadow-xl font-semibold transform transition duration-300 cursor-pointer flex items-center space-x-3">
-
-                {{-- Iconos --}}
-                <svg x-show="toast.type === 'success'" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                    <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-                <svg x-show="toast.type === 'error' || toast.type === 'warning'" class="w-6 h-6"
-                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                <svg x-show="toast.type === 'info'" class="w-6 h-6" xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="16" x2="12" y2="12" />
-                    <line x1="12" y1="8" x2="12.01" y2="8" />
-                </svg>
-
-                <span x-text="toast.message"></span>
-            </div>
         </div>
     </div>
 </div>

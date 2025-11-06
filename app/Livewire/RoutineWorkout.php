@@ -10,6 +10,7 @@ use App\Models\WorkoutSet;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Computed; 
+use App\Models\Exercise;
 
 class RoutineWorkout extends Component
 {
@@ -22,17 +23,20 @@ class RoutineWorkout extends Component
     public array $workoutData = []; 
 
     // Propiedades del cronómetro
-    public $isRunning = false; // El estado clave para controlar el cronómetro
-    public $seconds = 0; // Almacena el tiempo total en segundos
-
-    // Propiedades para el modal de INSTRUCCIONES
-    public bool $showInstructionsModal = false;
-    public ?array $selectedExerciseDetails = null; // Almacena nombre e instrucciones
-
+    public $isRunning = false; 
+    public $seconds = 0;
+    
     // Propiedades para el modal de CONFIRMACIÓN DE ELIMINACIÓN
     public bool $showDeleteConfirmationModal = false;
     public ?int $setRoutineExerciseId = null;
     public ?int $setIndexToDelete = null;
+    
+    // Propiedades para el modal de FINALIZACION
+    public bool $showFinalizeModal = false;
+
+    // Propiedades para el modal de INSTRUCCIONES
+    public bool $showModal = false;
+    public $selectedExerciseDetails = null;
 
     // ------------------------------------------------------------------
     // CICLO DE VIDA
@@ -46,30 +50,23 @@ class RoutineWorkout extends Component
             abort(403, 'No puedes acceder a esta rutina.');
         }
 
-        // Aseguramos que la relación 'routineExercises' esté cargada con 'exercise'
         $this->routine->load('routineExercises.exercise');
         
-        // Inicializa workoutData a partir de la planificación (RoutineExercises)
         $initialData = [];
         
         foreach ($routine->routineExercises as $re) {
             
-            // CRÍTICO: Manejar si $re->sets_details ya es un array (por Eloquent Casting) o si es una cadena JSON.
             $setsDetails = $re->sets_details;
             $details = null;
 
             if (is_array($setsDetails)) {
-                // Caso 1: El casting de Eloquent está activo, ya es un array.
                 $details = $setsDetails;
             } elseif (is_string($setsDetails) && !empty($setsDetails)) {
-                // Caso 2: El casting no está activo, es una cadena JSON que debemos decodificar.
-                // Manejo de errores: Si el JSON es inválido, $details será null.
                 $details = json_decode($setsDetails, true);
             }
                 
-            // Aplicar el fallback si $details es nulo o no un array válido
             if (empty($details) || !is_array($details)) {
-                $details = [ // Fallback: 1 set
+                $details = [ 
                     [
                         'reps' => $re->target_reps ?? 10, 
                         'kg' => $re->target_weight ?? 0.0
@@ -77,7 +74,6 @@ class RoutineWorkout extends Component
                 ];
             }
                 
-            // $re->id es el RoutineExercise ID, usado como clave para $workoutData
             $initialData[$re->id] = $this->prepareInitialSets($details);
         }
         
@@ -88,7 +84,6 @@ class RoutineWorkout extends Component
     {
         $preparedSets = [];
         foreach ($setsDetails as $set) {
-            // Aseguramos que los resultados iniciales sean iguales a los objetivos
             $targetReps = $set['reps'] ?? 10;
             $targetKg = $set['kg'] ?? 0.0;
             
@@ -96,25 +91,16 @@ class RoutineWorkout extends Component
                 'target_reps' 	=> $targetReps,
                 'target_kg' 	=> $targetKg,
                 'done' 			=> false,
-                'result_reps' 	=> $targetReps, // Se inicializa con el target
-                'result_kg' 	=> $targetKg, 	// Se inicializa con el target
+                'result_reps' 	=> $targetReps, 
+                'result_kg' 	=> $targetKg, 	
             ];
         }
         return $preparedSets;
     }
     
-    // ------------------------------------------------------------------
-    // PROPIEDADES COMPUTADAS
-    // ------------------------------------------------------------------
-    
-    /**
-     * Obtiene la colección de RoutineExercise, incluyendo el modelo Exercise.
-     */
     #[Computed]
     public function routineExercises()
     {
-        // Retorna la relación ya cargada en mount().
-        // Si no se llamó a mount() o si la rutina no está cargada, asegura la carga.
         if (!$this->routine->relationLoaded('routineExercises')) {
             $this->routine->load('routineExercises.exercise');
         }
@@ -137,12 +123,12 @@ class RoutineWorkout extends Component
         foreach ($this->workoutData as $exerciseSets) {
             foreach ($exerciseSets as $set) {
                 if (!$set['done']) {
-                    return false; // Encontró al menos un set incompleto
+                    return false; 
                 }
             }
         }
         
-        return true; // Todos los sets están completos
+        return true; 
     }
 
 
@@ -154,7 +140,8 @@ class RoutineWorkout extends Component
     {
         if (!$this->isRunning) {
             $this->isRunning = true;
-            $this->dispatch('show-toast', ['message' => '¡Entrenamiento iniciado!', 'type' => 'success']);
+            $this->dispatch('notify', message: '¡Entrenamiento iniciado!', type: 'success', duration: 3500 );
+    
         }
     }
 
@@ -162,7 +149,7 @@ class RoutineWorkout extends Component
     {
         if ($this->isRunning) {
             $this->isRunning = false;
-            $this->dispatch('show-toast', ['message' => 'Entrenamiento en pausa.', 'type' => 'info']);
+            $this->dispatch('notify', message: 'Entrenamiento en pausa.', type: 'info', duration: 3500 );
         }
     }
 
@@ -193,29 +180,80 @@ class RoutineWorkout extends Component
     // LÓGICA DE MODALES DE EJERCICIO 
     // ------------------------------------------------------------------
     
-    public function showInstructions(int $routineExerciseId): void
+   public function showExerciseDetails(int $exerciseId): void
     {
-        // Usamos la propiedad computada para buscar el ejercicio
-        $re = $this->routineExercises->firstWhere('id', $routineExerciseId);
-
-        if ($re && $re->exercise) {
-            $this->selectedExerciseDetails = [
-                'name'           => $re->exercise->name,
-                'instructions'   => $re->exercise->instructions ?? $re->exercise->description ?? 'No hay instrucciones disponibles para este ejercicio.',
-                'muscle_group'   => $re->exercise->muscle_group ?? 'N/A', 
-                'gif_path'       => $re->exercise->gif_path ?? null,
-                'description'    => $re->exercise->description ?? 'No hay descripción disponible.',
-                'instructions'   => $re->exercise->instructions ?? 'No hay pasos de ejecución disponibles.', 
-                'tips'           => $re->exercise->tips ?? 'No hay consejos disponibles.', 
-            ];
-            $this->showInstructionsModal = true;
-        }
+        $exercise = Exercise::find($exerciseId);
+        
+        if ($exercise) {
+            $this->selectedExerciseDetails = $exercise;
+            $this->showModal = true;
+        } 
     }
 
     public function closeInstructionsModal(): void
     {
-        $this->showInstructionsModal = false;
+        $this->showModal = false;
         $this->selectedExerciseDetails = null;
+    }
+
+    protected $listeners = [
+        'executeAction' => 'handleGlobalAction', // Captura el evento de ejecución
+    ];
+
+    public function handleGlobalAction(string $action, array $params = []): void
+    {
+        // Verifica si el método ($action, ej. 'removeSet') existe en esta clase
+        if (method_exists($this, $action)) {
+            
+            // ¡Magia! Llama a la función cuyo nombre está en la variable $action,
+            // pasándole el array de parámetros $params.
+            call_user_func_array([$this, $action], $params);
+            
+        } else {
+            Log::warning("Acción global no implementada: $action");
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // LÓGICA DE MODAL DE FINALIZACIÓN (NUEVOS MÉTODOS)
+    // ------------------------------------------------------------------
+    
+    // public function openFinalizeModal(): void
+    // {
+    //     // Solo abrimos si el requisito de finalización se cumple (opcional, pero útil)
+    //     if ($this->isEverySetCompleted) {
+    //         $this->showFinalizeModal = true;
+    //     } else {
+    //         // Esto solo se dispara si alguien quita el disabled del botón en el HTML.
+    //         $this->dispatch('notify', message: '¡Faltan sets por completar! Marca todos los sets con el ícono de check para finalizar.', type: 'error', duration: 3500 );
+    //     }
+    // }
+
+    
+
+    public function openFinalizeModal(): void
+    {
+        if ($this->isEverySetCompleted) {
+            $data = [
+                'title' => 'Finalizar Entrenamiento',
+                'message' => '¿Estás seguro de que quieres finalizar este entrenamiento? Se registrará tu progreso y el tiempo total.',
+                
+                // 2. Define la acción de confirmación (el nombre del método)
+                'confirmAction' => 'finishWorkout', // ¡Este es el método grande!
+                
+                'cancelAction' => 'doNothing', 
+                'confirmButtonText' => 'Confirmar',
+                'confirmButtonClass' => 'btn-outline-ve',
+                'buttonClass' => 'btn-outline-ro',
+            ];
+            
+            $this->dispatch('openConfirmModal', data: $data);
+        }
+    }
+
+    public function closeFinalizeModal(): void
+    {
+        $this->showFinalizeModal = false;
     }
 
     // ------------------------------------------------------------------
@@ -234,20 +272,48 @@ class RoutineWorkout extends Component
         $set['done'] = !$set['done'];
         
         if ($set['done']) {
-            $this->dispatch('show-toast', ['message' => '¡Set completado!', 'type' => 'success']);
+            $this->dispatch('notify', message: '¡Set completado!', type: 'success', duration: 3500 );
         } else {
-            $this->dispatch('show-toast', ['message' => 'Set marcado como incompleto.', 'type' => 'info']);
+            $this->dispatch('notify', message: 'Set marcado como incompleto.', type: 'info', duration: 3500 );
         }
 
         // Reevaluar la propiedad computada tras el cambio
         $this->isEverySetCompleted();
     }
     
+    // public function confirmRemoveSet(int $routineExerciseId, int $setIndex): void
+    // {
+    //     $this->setRoutineExerciseId = $routineExerciseId;
+    //     $this->setIndexToDelete = $setIndex;
+    //     $this->showDeleteConfirmationModal = true;
+    // }
+
     public function confirmRemoveSet(int $routineExerciseId, int $setIndex): void
     {
-        $this->setRoutineExerciseId = $routineExerciseId;
-        $this->setIndexToDelete = $setIndex;
-        $this->showDeleteConfirmationModal = true;
+        // 1. Prepara los datos que necesita el modal
+        $data = [
+            'title' => 'Confirmar Eliminación',
+            'message' => '¿Estás seguro de que deseas eliminar permanentemente el Set #' . ($setIndex + 1) . '?',
+            
+            // 2. Define la acción de confirmación (el nombre del método)
+            'confirmAction' => 'removeSet', 
+            
+            // 3. Define la acción de cancelación (limpieza)
+            'cancelAction' => 'cancelRemoveSet',
+            
+            'confirmButtonText' => 'Sí, Eliminar',
+            'confirmButtonClass' => 'btn-outline-ro',
+            'buttonClass' => 'btn-outline-ve',
+            
+            // 4. Parámetros que necesita 'removeSet' para funcionar
+            'params' => [
+                $routineExerciseId, // parámetro 1
+                $setIndex           // parámetro 2
+            ]
+        ];
+        
+        // 5. Envía el evento al modal global
+        $this->dispatch('openConfirmModal', data: $data);
     }
 
     public function cancelRemoveSet(): void
@@ -257,32 +323,24 @@ class RoutineWorkout extends Component
         $this->setIndexToDelete = null;
     }
 
-    public function removeSet(): void 
+    public function removeSet(int $routineExerciseId, int $setIndex): void 
     {
-        if ($this->setRoutineExerciseId === null || $this->setIndexToDelete === null) {
-            $this->cancelRemoveSet();
-            return;
-        }
-        
-        $routineExerciseId = $this->setRoutineExerciseId;
-        $setIndex = $this->setIndexToDelete;
-        
+
         if (isset($this->workoutData[$routineExerciseId][$setIndex])) {
-            // Aseguramos que no se elimine el último set
             if (count($this->workoutData[$routineExerciseId]) <= 1) {
-                $this->dispatch('show-toast', ['message' => 'Debes mantener al menos un set por ejercicio.', 'type' => 'error']);
-                $this->cancelRemoveSet();
+                $this->dispatch('notify', message: 'Debes mantener al menos un set por ejercicio.', type: 'error', duration: 3500 );
                 return;
             }
 
             unset($this->workoutData[$routineExerciseId][$setIndex]);
-            // Reindexar el array para evitar problemas con Livewire
             $this->workoutData[$routineExerciseId] = array_values($this->workoutData[$routineExerciseId]);
-            $this->dispatch('show-toast', ['message' => 'Set eliminado de la sesión.', 'type' => 'info']);
+            $this->dispatch('notify', message: 'Set eliminado de la sesión.', type: 'info', duration: 3500);
         }
         
-        $this->cancelRemoveSet(); // Cerrar el modal y limpiar propiedades
-        $this->isEverySetCompleted(); // Reevaluar el estado
+        $this->setRoutineExerciseId = null;
+        $this->setIndexToDelete = null; 
+        
+        $this->isEverySetCompleted(); 
     }
 
     public function addSet(int $routineExerciseId): void
@@ -303,7 +361,7 @@ class RoutineWorkout extends Component
         ];
 
         $this->workoutData[$routineExerciseId][] = $newSet;
-        $this->dispatch('show-toast', ['message' => 'Set extra agregado. No olvides rellenar los datos.', 'type' => 'info']);
+        $this->dispatch('notify', message: 'Set extra agregado. No olvides rellenar los datos.', type: 'info', duration: 3500 );
         $this->isEverySetCompleted(); // Reevaluar el estado
     }
     
@@ -313,13 +371,11 @@ class RoutineWorkout extends Component
         // RESTRICCIÓN AGREGADA
         // ------------------------------------------------------------------
         if (!$this->isEverySetCompleted) {
-            $this->dispatch('show-toast', [
-                'message' => '¡Faltan sets por completar! Marca todos los sets con el ícono de check para finalizar.', 
-                'type' => 'error'
-            ]);
-            // Detenemos la ejecución
+            $this->dispatch('notify', message: '¡Faltan sets por completar! Marca todos los sets con el ícono de check para finalizar.', type: 'error', duration: 3500 );
+            $this->showFinalizeModal = false; 
             return; 
         }
+
         // ------------------------------------------------------------------
 
 
@@ -410,13 +466,15 @@ class RoutineWorkout extends Component
             }
             
             if (!$hasCompletedSets) {
-                // Esto no debería suceder si isEverySetCompleted es true, pero es un buen fallback.
                 session()->flash('warning', 'Entrenamiento finalizado. No se registró ningún set completado.');
                 $this->redirect(route('client.routines'), navigate: true);
                 return;
             }
 
-            session()->flash('success', "¡Entrenamiento de '{$this->routine->name}' registrado y guardado con éxito! Duración: {$this->formattedTime}.");
+            $this->dispatch('notify', message: '¡Entrenamiento de ' . $this->routine->name . ' registrado y guardado con éxito! Duración: ' . $this->formattedTime . '.', type: 'success', duration: 3500 );
+            
+            $this->showFinalizeModal = false;
+
             $this->redirect(route('client.routines'), navigate: true);
 
         } catch (\Exception $e) {
@@ -431,9 +489,6 @@ class RoutineWorkout extends Component
     // ------------------------------------------------------------------
     public function render()
     {
-        // CRÍTICO: Pasamos la propiedad computada explícitamente a la vista
-        return view('livewire.routine-workout', [
-            'routineExercises' => $this->routineExercises, 
-        ])->title('Entrenamiento: ' . $this->routine->name);
+        return view('livewire.routine-workout', ['routineExercises' => $this->routineExercises,])->title('Entrenamiento: ' . $this->routine->name);
     }
 }
