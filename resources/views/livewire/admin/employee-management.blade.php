@@ -34,11 +34,6 @@
                     }
                 }
 
-                .animate-check path {
-                    stroke-dasharray: 30, 0;
-                    animation: check 0.6s ease-out forwards;
-                }
-
                 .bg-state-active {
                     background-color: rgba(123, 203, 1, 0.15);
                 }
@@ -48,153 +43,146 @@
                 }
             </style>
 
-            <div class="max-w mx-auto py-10 sm:px-6 lg:px-8">
 
-                <h2
-                    class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
-                    <span class="title">Gestión de Staff</span>
-                    <button wire:click="$set('showCreateModal', true)" class="w-28 sm:w-32 btn-outline-ve">
-                        + Crear Nuevo
-                    </button>
-                </h2>
+            <h2 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 mb-6 border-b dark:border-gray-700 pb-2 flex justify-between items-center text-lime">
+                <span class="titles">Gestión de Staff</span>
+                <button wire:click="$set('showCreateModal', true)" class="w-28 sm:w-32 btn-outline-lime">
+                    + Crear Nuevo
+                </button>
+            </h2>
 
-                @if (session()->has('success'))
-                    <div
-                        class="bg-green-100 dark:bg-green-800 border-l-4 border-green-500 text-green-700 dark:text-green-200 p-4 mb-4 rounded-md">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                @if (session()->has('error'))
-                    <div
-                        class="bg-red-100 dark:bg-red-800 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 mb-4 rounded-md">
-                        {{ session('error') }}
-                    </div>
-                @endif
-
-                {{-- ======================================================= --}}
-                {{-- FILTROS, BÚSQUEDA Y LISTA --}}
-                {{-- ======================================================= --}}
+            {{-- @if (session()->has('success'))
                 <div
-                    class="bg-white/95 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-gray-300">
+                    class="bg-green-100 dark:bg-green-800 border-l-4 border-green-500 text-green-700 dark:text-green-200 p-4 mb-4 rounded-md">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session()->has('error'))
+                <div
+                    class="bg-red-100 dark:bg-red-800 border-l-4 border-red-500 text-red-700 dark:text-red-200 p-4 mb-4 rounded-md">
+                    {{ session('error') }}
+                </div>
+            @endif --}}
 
-                    <div
-                        class="p-5 bg-white dark:bg-[#1a1a1a]/95 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
-                        <div class="flex-grow w-full sm:w-auto">
-                            <flux:input wire:model.live.debounce.300ms="search" type="text"
-                                placeholder="Buscar por nombre o email..." class:input="!w-full inputs" />
-                        </div>
+            {{-- ======================================================= --}}
+            {{-- FILTROS, BÚSQUEDA Y LISTA --}}
+            {{-- ======================================================= --}}
+            <div class="div-table-principal">
 
-                        <div class="w-full sm:w-48 flex-shrink-0 relative">
-                            <flux:select wire:model.live="filterRole" class="!w-full inputs">
-                                <flux:select.option value="all">Mostrar Todo</flux:select.option>
-                                <flux:select.option value="trainer">Entrenadores</flux:select.option>
-                                <flux:select.option value="nutriologo">Nutriólogos</flux:select.option>
-                            </flux:select>
-
-                        </div>
+                <div class="p-5 bg-white dark:bg-[#1a1a1a]/95 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
+                    <div class="flex-grow w-full sm:w-auto">
+                        <flux:input wire:model.live.debounce.300ms="search" type="text"
+                            placeholder="Buscar por nombre o email..." class:input="!w-full inputs" />
                     </div>
 
-                    {{-- TABLA DE EMPLEADOS --}}
-                    <div class="overflow-x-auto">
-                        <table class="tables">
-                            <thead class="tables-th">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Staff
-                                    </th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">Rol
-                                        Actual</th>
-                                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">
-                                        Estado</th>
-                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">
-                                        Cambiar Rol</th>
-                                    <th class="px-6 py-3 text-center text-xs font-semibold uppercase tracking-wider">
-                                        Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="tables-tbody">
-                                @forelse ($users as $user)
-                                    @php
-                                        $fullName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
-                                    @endphp
-                                    <tr class="hover:bg-lime/10 transition" wire:key="{{ $user->id }}">
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                                {{ $fullName !== '' ? $fullName : 'N/A' }}</div>
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ $user->email }}
-                                            </div>
-                                        </td>
+                    <div class="w-full sm:w-48 flex-shrink-0 relative">
+                        <flux:select wire:model.live="filterRole" class="!w-full inputs">
+                            <flux:select.option value="all">Mostrar Todo</flux:select.option>
+                            <flux:select.option value="trainer">Entrenadores</flux:select.option>
+                            <flux:select.option value="nutriologo">Nutriólogos</flux:select.option>
+                        </flux:select>
+                    </div>
+                </div>
 
-                                        <td class="px-6 py-4 whitespace-nowrap">
+                {{-- TABLA DE EMPLEADOS --}}
+                <div class="">
+                    <table class="tables">
+                        <thead class="tables-th">
+                            <tr>
+                                <th class="text-left text-table-th">
+                                    Staff </th>
+                                <th class="text-left text-table-th">
+                                    Rol Actual</th>
+                                <th class="text-left text-table-th">
+                                    Estado</th>
+                                <th class="text-left text-table-th">
+                                    Cambiar Rol</th>
+                                <th class="text-center text-table-th">
+                                    Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="tables-tbody">
+                            @forelse ($users as $user)
+                                @php
+                                    $fullName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
+                                @endphp
+                                <tr class="hover:bg-lime/10 transition" wire:key="{{ $user->id }}">
+                                    <td class="px-6 py-4">
+                                        <div class="text-xs font-medium text-gray-900 dark:text-white">
+                                            {{ $fullName !== '' ? $fullName : 'N/A' }}</div>
+                                        <div class="text-xs text-gray-500 dark:text-gray-400">{{ $user->email }}
+                                        </div>
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span
+                                            class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                            @if ($user->role == 'trainer') bg-green-100/50 text-green-800 dark:bg-green-800/50 dark:text-green-300 
+                                            @elseif($user->role == 'nutriologo')
+                                                bg-blue-100/50 text-blue-800 dark:bg-blue-800/50 dark:text-blue-300
+                                            @else 
+                                                bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
+                                            {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        @if ($user->is_active)
                                             <span
-                                                class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full 
-                                                @if ($user->role == 'trainer') bg-green-100/50 text-green-800 dark:bg-green-800/50 dark:text-green-300 
-                                                @elseif($user->role == 'nutriologo')
-                                                    bg-blue-100/50 text-blue-800 dark:bg-blue-800/50 dark:text-blue-300
-                                                @else 
-                                                    bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 @endif">
-                                                {{ $roleLabels[$user->role] ?? ucfirst($user->role) }}
-                                            </span>
-                                        </td>
+                                                class="inline-block min-w-[100px] text-center px-3 py-1 text-xs font-bold rounded-full bg-state-active text-state-active">Activo</span>
+                                        @else
+                                            <span
+                                                class="inline-block min-w-[100px] text-center px-3 py-1 text-xs font-bold rounded-full bg-red-100/50 text-red-700 dark:bg-red-900/50 dark:text-red-300">Inactivo</span>
+                                        @endif
+                                    </td>
 
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if ($user->is_active)
-                                                <span
-                                                    class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-state-active text-state-active">Activo</span>
-                                            @else
-                                                <span
-                                                    class="inline-block min-w-[100px] text-center px-3 py-1 text-sm font-bold rounded-full bg-red-100/50 text-red-700 dark:bg-red-900/50 dark:text-red-300">Inactivo</span>
-                                            @endif
-                                        </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-center text-xs font-medium relative">
+                                        <flux:select
+                                            wire:change="confirmRoleChange({{ $user->id }}, $event.target.value, '{{ $fullName }}')"
+                                            class="!w-full inputs text-xs">
+                                            @foreach ($staffRoles as $roleKey => $roleLabel)
+                                                @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
+                                                    <option value="{{ $roleKey }}" 
+                                                        @selected($user->role == $roleKey)>
+                                                        {{ $roleLabel }}
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </flux:select>
+                                    </td>
 
-                                        <td
-                                            class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium relative">
-                                            <flux:select
-                                                wire:change="confirmRoleChange({{ $user->id }}, $event.target.value, '{{ $fullName }}')"
-                                                class="!w-full inputs">
-                                                @foreach ($staffRoles as $roleKey => $roleLabel)
-                                                    @if ($roleKey == 'trainer' || $roleKey == 'nutriologo')
-                                                        <option value="{{ $roleKey }}"
-                                                            @selected($user->role == $roleKey)>
-                                                            {{ $roleLabel }}
-                                                        </option>
-                                                    @endif
-                                                @endforeach
-                                            </flux:select>
-                                        </td>
+                                    <td class="px-6 py-4 text-center text-xs font-medium">
+                                        <div class="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
+                                            {{-- BOTÓN ACTIVAR/DESACTIVAR (Outline) --}}
+                                            <button
+                                                wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
+                                                class=" w-28 sm:w-32 @if ($user->is_active) btn-outline-yellow @else btn-outline-lime @endif">
+                                                {{ $user->is_active ? 'Desactivar' : 'Activar' }}
+                                            </button>
 
-                                        <td class="px-6 py-4 text-center text-sm font-medium">
-                                            <div class="flex flex-wrap justify-center gap-2 sm:flex-nowrap">
-                                                {{-- BOTÓN ACTIVAR/DESACTIVAR (Outline) --}}
-                                                <button
-                                                    wire:click="confirmToggleActiveStatus({{ $user->id }}, '{{ $fullName }}')"
-                                                    class=" w-28 sm:w-32 @if ($user->is_active) btn-outline-am @else btn-outline-ve @endif">
-                                                    {{ $user->is_active ? 'Desactivar' : 'Activar' }}
-                                                </button>
+                                            {{-- BOTÓN ELIMINAR (Outline) --}}
+                                            <button
+                                                wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
+                                                class=" w-28 sm:w-32 btn-outline-red">
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5"
+                                        class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                                        No se encontró staff que coincida con los filtros.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-                                                {{-- BOTÓN ELIMINAR (Outline) --}}
-                                                <button
-                                                    wire:click="confirmDeleteUser({{ $user->id }}, '{{ $fullName }}')"
-                                                    class=" w-28 sm:w-32 btn-outline-ro">
-                                                    Eliminar
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5"
-                                            class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
-                                            No se encontró staff que coincida con los filtros.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="p-4 border-t dark:border-gray-700">
-                        {{ $users->links() }}
-                    </div>
+                <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                    {{ $users->links() }}
                 </div>
             </div>
 
@@ -205,9 +193,9 @@
                 <div x-show="open" x-transition:enter="ease-out duration-300"
                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" @click.away="open = false"
-                    class="max-w-lg w-full card-tb-ve-v2">
+                    class="max-w-lg w-full modal-card">
                     <div class="border-b dark:border-gray-700 pb-3 mb-6">
-                        <h3 class="titles-modal">
+                        <h3 class="modalTitle">
                             Registrar Nuevo Miembro del Staff
                         </h3>
                     </div>
@@ -264,12 +252,12 @@
 
                         <div class="mt-6 pt-4 border-t dark:border-gray-700 flex justify-end space-x-3">
                             <button type="button" wire:click="$set('showCreateModal', false)" @click="open = false"
-                                class="btn-outline-ro">
+                                class="btn-outline-red">
                                 Cancelar
                             </button>
-                            <button type="submit" wire:loading.attr="disabled" class="btn-outline-ve">
-                                <span wire:loading.remove wire:target="createUser">Crear Staff</span>
-                                <span wire:loading wire:target="createUser">Creando...</span>
+                            <button type="submit" wire:loading.attr="disabled" class="btn-outline-lime">
+                                <span wire:loading.remove wire:target="createUser">Guardar</span>
+                                <span wire:loading wire:target="createUser">Guardando...</span>
                             </button>
                         </div>
                     </form>
@@ -302,10 +290,10 @@
                             <p class="text-sm text-gray-600 dark:text-gray-300 mb-5">{!! nl2br($modalMessage) !!}</p>
 
                             <div class="flex justify-end space-x-3 mt-5">
-                                <button wire:click="closeModal" class="btn-outline-ro">
+                                <button wire:click="closeModal" class="btn-outline-red">
                                     Cancelar
                                 </button>
-                                <button @click="confirmAction()" class="btn-outline-ve">
+                                <button @click="confirmAction()" class="btn-outline-lime">
                                     Confirmar
                                 </button>
                             </div>

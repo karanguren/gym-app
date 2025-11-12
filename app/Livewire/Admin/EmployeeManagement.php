@@ -9,6 +9,7 @@ use Livewire\WithPagination;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Log;
 
 class EmployeeManagement extends Component
 {
@@ -89,6 +90,32 @@ class EmployeeManagement extends Component
         ]);
     }
 
+    // ------------------------------------------------------------------
+    // LÓGICA DE MODAL GLOBAL
+    // ------------------------------------------------------------------
+    
+    protected $listeners = [
+        'executeAction' => 'handleGlobalAction', // Captura el evento de ejecución
+    ];
+
+    public function handleGlobalAction(string $action, array $params = []): void
+    {
+        // Verifica si el método ($action, ej. 'removeSet') existe en esta clase
+        if (method_exists($this, $action)) {
+            
+            // ¡Magia! Llama a la función cuyo nombre está en la variable $action,
+            // pasándole el array de parámetros $params.
+            call_user_func_array([$this, $action], $params);
+            
+        } else {
+            Log::warning("Acción global no implementada: $action");
+        }
+    }
+
+    /////////////////////
+
+    
+
     /**
      * Prepara y abre el modal para confirmar el cambio de rol.
      */
@@ -103,7 +130,6 @@ class EmployeeManagement extends Component
         }
         
         // 2. Validar que el rol sea uno permitido para Staff (no Admin o Cliente si no está en el SELECT)
-        // El Blade ya filtra Trainer y Nutriologo, pero se añade una capa de seguridad
         if (!array_key_exists($newRole, $this->staffRoles) || $newRole === 'administrador' || $newRole === 'cliente') {
             session()->flash('error', 'Rol no válido o restringido para esta acción.');
             return;
@@ -114,15 +140,25 @@ class EmployeeManagement extends Component
         $newRoleLabel = $this->staffRoles[$newRole] ?? 'Rol Desconocido';
 
         // 4. Establecer estado del modal
-        $this->modalTitle = 'Confirmar Cambio de Rol';
-        $this->modalMessage = "Estás a punto de cambiar el rol de **{$userName}** (actualmente {$oldRoleLabel}) a **{$newRoleLabel}**.\n\n¿Estás segura de realizar este cambio?";
-        
-        $this->modalAction = 'roleChange';
-        $this->targetUserId = $userId;
-        $this->targetUserName = $userName;
-        $this->pendingNewRole = $newRole; // Guarda el nuevo rol
-        
-        $this->showConfirmationModal = true;
+        $data = [
+            'title' => 'Confirmar Cambio de Rol',
+            'message' => 'Estás a punto de cambiar el rol de ' . $userName . '. (actualmente ' . $oldRoleLabel . ') a: ' . $newRoleLabel . '¿Estás segura de realizar este cambio?',
+            
+            'confirmAction' => 'roleChange',
+            
+            'cancelAction' => 'closeModal', 
+            'confirmButtonText' => 'Cambiar',
+            'confirmButtonClass' => 'btn-outline-lime',
+            'buttonClass' => 'btn-outline-red',
+
+            'params' => [
+                $userId,
+                $newRole,
+                $userName
+            ]
+        ];
+
+        $this->dispatch('openConfirmModal', data: $data);
     }
 
     public function confirmToggleActiveStatus(int $userId, string $userName)
@@ -134,85 +170,99 @@ class EmployeeManagement extends Component
         }
 
         $isActive = $user->is_active;
-        $action = $isActive ? 'Inactivar' : 'Activar';
+        $action = $isActive ? 'Desactivar' : 'Activar';
         $message = $isActive 
-            ? "Estás a punto de **INACTIVAR** a **{$userName}** ({$user->role}). Esto suspenderá su acceso al sistema."
+            ? "Estás a punto de **DESACTIVAR** a **{$userName}** ({$user->role}). Esto suspenderá su acceso al sistema."
             : "Estás a punto de **ACTIVAR** a **{$userName}** ({$user->role}). Esto restaurará su acceso al sistema.";
 
-        $this->modalTitle = $action . ' Staff';
-        $this->modalMessage = $message;
-        $this->modalAction = 'toggleStatus';
-        $this->targetUserId = $userId;
-        $this->targetUserName = $userName;
-        $this->showConfirmationModal = true;
+        $data = [
+            'title' => $action . ' Staff',
+            'message' => $message,
+            
+            'confirmAction' => 'toggleStatus',
+            
+            'cancelAction' => 'closeModal', 
+            'confirmButtonText' => $action,
+            'confirmButtonClass' => $isActive ? 'btn-outline-red' : 'btn-outline-lime',
+            'buttonClass' => $isActive ? 'btn-outline-lime' : 'btn-outline-red',
+
+            'params' => [
+                $userId,
+                $userName
+            ]
+        ];
+
+        $this->dispatch('openConfirmModal', data: $data);
     }
 
     public function confirmDeleteUser(int $userId, string $userName)
     {
         $user = User::find($userId);
         if (!$user || $user->id === Auth::id()) {
-            session()->flash('error', 'No puedes eliminar esta cuenta o el usuario no existe.');
-            return;
-        }
-        
-        $this->modalTitle = 'Eliminar Cuenta Permanentemente';
-        $this->modalMessage = "Estás a punto de **ELIMINAR PERMANENTEMENTE** la cuenta de **{$userName}**. Esta acción no se puede deshacer. ¿Deseas continuar?";
-        $this->modalAction = 'deleteUser';
-        $this->targetUserId = $userId;
-        $this->targetUserName = $userName;
-        $this->showConfirmationModal = true;
-    }
-
-    /**
-     * Ejecuta la acción pendiente confirmada en el modal.
-     */
-    public function executeModalAction()
-    {
-        $userId = $this->targetUserId;
-        $userName = $this->targetUserName;
-        $action = $this->modalAction;
-        
-        if ($userId === 0 || empty($action)) {
-            session()->flash('error', 'Error de seguridad: Acción no definida.');
+            $this->dispatch('notify', message: 'No puedes eliminar esta cuenta o el usuario no existe.', type: 'error', duration: 3500 );
             return;
         }
 
-        if ($action === 'toggleStatus') {
-            $user = User::find($userId);
-
-            if (!$user) {
-                session()->flash('error', 'Usuario no encontrado.');
-                return;
-            }
-
-            $user->is_active = !$user->is_active;
-            $user->save();
+        $data = [
+            'title' => 'Eliminar Cuenta Permanentemente',
+            'message' => 'Estás a punto de **ELIMINAR PERMANENTEMENTE** la cuenta de ' . $userName . '. Esta acción no se puede deshacer. ¿Deseas continuar?',
             
-            $status = $user->is_active ? 'Activado ✅' : 'Inactivado 🚫';
-            session()->flash('success', 'Usuario ' . $userName . ' ha sido ' . $status . '.');
-
-        } elseif ($action === 'deleteUser') {
-            $user = User::find($userId);
+            'confirmAction' => 'deleteUser',
             
-            if (!$user) {
-                 session()->flash('error', 'Usuario no encontrado.');
-                return;
-            }
+            'cancelAction' => 'closeModal', 
+            'confirmButtonText' => 'Eliminar',
+            'confirmButtonClass' => 'btn-outline-red',
+            'buttonClass' => 'btn-outline-lime',
 
-            $user->delete();
-            session()->flash('success', 'Usuario ' . $userName . ' eliminado permanentemente.');
-            
-        } elseif ($action === 'roleChange') {
-             // Llama al método de actualización de rol con los datos guardados
-             $this->updateRole($userId, $this->pendingNewRole);
-        }
+            'params' => [
+                $userId,
+                $userName
+            ]
+        ];
         
-        $this->resetPage();
+        $this->dispatch('openConfirmModal', data: $data);
     }
     
     // ----------------------------------------------------------------------
     // Lógica principal de gestión
     // ----------------------------------------------------------------------
+
+    /**
+     * elimina un usuario.
+     */
+    private function deleteUser(int $userId): void
+    {
+        $user = User::find($userId);
+        
+        if (!$user) {
+            session()->flash('error', 'Usuario no encontrado.');
+            return;
+        }
+
+        $userName = $this->targetUserName;
+        $user->delete();
+        $this->dispatch('notify', message: 'Usuario' . $userName . 'eliminado permanentemente.', type: 'success', duration: 3500 );
+    }
+
+    /**
+     * Alterna el estado activo/inactivo de un usuario.
+     */
+    private function toggleStatus(int $userId, string $userName)
+    {
+        $user = User::find($userId);
+
+        if (!$user) {
+            $this->dispatch('notify', message: 'Usuario no encontrado.', type: 'error', duration: 3500 );
+            return;
+        }
+
+        $user->is_active = !$user->is_active;
+        $user->save();
+        
+        $status = $user->is_active ? 'Activado ✅' : 'Desactivado 🚫';
+        $this->dispatch('notify', message: 'Usuario ' . $userName . ' ha sido ' . $status . '.', type: 'success', duration: 3500 );
+        $this->resetPage();
+    }
 
     /**
      * Crea un nuevo usuario Staff/Admin.
@@ -232,32 +282,35 @@ class EmployeeManagement extends Component
         ]);
 
         $this->reset(['newName', 'newLastname', 'newEmail', 'newPassword', 'newRole', 'showCreateModal']);
-        session()->flash('success', 'Cuenta de ' . $user->role . ' creada exitosamente: ' . $user->name . ' ' . $user->last_name . '.');
+        $this->dispatch('notify', message: 'Cuenta de ' . $user->role . ' creada exitosamente: ' . $user->name . ' ' . $user->last_name . '.', type: 'success', duration: 3500 );
+
     }
 
 
     /**
-     * Cambia el rol de un usuario. Ahora solo se llama desde executeModalAction.
+     * Cambia el rol de un usuario.
      */
-    public function updateRole(int $userId, string $newRole)
+    private function roleChange(int $userId, string $newRole, string $userName)
     {
         $user = User::find($userId);
 
         if (!$user || $user->id === Auth::id()) {
-            session()->flash('error', 'No se puede modificar este usuario o no existe.');
+            $this->dispatch('notify', message: 'No se puede modificar este usuario o no existe.', type: 'error', duration: 3500 );
             return;
         }
         
-        if (!array_key_exists($newRole, $this->staffRoles)) {
-            session()->flash('error', 'Rol no válido.');
+        // Validación del rol
+        $allowedRoles = array_diff(array_keys($this->staffRoles), ['administrador', 'cliente']);
+        if (!in_array($newRole, $allowedRoles)) {
+            $this->dispatch('notify', message: 'Rol no válido.', type: 'error', duration: 3500 );
             return;
         }
 
         $user->role = $newRole;
         $user->save();
         
-        // Uso de $this->staffRoles para obtener el label completo
-        session()->flash('success', 'Rol de ' . $user->name . ' cambiado a ' . $this->staffRoles[$newRole] . ' exitosamente.');
+        $this->dispatch('notify', message: 'Rol de ' . $user->name . ' cambiado a ' . ($this->staffRoles[$newRole] ?? $newRole) . ' exitosamente.', type: 'success', duration: 3500 );
+        $this->resetPage();
     }
     
     /**
