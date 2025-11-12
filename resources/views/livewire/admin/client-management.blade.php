@@ -49,8 +49,7 @@
                                         <td class="px-4 py-2 text-xs text-gray-600 dark:text-white">
                                             {{ $profile->user->email ?? 'N/A' }}</td>
                                         <td class="px-4 py-2 text-xs">
-                                            <div
-                                                class="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap">
+                                            <div class="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap">
                                                 <button
                                                     wire:click="confirmToggleVerification({{ $profile->user->id }}, '{{ $fullName }}')"
                                                     class="w-28 btn-outline-lime">
@@ -69,6 +68,12 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    {{-- Bloque de Paginación --}}
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                        {{ $pendingClients->links('pagination::tailwind', ['pageName' => 'pendingPage']) }}
+                    </div>
+
                 </div>
             @endif
 

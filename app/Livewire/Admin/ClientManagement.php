@@ -7,7 +7,11 @@ use App\Models\User;
 use App\Models\ClientProfile;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithPagination;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Collection; 
+use Illuminate\Support\Facades\DB;
+use App\Mail\ProfileVerified; 
+use App\Mail\ProfileRejected; 
+use Illuminate\Support\Facades\Mail; 
 
 class ClientManagement extends Component
 {
@@ -37,30 +41,12 @@ class ClientManagement extends Component
         'personalized' => 'Personalizado',
     ];
 
-    // --- Propiedades de Clientes Pendientes ---
-    /** @var Collection */
-    public $pendingClients; 
-    public $pendingCount = 0; 
+    
     
     // Configuración para que la paginación use los estilos de Tailwind
     protected $paginationTheme = 'tailwind';
 
-    public function mount()
-    {
-        $this->loadPendingClients();
-    }
     
-    private function loadPendingClients()
-    {
-        // LOGICA DE PENDIENTES: Solo cargamos perfiles NO VERIFICADOS que tienen un usuario asociado
-        $this->pendingClients = ClientProfile::where('is_verified', false)
-            ->whereHas('user')
-            ->with('user')
-            ->get();
-            
-        $this->pendingCount = $this->pendingClients->count();
-    }
-
     // =======================================================
     // HELPERS DEL MODAL Y TOAST
     // =======================================================
@@ -90,12 +76,12 @@ class ClientManagement extends Component
 
     public function updatingFilterStatus()
     {
-        $this->resetPage();
+        $this->resetPage('mainPage'); 
     }
     
     public function updatingSearch()
     {
-        $this->resetPage();
+        $this->resetPage('mainPage');
     }
 
     // =======================================================
@@ -118,19 +104,90 @@ class ClientManagement extends Component
         $this->{$this->modalActionMethod}();
     }
 
+    // ------------------------------------------------------------------
+    // LÓGICA DE MODAL GLOBAL
+    // ------------------------------------------------------------------
+    
+    protected $listeners = [
+        'executeAction' => 'handleGlobalAction', // Captura el evento de ejecución
+    ];
+
+    public function handleGlobalAction(string $action, array $params = []): void
+    {
+        if (method_exists($this, $action)) {
+            
+            call_user_func_array([$this, $action], $params);
+            
+        } else {
+            Log::warning("Acción global no implementada: $action");
+        }
+    }
+
     // =======================================================
     // LÓGICA DE CONFIRMACIÓN Y ACCIÓN
     // =======================================================
 
-    /**
-     * Alterna el estado de actividad general (is_active) del usuario.
-     * Si se llama desde la tabla de pendientes (con un perfil asociado), 
-     * también marca el perfil como verificado y cambia el rol a 'cliente'.
-     */
-    public function toggleVerification()
+    public function toggleProfileVerificationStatus(int $userId, string $userName)
     {
-        $userId = $this->targetId;
-        $user = User::with('profile')->find($userId); // Cargamos el perfil para la verificación
+        $user = User::with('profile')->find($userId); 
+
+        if (!$user || !$user->profile || $user->id === Auth::id()) {
+            $this->dispatchToast('error', 'No se puede modificar el perfil o no existe.');
+            $this->closeModal();
+            return;
+        }
+        
+        try {
+            DB::beginTransaction(); 
+
+            // Determinar el nuevo estado de verificación (Toggle)
+            $newVerifiedStatus = !$user->profile->is_verified;
+            $user->profile->is_verified = $newVerifiedStatus;
+            
+            $action = $newVerifiedStatus ? 'aprobado' : 'rechazado';
+            
+            if ($newVerifiedStatus) {
+                // Si se aprueba, se establece el rol a 'cliente' y se asegura que esté activo
+                $user->role = 'cliente';
+                $user->is_active = true;
+                $user->save(); // Guardar cambios del User
+            }
+
+            $user->profile->save(); // Guardar cambio de is_verified
+            
+            DB::commit(); 
+
+            if ($newVerifiedStatus) {
+                // Si el perfil fue aprobado (o verificado)
+                Mail::to($user->email)->send(new ProfileVerified($user));
+            } else {
+                // Si el perfil fue rechazado (o la verificación fue revocada)
+                Mail::to($user->email)->send(new ProfileRejected($user));
+            }
+
+            $userNameDisplay = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
+            $userNameDisplay = $userNameDisplay !== '' ? $userNameDisplay : $user->email;
+
+            $this->dispatch('notify', message: 'Perfil de ' . $userNameDisplay . ' ha sido ' . $action . ' exitosamente.', type: 'success', duration: 3500 );
+            
+        } catch (Exception $e) {
+            DB::rollBack();
+            // Log::error($e->getMessage()); 
+            $this->dispatch('notify', message: 'Error en la base de datos al guardar la verificación. Intenta de nuevo.', type: 'error', duration: 3500 );
+        }
+
+        // Ya no necesitamos loadPendingClients(), Livewire re-renderizará
+        $this->resetPage('pendingPage'); // Restablece la paginación de pendientes (si aplica)
+        $this->closeModal();
+    }
+
+    /**
+     * FUNCIÓN DEDICADA: Solo se encarga de alternar el estado de actividad general (is_active).
+     * Esta función se llama cuando el perfil ya está verificado.
+     */
+    public function toggleActivityStatus(int $userId, string $userName)
+    {
+        $user = User::with('profile')->find($userId); 
 
         if (!$user || $user->id === Auth::id()) {
             $this->dispatchToast('error', 'No se puede modificar este usuario o no existe.');
@@ -138,97 +195,145 @@ class ClientManagement extends Component
             return;
         }
 
-        // 1. Siempre alternamos el estado de actividad general (Desactivar/Activar)
-        $newActiveStatus = !$user->is_active;
-        $user->is_active = $newActiveStatus;
-        
-        $action = $newActiveStatus ? 'activado' : 'desactivado';
-        
-        // 2. LÓGICA DE APROBACIÓN DE PERFIL:
-        // Si el usuario tiene un perfil que NO está verificado Y se está activando (Aprobar),
-        // realizamos la verificación del perfil y cambio de rol.
-        if ($user->profile && !$user->profile->is_verified && $newActiveStatus) {
-            $user->profile->is_verified = true;
-            $user->profile->save();
-            // Aseguramos que el rol sea 'cliente' si se aprueba
-            $user->role = 'cliente';
-            $action = 'aprobado y activado';
+        try {
+            DB::beginTransaction();
+
+            // Solo alternamos el estado de actividad general
+            $newActiveStatus = !$user->is_active;
+            $user->is_active = $newActiveStatus;
+            $user->save();
+
+            DB::commit();
+
+            $action = $newActiveStatus ? 'activado' : 'desactivado';
+            $userNameDisplay = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
+            $userNameDisplay = $userNameDisplay !== '' ? $userNameDisplay : $user->email;
+
+            $this->dispatch('notify', message: 'Cliente ' . $userNameDisplay . ' ha sido ' . $action . ' exitosamente.', type: 'success', duration: 3500 );
+        } catch (Exception $e) {
+            DB::rollBack();
+            $this->dispatch('notify', message: 'Error en la base de datos al guardar la actividad. Intenta de nuevo.', type: 'error', duration: 3500 );
         }
 
-        $user->save();
-
-        $this->loadPendingClients(); 
-        $userName = trim(($user->name ?? '') . ' ' . ($user->last_name ?? ''));
-        $userName = $userName !== '' ? $userName : $user->email;
-
-        $this->dispatchToast('success', 'Cliente ' . $userName . ' ha sido ' . $action . ' exitosamente.');
+        // Livewire re-renderizará
         $this->closeModal();
     }
 
     public function confirmToggleVerification(int $userId, string $userName): void
     {
-        $user = User::with('profile')->find($userId);
 
+        $user = User::with('profile')->find($userId);
+        
         if (!$user) {
-            $this->dispatchToast('error', 'El cliente no puede ser modificado.');
+            $this->dispatch('notify', message: 'El cliente no puede ser modificado.', type: 'error', duration: 3500 );
             return;
         }
-        
-        $this->targetId = $userId;
-        $this->modalActionMethod = 'toggleVerification'; 
-        
-        // Si el perfil no está verificado, la acción principal es la APROBACIÓN (desde la tabla de pendientes)
+
+        // --- IMPORTANTE: Se pasan los parámetros directamente en el 'params' del evento ---
+        $params = [$userId, $userName];
+
         if ($user->profile && !$user->profile->is_verified) {
-            $this->modalTitle = 'Confirmar Aprobación de Perfil';
-            $this->modalMessage = "Estás a punto de **APROBAR** el perfil de **{$userName}**.\nEsto marcará el perfil como 'Verificado'.\n¿Confirmas la aprobación?";
+            // Caso 1: Aprobación de Perfil (y Activación)
+            $data = [
+                'title' => 'Confirmar verificación de Perfil',
+                'message' => 'Estás a punto de **VERIFICAR** el perfil de ' . $userName . '. Esto marcará el perfil como Verificado. ¿Confirmas la aprobación?',
+                'confirmAction' => 'toggleProfileVerificationStatus', 
+                'cancelAction' => 'closeModal',
+                'confirmButtonText' => 'Sí, verificar',
+                'confirmButtonClass' => 'btn-outline-lime',
+                'buttonClass' => 'btn-outline-red',
+                'params' => $params // Pasa el ID y el Nombre
+            ];
+            
+            $this->dispatch('openConfirmModal', data: $data);
+
         } else {
-            // Si el perfil ya está verificado, la acción es la ACTIVACIÓN/DESACTIVACIÓN general (desde la tabla principal)
+            // Caso 2: Activación/Desactivación General
             $isActive = $user->is_active;
 
             if ($isActive) {
-                $this->modalTitle = 'Confirmar Desactivación General';
-                $this->modalMessage = "Estás a punto de **DESACTIVAR** al cliente **{$userName}**.\nEsto lo inhabilita para acceder al sistema.\n¿Confirmas la desactivación?";
+                // Desactivación General
+                $data = [
+                    'title' => 'Confirmar Desactivación General',
+                    'message' => 'Estás a punto de **DESACTIVAR** al cliente ' . $userName . '. Esto lo inhabilita para acceder al sistema. ¿Confirmas la desactivación?',
+                    'confirmAction' => 'toggleActivityStatus', 
+                    'cancelAction' => 'closeModal',
+                    'confirmButtonText' => 'Sí, Desactivar', // Texto del botón actualizado
+                    'confirmButtonClass' => 'btn-outline-red', // Clase del botón actualizada
+                    'buttonClass' => 'btn-outline-lime', // Clase del botón actualizada
+                    'params' => $params // Pasa el ID y el Nombre
+                ];
             } else {
-                $this->modalTitle = 'Confirmar Activación General';
-                $this->modalMessage = "Estás a punto de **ACTIVAR** al cliente **{$userName}**.\nEsto le permite acceder al sistema.\n¿Confirmas la activación?";
+                // Activación General
+                $data = [
+                    'title' => 'Confirmar Activación General',
+                    'message' => 'Estás a punto de **ACTIVAR** al cliente ' . $userName . '. Esto le permite acceder al sistema. ¿Confirmas la activación?',
+                    'confirmAction' => 'toggleActivityStatus', 
+                    'cancelAction' => 'closeModal',
+                    'confirmButtonText' => 'Sí, Activar', // Texto del botón actualizado
+                    'confirmButtonClass' => 'btn-outline-lime',
+                    'buttonClass' => 'btn-outline-red',
+                    'params' => $params // Pasa el ID y el Nombre
+                ];
             }
-        }
 
-        $this->showConfirmationModal = true;
+            $this->dispatch('openConfirmModal', data: $data);
+        }
+        
     }
 
     /**
-     * Rechaza un perfil pendiente: elimina el perfil (para sacarlo de la cola de pendientes)
-     * y establece la cuenta de usuario como inactiva.
+     * Rechaza un perfil pendiente.
      */
     public function confirmRejectClient(int $profileId, string $userName)
     {
-        $this->targetId = $profileId;
-        $this->modalTitle = 'Confirmar Rechazo de Verificación';
-        $this->modalMessage = "Estás a punto de **RECHAZAR** la información de verificación del cliente **{$userName}**.\nEsto **ELIMINARÁ** su perfil de cliente y **DESACTIVARÁ** su cuenta.\n¿Deseas continuar?";
-        $this->modalActionMethod = 'executeRejectClient';
-        $this->showConfirmationModal = true;
+
+        $data = [
+            'title' => 'Confirmar Rechazo de Verificación',
+            'message' => 'Estás a punto de **RECHAZAR** la información de verificación del cliente ' . $userName . '. Esto **ELIMINARÁ** su perfil de cliente y **DESACTIVARÁ** su cuenta. ¿Deseas continuar?',
+            
+            'confirmAction' => 'executeRejectClient', 
+            
+            'cancelAction' => 'closeModal',
+            
+            'confirmButtonText' => 'Sí, Rechazar',
+            'confirmButtonClass' => 'btn-outline-red',
+            'buttonClass' => 'btn-outline-lime',
+            
+            'params' => [
+                $profileId,
+                $userName
+            ]
+        ];
+        
+        // 5. Envía el evento al modal global
+        $this->dispatch('openConfirmModal', data: $data);
+
     }
 
-    public function executeRejectClient()
+    public function executeRejectClient(int $profileId, string $userName)
     {
-        $profile = ClientProfile::with('user')->find($this->targetId);
+
+        $profile = ClientProfile::with('user')->find($profileId);
 
         if ($profile) {
+
             $userName = trim(($profile->user->name ?? '') . ' ' . ($profile->user->last_name ?? ''));
             $userName = $userName !== '' ? $userName : ($profile->user->email ?? 'Cliente');
 
-            $profile->delete(); // Elimina el perfil (lo saca de la cola de pendientes)
+            $profile->delete(); 
 
             if ($profile->user) {
-                // Restablece el rol y la actividad de la cuenta
+                
                 $profile->user->role = 'cliente';
-                $profile->user->is_active = false; // <-- DESACTIVAR
+                $profile->user->is_active = false;
                 $profile->user->save();
             }
 
-            $this->dispatchToast('success', 'Verificación de cliente ' . $userName . ' rechazada. Perfil eliminado y cuenta desactivada.');
-            $this->loadPendingClients();
+            // $this->dispatchToast('success', 'Verificación de cliente ' . $userName . ' rechazada. Perfil eliminado y cuenta desactivada.');
+            $this->dispatch('notify', message: 'Verificación de cliente ' . $userName . ' ha sido  rechazada. Perfil eliminado y cuenta desactivada.', type: 'success', duration: 3500 );
+            // Livewire re-renderizará
+            $this->resetPage('pendingPage'); // Restablece la paginación de pendientes
         } else {
             $this->dispatchToast('error', 'Perfil no encontrado o ya procesado.');
         }
@@ -238,16 +343,32 @@ class ClientManagement extends Component
 
     public function confirmDeleteUser(int $userId, string $userName)
     {
-        $this->targetId = $userId;
-        $this->modalTitle = 'Confirmar Eliminación de Usuario';
-        $this->modalMessage = "Estás a punto de ELIMINAR permanentemente al usuario **{$userName}**.\nEsta acción no se puede deshacer.\n¿Deseas continuar?";
-        $this->modalActionMethod = 'executeDeleteUser';
-        $this->showConfirmationModal = true;
+        $data = [
+            'title' => 'Confirmar Eliminación de Usuario',
+            'message' => 'Estás a punto de ELIMINAR permanentemente al usuario ' . $userName . '. Esta acción no se puede deshacer. ¿Deseas continuar?',
+            
+            'confirmAction' => 'executeDeleteUser', 
+            
+            'cancelAction' => 'closeModal',
+            
+            'confirmButtonText' => 'Sí, Eliminar',
+            'confirmButtonClass' => 'btn-outline-red',
+            'buttonClass' => 'btn-outline-lime',
+            
+            'params' => [
+                $userId,
+                $userName
+            ]
+        ];
+        
+        // 5. Envía el evento al modal global
+        $this->dispatch('openConfirmModal', data: $data);
+
     }
     
-    public function executeDeleteUser()
+    public function executeDeleteUser(int $userId, string $userName)
     {
-        $user = User::find($this->targetId);
+        $user = User::find($userId);
         
         if (!$user) {
             $this->dispatchToast('error', 'Usuario no encontrado.');
@@ -266,8 +387,8 @@ class ClientManagement extends Component
 
         $user->delete(); 
         
-        $this->loadPendingClients();
-        $this->dispatchToast('success', 'Usuario ' . $userName . ' eliminado permanentemente.');
+        // Livewire re-renderizará
+        $this->dispatch('notify', message: 'Usuario ' . $userName . ' eliminado permanentemente.', type: 'success', duration: 3500 );
         $this->closeModal();
     }
 
@@ -310,7 +431,9 @@ class ClientManagement extends Component
         $user = User::find($this->clientToEditId);
 
         if (!$user || !$user->isClient()) {
-            $this->dispatchToast('error', 'Error al encontrar el cliente para actualizar.');
+
+            $this->dispatch('notify', message: 'Error al encontrar el cliente para actualizar.', type: 'error', duration: 3500 );
+
             $this->closeTypeChangeModal();
             return;
         }
@@ -324,11 +447,14 @@ class ClientManagement extends Component
         $user->client_type = $this->newClientType;
         $user->save();
 
-        $this->dispatchToast('success', 'Tipo de cliente de ' . $this->clientToEditName . ' actualizado a ' . $this->availableClientTypes[$this->newClientType] . ' exitosamente.');
+        $this->dispatch('notify', message: 'Tipo de cliente de ' . $this->clientToEditName . ' actualizado a ' . $this->availableClientTypes[$this->newClientType] . ' exitosamente.', type: 'success', duration: 3500 );
 
         $this->closeTypeChangeModal();
     }
 
+    /**
+     * MÉTODO RENDER CENTRALIZADO CON LÓGICA DE PAGINACIÓN DUAL
+     */
     public function render()
     {
         $statuses = [
@@ -337,6 +463,7 @@ class ClientManagement extends Component
             'inactive' => 'Usuarios Inactivos', 
         ];
 
+        // 1. Consulta para la TABLA PRINCIPAL ($users)
         $query = User::query()
             ->where('role', 'cliente')
             ->with('profile')
@@ -356,11 +483,24 @@ class ClientManagement extends Component
             });
         }
         
-        $users = $query->paginate(10); 
+        // Paginación principal. Usamos 'mainPage' como nombre de paginador
+        $users = $query->paginate(10, ['*'], 'mainPage'); 
+
+        // 2. Consulta para la TABLA DE PENDIENTES ($pendingClients)
+        $pendingClients = ClientProfile::where('is_verified', false)
+            ->whereHas('user')
+            ->with('user')
+            // Usamos un tamaño más pequeño y 'pendingPage' como nombre de paginador
+            ->paginate(5, ['*'], 'pendingPage'); 
+            
+        // El conteo total para el badge
+        $pendingCount = $pendingClients->total(); 
 
         return view('livewire.admin.client-management', [
             'users' => $users, 
             'statuses' => $statuses, 
+            'pendingClients' => $pendingClients, // Pasamos el paginador
+            'pendingCount' => $pendingCount,     // Pasamos el conteo total
         ]);
     }
 }

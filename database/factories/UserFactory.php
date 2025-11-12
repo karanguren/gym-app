@@ -2,22 +2,22 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
- */
 class UserFactory extends Factory
 {
     /**
-     * The current password being used by the factory.
+     * El nombre del modelo correspondiente.
+     *
+     * @var string
      */
-    protected static ?string $password;
+    protected $model = User::class;
 
     /**
-     * Define the model's default state.
+     * Define el estado por defecto del modelo.
      *
      * @return array<string, mixed>
      */
@@ -25,35 +25,48 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
+            'last_name' => fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            'password' => Hash::make('123456789'),
             'remember_token' => Str::random(10),
-            'two_factor_secret' => Str::random(10),
-            'two_factor_recovery_codes' => Str::random(10),
-            'two_factor_confirmed_at' => now(),
+            'role' => 'cliente', // Rol por defecto, si no se especifica otro
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * Indica que el usuario es un entrenador.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
      */
-    public function unverified(): static
+    public function trainer(): Factory
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'role' => 'trainer',
         ]);
     }
 
     /**
-     * Indicate that the model does not have two-factor authentication configured.
+     * Indica que el usuario es un nutricionista.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
      */
-    public function withoutTwoFactor(): static
+    public function nutritionist(): Factory
     {
         return $this->state(fn (array $attributes) => [
-            'two_factor_secret' => null,
-            'two_factor_recovery_codes' => null,
-            'two_factor_confirmed_at' => null,
+            'role' => 'nutriologo',
+        ]);
+    }
+
+    /**
+     * Indica que el usuario es un cliente (ya es el default, pero lo dejamos por claridad).
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+     */
+    public function client(): Factory
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'cliente',
         ]);
     }
 }
