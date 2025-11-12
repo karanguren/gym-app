@@ -2,7 +2,7 @@
     <div class="min-h-screen flex flex-col items-center justify-center">
         <div class="max-w-lg w-full card-tb-ve">
 
-            <svg class="mx-auto h-16 w-16 svg-ve " fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            <svg class="mx-auto h-16 w-16 svg-lime " fill="none" viewBox="0 0 24 24" stroke="currentColor"
                 aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -28,7 +28,7 @@
             <div class="mt-8">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full btn-outline-ve">
+                    <button type="submit" class="w-full btn-outline-lime">
                         Cerrar Sesión
                     </button>
                 </form>

@@ -17,7 +17,7 @@
             @if ($pendingCount > 0)
                 <div class="div-table-principal mb-8">
 
-                    <div class="p-5 flex flex-wrap items-center justify-between gap-2 mb-4">
+                    <div class="p-5 flex flex-wrap items-center justify-between gap-2 ">
                         <h2 class="title-table">
                             Pendientes de Verificación
                         </h2>
