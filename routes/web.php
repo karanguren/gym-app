@@ -17,12 +17,12 @@ use App\Livewire\Pages\VerificationPending;
 use App\Livewire\Auth\TrainerRegister;
 use App\Livewire\Employee\EmployeeDashboard;
 use App\Livewire\Employee\EmployeeProfileSetupForm; 
+use App\Livewire\Employee\RoutineTemplatesManager;
 use App\Livewire\Employee\TrainerClients;
 use App\Livewire\Employee\TrainerDashboard;
 
 
 use App\Livewire\Employee\CreateEditRoutine;
-use App\Livewire\Employee\AssignRoutine; 
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request; 
@@ -91,17 +91,13 @@ Route::middleware(['auth', 'verified', 'role:trainer,nutriologo'])->prefix('empl
     // Crear Rutina Exclusiva para un Cliente
     Route::get('/rutinas/crear/cliente/{userId}', CreateEditRoutine::class)->name('routines.create-for-client');
 
-    // 3. Editar Rutina (Plantilla o Exclusiva)
+    // Editar Rutina (Plantilla o Exclusiva)
     Route::get('/rutinas/{routineId}/editar', CreateEditRoutine::class)->name('routines.edit');
 
-
-        // RUTA D: ASIGNAR (COPIAR) UNA PLANTILLA A UN CLIENTE
-        Route::get('/routines/assign/{routineId}/{userId}', AssignRoutine::class)
-        ->name('routines.assign'); // employee.routines.assign
+    // RUTA PARA GESTIONAR PLANTILLAS
+    Route::get('/routines/templates', RoutineTemplatesManager::class)
+         ->name('routine-templates.index');
             
-        // 4. Ruta para el constructor de rutinas (para crear nuevas plantillas)
-        Route::get('/routine/builder', RoutineBuilder::class)
-            ->name('routine.builder'); // employee.routine.builder
 });
 
 

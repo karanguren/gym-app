@@ -19,6 +19,8 @@ class TrainerDashboard extends Component
     // Plantillas de rutinas creadas por el entrenador
     public Collection $routineTemplates;
 
+    public Collection $pendingClientRequests;  
+
     public function mount(): void
     {
         $trainerId = Auth::id();
@@ -35,6 +37,14 @@ class TrainerDashboard extends Component
             ->where('is_template', true)
             // ->whereNull('user_id')
             ->orderByDesc('created_at')
+            ->get();
+
+        // 3 
+        $this->pendingClientRequests = User::select('users.id', 'users.name')
+            ->join('client_profiles', 'users.id', '=', 'client_profiles.user_id')
+            ->where('client_profiles.requested_trainer_id', $trainerId) // Asumiendo que existe 'requested_trainer_id'
+            ->whereNull('client_profiles.assigned_trainer_id')
+            ->orderBy('users.name')
             ->get();
     }
 
@@ -60,6 +70,12 @@ class TrainerDashboard extends Component
         $this->redirect(route('employee.routines.edit', ['routineId' => $routineId]), navigate: true);
     }
 
+    public function goToRoutinesIndex(): void
+    {
+        // RUTA DE MIS RUTINAS CONFIRMADA POR EL USUARIO
+        $this->redirect(route('employee.routine-templates.index'), navigate: true);
+    }
+
     /**
      * Redirige a la página de creación de una plantilla general.
      * Ruta: employee.routines.create
@@ -69,12 +85,21 @@ class TrainerDashboard extends Component
         // Ruta corregida: 'employee.routines.create'
         $this->redirect(route('employee.routines.create'), navigate: true);
     }
+
+    public function goToClientManagement(): void
+    {
+        // Redirige a la ruta principal de clientes del empleado
+        $this->redirect(route('employee.clients'), navigate: true);
+    }
     
     // ------------------------------------------
 
     public function render()
     {
-        return view('livewire.employee.trainer-dashboard')
-            ->title('Dashboard de Entrenador');
+        return view('livewire.employee.trainer-dashboard', [
+            'pendingClientRequests' => $this->pendingClientRequests,
+            'assignedClients' => $this->assignedClients, // Añadido
+            'routineTemplates' => $this->routineTemplates, // Añadido
+        ])->title('Dashboard de Entrenador');
     }
 }
