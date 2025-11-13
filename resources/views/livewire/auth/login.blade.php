@@ -127,14 +127,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
     }
 }; ?>
 
-<div class="w-full max-w-lg px-8 py-10 bg-white/70 dark:bg-[#1a1a1a]/70 shadow-2xl overflow-hidden rounded-xl backdrop-blur-sm transition-colors duration-300">
-    <style>
-        .text-lime { color: #7bcb01; }
-        .focus\:ring-lime { --tw-ring-color: #7bcb01; }
-        .focus\:border-lime { border-color: #7bcb01; }
-        .bg-lime-dark { background-color: #7bcb01; }
-        .hover\:bg-lime-darker:hover { background-color: #69b301; } 
-    </style>
+<div class="w-full px-8 py-10 bg-white/70 dark:bg-[#1a1a1a]/70 shadow-2xl overflow-hidden rounded-xl backdrop-blur-sm transition-colors duration-300">
+    
     <div class="flex flex-col gap-6">
         <div class="flex justify-center mb-6">
             <img 
@@ -163,7 +157,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 autofocus
                 autocomplete="email"
                 placeholder="email@example.com"
-                class="mt-2 block w-full border border-gray-300 dark:border-gray-100 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 dark:bg-[#1a1a1a]/95 dark:text-white"
+                class="mt-2 block w-full inputs"
             />
 
             <!-- Password -->
@@ -176,7 +170,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                     autocomplete="current-password"
                     :placeholder="__('Password')"
                     viewable
-                    class="mt-2 block w-full border border-gray-300 dark:border-gray-100 rounded-lg shadow-sm focus:ring-lime focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 dark:bg-[#1a1a1a]/95 dark:text-white"
+                    class="mt-2 block w-full inputs"
                 />
             </div>
 

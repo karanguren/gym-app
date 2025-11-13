@@ -46,8 +46,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
     
     <style>
         .text-lime { color: #7bcb01; }
-        .focus\:ring-lime { --tw-ring-color: #7bcb01; }
-        .focus\:border-lime { border-color: #7bcb01; }
+        /* .focus\:ring-lime { --tw-ring-color: #7bcb01; } */
+        /* .focus\:border-lime { border-color: #7bcb01; } */
         .bg-lime-dark { background-color: #7bcb01; }
         .hover\:bg-lime-darker:hover { background-color: #69b301; } 
     </style>

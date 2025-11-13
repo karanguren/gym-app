@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Models\ClientProfile; // ¡Importante! Usamos ClientProfile
+use App\Models\ClientProfile;
 use Illuminate\Database\Seeder;
 
 class ClientSeeder extends Seeder
@@ -16,23 +16,24 @@ class ClientSeeder extends Seeder
         // 1. Definimos el ID del entrenador que se asignará de forma fija
         $fixedTrainerId = 7;
         
-        // Verificamos si el entrenador con ID 7 existe (opcional, pero buena práctica)
-        $trainerExists = User::where('id', $fixedTrainerId)->where('role', 'trainer')->exists();
+        // Obtenemos los IDs de los usuarios que YA TIENEN un perfil
+        $existingProfileUserIds = ClientProfile::pluck('user_id');
 
         // 2. Obtener los Usuarios Clientes existentes (role: 'cliente')
-        // LIMITAMOS la colección a solo los primeros 11 registros usando take(11)
+        // EXCLUIMOS a los usuarios cuyos IDs ya están en la colección $existingProfileUserIds
         $clientUsers = User::where('role', 'cliente')
-                            ->take(11) // <--- CAMBIO 1: Limitar a 11
+                            ->whereNotIn('id', $existingProfileUserIds) // <--- CAMBIO CLAVE: Excluir IDs existentes
+                            ->take(11) 
                             ->get();
         
         $count = $clientUsers->count();
 
         if ($count === 0) {
-            $this->command->warn('No se encontraron Usuarios Clientes existentes (role: "cliente"). No se crearon perfiles.');
+            $this->command->warn('No se encontraron Usuarios Clientes sin un perfil existente.');
             return;
         }
 
-        $this->command->info("Creando exactamente {$count} perfiles (ClientProfile) para Usuarios Clientes existentes...");
+        $this->command->info("Creando exactamente {$count} perfiles (ClientProfile) para Usuarios Clientes que NO TENÍAN perfil...");
 
         // 3. Iterar sobre cada usuario cliente y crear su perfil
         $clientUsers->each(function (User $client, $index) use ($fixedTrainerId) {
@@ -44,7 +45,6 @@ class ClientSeeder extends Seeder
             ClientProfile::factory()->create([
                 'user_id' => $client->id,
                 
-                // <--- CAMBIO 2: Valores fijos establecidos en 7
                 'assigned_trainer_id' => $fixedTrainerId,
                 'requested_trainer_id' => $fixedTrainerId,
                 

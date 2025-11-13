@@ -1,176 +1,256 @@
-<div class="bg-gray-50/80 dark:bg-black/80 min-h-screen">
-    <div x-data="{ showToast: false, toastMessage: '', toastType: 'success' }" 
-        x-init="@this.on('show-toast', (event) => {
-            toastMessage = event[0].message;
-            toastType = event[0].type || 'success';
-            showToast = true;
-            setTimeout(() => showToast = false, 3000);
-        })"
-        x-show="showToast"
-        x-transition:enter="ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-2"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="ease-in duration-200"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 translate-y-2"
-        class="fixed bottom-5 right-5 z-50 p-4 rounded-lg shadow-xl flex items-center space-x-3"
-        :class="{
-            'bg-green-100 border border-green-400 text-green-700': toastType === 'success',
-            'bg-red-100 border border-red-400 text-red-700': toastType === 'error',
-            'bg-yellow-100 border border-yellow-400 text-yellow-700': toastType === 'warning',
-            'bg-blue-100 border border-blue-400 text-blue-700': toastType === 'info',
-        }">
-        <p class="font-bold" x-text="toastMessage"></p>
-    </div>
+<div class="div-principal">
+    <div class="max-w mx-auto sm:px-6 lg:px-8">
+        <div class="md:p-8">
 
-    <div class="py-8 sm:py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg">
-                <div class="p-6 lg:p-8 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                        <i class="fas fa-users-cog mr-2 text-indigo-500"></i> Mis Clientes Asignados
-                    </h1>
-                    <p class="mt-2 text-gray-600 dark:text-gray-400">
-                        Gestiona las solicitudes de asignación y tus clientes activos.
-                    </p>
-                </div>
+            <h1 class="titles mb-4">Gestión de Clientes y Solicitudes</h1>
 
-                {{-- Tabla de Clientes --}}
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-700">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
-                                    Cliente
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300 hidden sm:table-cell">
-                                    Email
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
-                                    Estado
-                                </th>
-                                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-300">
-                                    Acciones
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                            @forelse ($this->clients as $client)
+            @php
+                $pendingClients = $this->pendingRequests->filter(
+                    fn($client) => $client->profile?->assignment_status === 'pending',
+                );
+                $acceptedClients = $this->acceptedClients->filter(
+                    fn($client) => $client->profile?->assignment_status === 'accepted',
+                );
+            @endphp
+
+
+            <!-- Sección de Solicitudes Pendientes -->
+            <div class="mb-10">
+                <div class="div-table-principal mb-8">
+
+                    <div class="p-5 flex flex-wrap items-center justify-between gap-2 ">
+                        <h2 class="title-table">
+                            Solicitudes Pendientes
+                        </h2>
+                        <span
+                            class="px-3 py-1 text-xs sm:text-sm font-bold text-white bg-yellow-500 rounded-full shadow whitespace-nowrap">
+                            {{ $this->pendingRequests->total() }} Pendientes
+                        </span>
+                    </div>
+
+                    <div class="">
+                        <table class="tables">
+                            <thead class="tables-th">
                                 <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900 dark:text-white">
-                                            {{ $client->name }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 hidden sm:table-cell">
-                                        {{ $client->email }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm">
-                                        @php
-                                            $status = $client->profile?->assignment_status ?? 'unassigned';
-                                            $isPending = $status === 'pending';
-                                            $isAccepted = $status === 'accepted';
-                                        @endphp
-
-                                        @if ($isPending)
-                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-yellow-400 text-yellow-900 shadow-sm">
-                                                Pendiente
-                                            </span>
-                                        @elseif ($isAccepted)
-                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-green-500 text-white shadow-md">
-                                                Asignado
-                                            </span>
-                                        @else
-                                            <span class="px-3 py-1 inline-flex text-xs leading-5 font-bold rounded-full bg-gray-500 text-white dark:bg-gray-600">
-                                                Desconocido
-                                            </span>
-                                        @endif
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                                        <div class="flex items-center justify-center space-x-2">
-                                            @if ($isPending)
-                                                <button wire:click="acceptRequest({{ $client->id }})" 
-                                                        class="px-3 py-1 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out text-xs shadow-md">
-                                                    <i class="fas fa-check"></i> Aceptar
+                                    <th class="text-left text-table-th">Cliente</th>
+                                    {{-- <th class="text-left text-table-th">Email</th> --}}
+                                    <th class="text-center text-table-th">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tables-tbody">
+                                @forelse ($pendingClients as $client)
+                                    <tr class="hover:bg-lime/10 transition">
+                                        <td class="px-6 py-3 text-xs text-gray-600 dark:text-white">
+                                            {{ $client->name }} {{ $client->last_name }}
+                                        </td>
+                                        <td class="px-6 py-3 text-xs">
+                                            <div class="flex flex-wrap items-center justify-center gap-2 sm:flex-nowrap">
+                                                <button wire:click="confirmAcceptRequest({{ $client->id }})"
+                                                    class="btn-outline-lime">
+                                                    Aceptar
                                                 </button>
-                                                <button wire:click="rejectRequest({{ $client->id }})" 
-                                                        class="px-3 py-1 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-150 ease-in-out text-xs shadow-md">
-                                                    <i class="fas fa-times"></i> Rechazar
+                                                <button wire:click="confirmRejectRequest({{ $client->id }})"
+                                                    class="btn-outline-red">
+                                                    Rechazar
                                                 </button>
-                                            @elseif ($isAccepted)
-                                                <button wire:click="assignRoutineToClient({{ $client->id }})" 
-                                                        class="px-3 py-1 bg-indigo-500 text-white font-semibold rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out text-xs shadow-md">
-                                                    <i class="fas fa-dumbbell"></i> Rutina
-                                                </button>
-                                                <button wire:click="confirmRemoveClient({{ $client->id }}, '{{ $client->name }}')" 
-                                                        class="px-3 py-1 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-150 ease-in-out text-xs dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 shadow-md">
-                                                    <i class="fas fa-unlink"></i> Desvincular
-                                                </button>
-                                            @endif
-                                        </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="px-6 py-3 text-center text-sm text-gray-500">
+                                        No hay solicitudes de clientes pendientes en este momento.
                                     </td>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="4" class="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
-                                        No tienes clientes asignados o solicitudes pendientes.
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {{-- Bloque de Paginación --}}
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                       {{ $this->pendingRequests->links() }}
+                    </div>
 
-                <div class="p-6">
-                    {{ $this->clients->links() }}
                 </div>
             </div>
-        </div>
-    </div>
 
-    {{-- MODAL DE CONFIRMACIÓN DE DESVINCULACIÓN  --}}
-    @if($showDeleteModal)
-        <div class="fixed inset-0 z-[9999] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-            
-            <div class="fixed inset-0 bg-gray-500/50 bg-opacity-70 transition-opacity z-[9990]" aria-hidden="true" wire:click="closeModal"></div>
+            <!-- Sección de Clientes Asignados (Con Paginación Visualmente Mejorada) -->
+            <div class="mb-6 ">
 
-            <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0 z-[9995] relative">
-                
-                <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border-t-4 border-red-500">
-                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                                <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                            </div>
-                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                                <h3 class="text-xl leading-6 font-bold text-gray-900 dark:text-white" id="modal-title">
-                                    Confirmar Desvinculación
-                                </h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                    ¿Estás seguro de que deseas desvincular a <strong class="font-bold text-red-500">{{ $clientNameToDelete }}</strong> de tu lista de clientes? 
-                                    Esto eliminará tu asignación y **perderá acceso a sus rutinas**. Esta acción es reversible si el cliente te selecciona de nuevo.
-                                </p>
-                            </div>
+                <div class="div-table-principal">
+
+                    <div class="p-5 flex flex-wrap items-center justify-between gap-2 ">
+                        <h2 class="title-table">
+                             Mis Clientes Asignados ({{ $this->acceptedClients->total() }})
+                        </h2>
+                    </div>
+
+                    <div class="p-5 bg-white dark:bg-[#1a1a1a]/90 border-b border-gray-200 dark:border-zinc-800 flex flex-col sm:flex-row gap-4 items-center">
+                        <div class="flex-grow w-full sm:w-auto">
+                            <flux:input wire:model.live.debounce.300ms="search" type="text"
+                                placeholder="Buscar por nombre o email..." class:input="!w-full inputs" />
+                        </div>
+
+                        <div class="w-full sm:w-48 flex-shrink-0 relative">
+                            <flux:select wire:model.live="filterStatus" class="!w-full inputs">
+                                @foreach ($statuses as $key => $label)
+                                    <flux:select.option value="{{ $key }}">{{ $label }}</flux:select.option>
+                                @endforeach
+                            </flux:select>
+
                         </div>
                     </div>
-                    <div class="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse sm:mt-0 border-t dark:border-gray-700 bg-gray-50 dark:bg-gray-700 rounded-b-xl">
-                        {{-- Botón de Desvincular --}}
-                        <button wire:click="removeClient" type="button" 
-                            class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-md px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm transition duration-150 transform hover:scale-[1.02]">
-                            <i class="fas fa-trash-alt mr-2"></i> Sí, Desvincular
-                        </button>
-                        
-                        {{-- Botón de Cancelar --}}
-                        <button wire:click="closeModal" type="button" 
-                            class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none sm:mt-0 sm:w-auto sm:text-sm transition duration-150 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-500 dark:border-gray-600">
-                            Cancelar
-                        </button>
+
+                    {{-- TABLA DE CLIENTES --}}
+                    <div class="">
+                        <table class="tables">
+                            <thead class="tables-th">
+                                <tr>
+                                    <th class="text-left text-table-th">
+                                        Nombre</th>
+                                    <th class="text-left text-table-th">
+                                        Altura</th>
+                                    <th class="text-left text-table-th">
+                                        Peso</th>
+                                    <th class="text-center text-table-th w-1/4">
+                                        Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="tables-tbody">
+                                    @forelse ($acceptedClients as $client)
+                                        <tr class="dark:hover:bg-[#1a1a1a]/60 hover:bg-gray-50 transition">
+                                            <td class="px-6 py-3 text-xs text-gray-800 dark:text-gray-300">
+                                                {{ $client->name }} {{ $client->last_name }}
+                                            </td>
+                                            <td class="px-6 py-3 text-xs text-gray-800 dark:text-gray-300">
+                                                {{ $client->profile->height }}
+                                            </td>
+                                            <td class="px-6 py-3 text-xs text-gray-800 dark:text-gray-300">
+                                                {{ $client->profile->weight }} 
+                                            </td>
+                                            <!-- Bloque de Acciones: 3 Botones -->
+                                            <td class="px-6 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                <div class="flex flex-col space-y-2 sm:flex-row sm:justify-end sm:space-x-2 sm:space-y-0">
+
+                                                    <!-- Botón 1: Crear Rutina (Acción principal) -->
+                                                    <button wire:click="createRoutineForClient({{ $client->id }})"
+                                                        class="btn-outline-lime whitespace-nowrap px-3 py-1 text-xs">
+                                                        ✍️ Crear Rutina
+                                                    </button>
+
+                                                    <!-- Botón 2: Asignar Plantilla (Acción secundaria) -->
+                                                    <button wire:click="openAssignTemplateModal({{ $client->id }})"
+                                                        class="btn-outline-grey whitespace-nowrap px-3 py-1 text-xs">
+                                                        🔗 Asignar Plantilla
+                                                    </button>
+
+                                                    <!-- Botón 3: Desvincular Cliente (Acción de peligro) -->
+                                                    <button
+                                                        wire:click="confirmRemoveClient({{ $client->id }}, '{{ $client->name }}')"
+                                                        class="btn-outline-red whitespace-nowrap px-3 py-1 text-xs">
+                                                        ❌ Desvincular
+                                                    </button>
+                                                </div>
+                                            </td>
+                                            <!-- Fin del Bloque de Acciones -->
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                                No tienes clientes asignados y aceptados.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                        {{ $this->acceptedClients->links() }}
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Modal de Asignar Plantilla -->
+            <div x-cloak x-data="{ open: @entangle('showAssignTemplateModal') }" x-show="open" class="fixed inset-0 z-50 overflow-y-auto"
+                aria-labelledby="modal-title-assign" role="dialog" aria-modal="true">
+                <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+
+                    <!-- Overlay -->
+                    <div x-show="open" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0"
+                        x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200"
+                        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="bg-modal"
+                        aria-hidden="true"></div>
+
+                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                    <div x-show="open" x-transition:enter="ease-out duration-300"
+                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                        class="relative z-70 inline-block align-bottom rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+
+                        <form wire:submit.prevent="assignTemplateToClient">
+                            <div class="modal-card">
+                                <div class="sm:flex sm:items-start">
+                                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                        <h3 class="text-xl font-bold text-center" id="modal-title-assign">
+                                            Asignar Rutina Plantilla
+                                        </h3>
+                                        <div class="mt-4">
+                                            <p class="text-sm text-gray-500 mb-4">
+                                                Selecciona la plantilla de rutina que deseas copiar y asignar al
+                                                cliente.
+                                            </p>
+                                            <flux:select :label="__('Seleccionar Plantilla')"
+                                                wire:model.live="selectedTemplateId" id="new_client_type"
+                                                class="!w-full inputs" required>
+                                                <flux:select.option value="">-- Selecciona una plantilla --
+                                                </flux:select.option>
+                                                @foreach ($this->availableTemplates as $template)
+                                                    <flux:select.option value="{{ $template->id }}">
+                                                        {{ $template->name }}</flux:select.option>
+                                                @endforeach
+                                            </flux:select>
+                                            @error('selectedTemplateId')
+                                                <span class="text-red-500 text-xs">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Contenedor de Botones (Footer) - Botones uno al lado del otro en escritorio -->
+                                <div class="mt-5 sm:mt-6 sm:flex sm:flex-row-reverse">
+
+                                    <!-- Botón de Acción Principal (Confirmar) -->
+                                    <button type="submit" wire:loading.attr="disabled"
+                                        wire:target="assignTemplateToClient"
+                                        class="w-full btn-outline-lime sm:ml-3 sm:w-auto">
+
+                                        <!-- Indicador de Carga (Spinner) -->
+                                        <span wire:loading wire:target="assignTemplateToClient"
+                                            class="flex items-center">
+                                            Procesando...
+                                        </span>
+
+                                        <!-- Texto Normal -->
+                                        <span wire:loading.remove wire:target="assignTemplateToClient">
+                                            Confirmar Asignación
+                                        </span>
+                                    </button>
+
+                                    <!-- Botón de Acción Secundaria (Cancelar) -->
+                                    <button wire:click="closeAssignTemplateModal" type="button"
+                                        class="w-full sm:w-auto btn-outline-red mt-3 sm:mt-0">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
 </div>
