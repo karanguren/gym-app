@@ -1,13 +1,18 @@
 <div class="div-principal">
     <div class="max-w mx-auto sm:px-6 lg:px-8">
         <div class="md:p-8">
-            <h1 class="titles mb-6">Mis Plantillas de Rutina Creadas</h1>
+            
 
             {{-- Puedes agregar un botón para crear una nueva plantilla --}}
-            <div class="mb-6 btn-outline-lime">
-                <a href="{{ route('employee.routines.create') }}" class="btn-primary" wire:navigate>
-                    Crear Nueva Plantilla
-                </a>
+            
+
+            <div class="p-5 flex flex-wrap items-center justify-between gap-2 ">
+                <h1 class="titles">Mis Plantillas de Rutina Creadas</h1>
+                <div class="btn-outline-lime">
+                    <a href="{{ route('employee.routines.create') }}" class="btn-primary" wire:navigate>
+                        Crear Nueva Plantilla
+                    </a>
+                </div>
             </div>
             
             <hr class="mb-6">

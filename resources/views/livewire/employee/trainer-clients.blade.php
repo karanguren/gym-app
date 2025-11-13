@@ -136,20 +136,20 @@
                                                     <!-- Botón 1: Crear Rutina (Acción principal) -->
                                                     <button wire:click="createRoutineForClient({{ $client->id }})"
                                                         class="btn-outline-lime whitespace-nowrap px-3 py-1 text-xs">
-                                                        ✍️ Crear Rutina
+                                                        Crear Rutina
                                                     </button>
 
                                                     <!-- Botón 2: Asignar Plantilla (Acción secundaria) -->
                                                     <button wire:click="openAssignTemplateModal({{ $client->id }})"
                                                         class="btn-outline-grey whitespace-nowrap px-3 py-1 text-xs">
-                                                        🔗 Asignar Plantilla
+                                                        Asignar Plantilla
                                                     </button>
 
                                                     <!-- Botón 3: Desvincular Cliente (Acción de peligro) -->
                                                     <button
                                                         wire:click="confirmRemoveClient({{ $client->id }}, '{{ $client->name }}')"
                                                         class="btn-outline-red whitespace-nowrap px-3 py-1 text-xs">
-                                                        ❌ Desvincular
+                                                        Desvincular
                                                     </button>
                                                 </div>
                                             </td>
