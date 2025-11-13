@@ -42,15 +42,16 @@ class CreateEditRoutine extends Component
     public bool $isTemplateMode = true; 
     
     // ... Otras propiedades ...
-    public bool $showModal = false; 
+    public bool $showModal = false;
+    public $selectedExerciseDetails = null;
     
     // Estructura de la rutina: Array de ejercicios (SECUECIAL)
     #[Validate('required|array|min:1', message: 'Debes añadir al menos un ejercicio a la rutina.', as: 'Ejercicios de la Rutina')]
     public array $routineData = [];
     
     public array $availableExercises = [];
-    public bool $showExerciseModal = false;
-    public ?Exercise $selectedExerciseDetails = null;
+    // public bool $showExerciseModal = false;
+    // public ?Exercise $selectedExerciseDetails = null;
 
     // --- REGLAS DE VALIDACIÓN ---
     protected array $rules = [
@@ -341,7 +342,7 @@ class CreateEditRoutine extends Component
             'notes' => null,
             'sets' => [
                 // El primer set por defecto
-                ['reps' => 10, 'kg' => null] 
+                ['reps' => 10, 'kg' => 2] 
             ]
         ];
     }
@@ -357,7 +358,7 @@ class CreateEditRoutine extends Component
                 'exercise_id' => null,
                 'exercise_name' => 'Selecciona un ejercicio',
                 'notes' => null,
-                'sets' => [['reps' => 10, 'kg' => null]]
+                'sets' => [['reps' => 10, 'kg' => 2]]
             ];
         } else {
             // Elimina el ejercicio del array
@@ -379,7 +380,7 @@ class CreateEditRoutine extends Component
         
         $this->routineData[$exerciseIndex]['sets'][] = [
             'reps' => $lastSet['reps'] ?? 10,
-            'kg' => $lastSet['kg'] ?? null,
+            'kg' => $lastSet['kg'] ?? 2,
         ];
     }
 
@@ -404,11 +405,13 @@ class CreateEditRoutine extends Component
     /**
      * Abre el modal de detalles del ejercicio (si se usa la lógica del modal)
      */
-    public function openModal(int $exerciseId): void
+    public function showExerciseDetails(int $exerciseId): void
     {
-        $this->selectedExerciseDetails = Exercise::find($exerciseId);
-        if ($this->selectedExerciseDetails) {
-            $this->showExerciseModal = true;
+        $exercise = Exercise::find($exerciseId);
+
+        if ($exercise) {
+            $this->selectedExerciseDetails = $exercise;
+            $this->showModal = true;
         }
     }
 
@@ -417,7 +420,7 @@ class CreateEditRoutine extends Component
      */
     public function closeModal(): void
     {
-        $this->showExerciseModal = false;
+        $this->showModal = false;
         $this->selectedExerciseDetails = null;
     }
     
