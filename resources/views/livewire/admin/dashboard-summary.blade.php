@@ -1,7 +1,7 @@
 <div class="div-principal">
     <div class="max-w mx-auto sm:px-6 lg:px-8">
         <div class="md:p-8">
-            <h2 class="titles mb-4">
+            <h2 class="titles-border mb-4">
                 Panel de Administración
             </h2>
 
