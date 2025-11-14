@@ -67,7 +67,7 @@
 
             <main class="relative flex-grow py-20 md:py-32 w-full bg-cover bg-no-repeat bg-center">
                 
-                <div class="absolute inset-0 bg-[url('../../public/img/fondo2.jpg')] dark:bg-[url('../../public/img/fondo2.jpg')] bg-cover bg-no-repeat bg-center">
+                <div class="absolute inset-0 bg-[url('/img/fondo2.jpg')] dark:bg-[url('/img/fondo2.jpg')] bg-cover bg-no-repeat bg-center">
                     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
                 </div>
 
