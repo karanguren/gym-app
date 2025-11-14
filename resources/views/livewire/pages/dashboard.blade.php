@@ -31,7 +31,7 @@
                             @if ($assignedTrainer)
                                 <!-- CON ENTRENADOR -->
                                 <div class="flex items-center space-x-4 mb-4">
-                                    <img src="{{ $assignedTrainer->profile_photo_url }}" alt="{{ $assignedTrainer->name }}"
+                                    <img src="{{ $assignedTrainer->profile_photo_path }}" alt="{{ $assignedTrainer->name }}"
                                         class="w-12 h-12 rounded-full object-cover border-2 border-primary"
                                         onerror="this.onerror=null; this.src='https://placehold.co/48x48/7bcb01/ffffff?text=E'">
                                     <div>

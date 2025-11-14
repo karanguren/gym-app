@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Computed; 
 
 class TrainerSelection extends Component
 {
@@ -47,7 +48,11 @@ class TrainerSelection extends Component
     /**
      * Listener para eventos (aunque lo haremos directo con dispatch).
      */
-    protected $listeners = ['assignmentUpdated' => 'refreshProfile'];
+
+    protected $listeners = [
+        'assignmentUpdated' => 'refreshProfile',
+        'executeAction' => 'handleGlobalAction',
+    ];
 
     public function refreshProfile()
     {
@@ -69,6 +74,27 @@ class TrainerSelection extends Component
         ]);
     }
 
+    // ------------------------------------------------------------------
+    // LÓGICA DE MODAL GLOBAL
+    // ------------------------------------------------------------------
+    
+
+    public function handleGlobalAction(string $action, array $params = []): void
+    {
+        // Verifica si el método ($action, ej. 'removeSet') existe en esta clase
+        if (method_exists($this, $action)) {
+            
+            // ¡Magia! Llama a la función cuyo nombre está en la variable $action,
+            // pasándole el array de parámetros $params.
+            call_user_func_array([$this, $action], $params);
+            
+        } else {
+            Log::warning("Acción global no implementada: $action");
+        }
+    }
+
+    /////////////////////
+
     // --- MÉTODOS DE CONTROL DEL MODAL DE SELECCIÓN ---
 
     /**
@@ -82,10 +108,31 @@ class TrainerSelection extends Component
             return;
         }
 
+         $data = [
+            'title' => 'Confirmar Solicitud',
+            'message' => 'Estás a punto de enviar una solicitud para que - ' .  $trainerName . ' - te entrene. Ellos deberán aceptar la solicitud.',
+            
+            'confirmAction' => 'selectTrainer', 
+            
+            'cancelAction' => 'closeSelectionModal',
+            
+            'confirmButtonText' => 'Sí, Solicitar',
+            'confirmButtonClass' => 'btn-outline-lime',
+            'buttonClass' => 'btn-outline-red',
+            
+            'params' => [
+                $trainerId,
+                $trainerName
+            ]
+        ];
+        
+        // 2. Emitir el evento para que el Modal Global se abra
+        $this->dispatch('openConfirmModal', data: $data);
+
         // 2. Almacenar el ID y abrir el modal
-        $this->selectedTrainerId = $trainerId;
-        // Alpine.js recibirá el nombre a través del click y el estado de showSelectionModal vía entangle
-        $this->showSelectionModal = true;
+        // $this->selectedTrainerId = $trainerId;
+        // // Alpine.js recibirá el nombre a través del click y el estado de showSelectionModal vía entangle
+        // $this->showSelectionModal = true;
     }
 
     /**
@@ -104,14 +151,32 @@ class TrainerSelection extends Component
      */
     public function openDetachModal()
     {
+
         // 1. Verificar si hay algo que desvincular (accepted, pending o rejected)
         if (!in_array($this->clientProfile->assignment_status, ['accepted', 'pending', 'rejected'])) {
             $this->showToast('No tienes un entrenador asignado o una solicitud pendiente/rechazada para desvincular.', 'info');
             return;
         }
 
-        // 2. Abrir el modal
-        $this->showDetachModal = true;
+        $isPending = $this->clientProfile->assignment_status === 'pending';
+        
+        $data = [
+            'title' => $isPending ? 'Cancelar Solicitud' : 'Confirmar Desvinculación',
+            'message' => $isPending 
+                ? '¿Estás seguro de que deseas **cancelar la solicitud** enviada al entrenador?'
+                : '¿Estás seguro de que deseas **desvincularte** de tu entrenador actual? Podrás seleccionar uno nuevo después.',
+            
+            'confirmAction' => 'detachTrainer', // <-- La acción que ejecuta el modal global
+            'params' => [], // Sin parámetros adicionales para detachTrainer
+            
+            'cancelAction' => 'closeDetachModal', // Acción vacía
+            'confirmButtonText' => $isPending ? 'Sí, Cancelar' : 'Sí, Desvincular',
+            'confirmButtonClass' => 'btn-outline-red', // Usar rojo para acciones destructivas
+            'buttonClass' => 'btn-outline-lime', // Usar verde para el botón de cancelar
+        ];
+        
+        // 2. Emitir el evento para que el Modal Global se abra
+        $this->dispatch('openConfirmModal', data: $data);
     }
 
     /**
@@ -128,9 +193,9 @@ class TrainerSelection extends Component
      * Ejecuta la lógica para enviar la solicitud de entrenador.
      * Se llama al confirmar el modal de selección.
      */
-    public function selectTrainer()
+    public function selectTrainer(int $trainerId, string $trainerName)
     {
-        if (!$this->selectedTrainerId) {
+        if (!$trainerId) {
             $this->showToast('Error: No se seleccionó un entrenador válido.', 'error');
             $this->closeSelectionModal();
             return;
@@ -140,19 +205,20 @@ class TrainerSelection extends Component
             // Asignar el nuevo entrenador como 'requested' y cambiar el estado
             // La línea 'requested_trainer_id' se ve CORRECTA aquí.
             $this->clientProfile->update([
-                'requested_trainer_id' => $this->selectedTrainerId,
+                'requested_trainer_id' => $trainerId,
                 'assignment_status' => 'pending',
                 'assigned_trainer_id' => null, // Asegurar que el asignado es nulo si se está pidiendo uno nuevo
             ]);
 
             // Obtener el nombre para el toast
-            $trainerName = User::find($this->selectedTrainerId)->name ?? 'un entrenador';
+            $trainerName = User::find($trainerId)->name ?? 'un entrenador';
             
             // Cerrar modal y notificar
             $this->closeSelectionModal();
             $this->clientProfile->fresh();
             
-            $this->showToast('Solicitud enviada a ' . $trainerName . ' exitosamente. Esperando aprobación.', 'success');
+            // $this->showToast('Solicitud enviada a ' . $trainerName . ' exitosamente. Esperando aprobación.', 'success');
+            $this->dispatch('notify', message: 'Solicitud enviada a ' . $trainerName . ' exitosamente. Esperando aprobación.', type: 'success', duration: 3500 );
 
         } catch (\Exception $e) {
             // Si Laravel está lanzando una excepción, ¡revísala en el log! Podría ser la asignación masiva.
@@ -221,7 +287,7 @@ class TrainerSelection extends Component
             // Ordenar de modo que el entrenador actualmente asignado (si existe) aparezca primero.
             ->orderByRaw('id = ? DESC', [$currentTrainerId])
             ->orderBy('name')
-            ->paginate(10);
+            ->paginate(12);
     }
 
     /**

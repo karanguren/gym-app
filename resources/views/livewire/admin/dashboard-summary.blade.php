@@ -67,7 +67,7 @@
                     </a>
                 </div>
 
-                <div class="card-tb-az-v2">
+                {{-- <div class="card-tb-az-v2">
                     <div>
                         <div class="flex items-center space-x-3 mb-4">
                             <svg class="w-8 h-8 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -86,7 +86,7 @@
                     <a href="{{ route('admin.posts') }}" class="mt-4 text-cyan-500 hover:text-cyan-700 text-sm font-semibold flex items-center">
                         Ir a Gestión de Publicaciones &rarr;
                     </a>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

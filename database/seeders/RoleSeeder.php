@@ -19,8 +19,8 @@ class RoleSeeder extends Seeder
 
         // 2. Crear 3 Nutricionistas (Nutritionists)
         // Usamos el estado nutritionist() definido en el UserFactory
-        User::factory()->count(3)->nutritionist()->create();
-        $this->command->info('Se han creado 3 Nutricionistas (role: nutritionist).');
+        // User::factory()->count(3)->nutritionist()->create();
+        // $this->command->info('Se han creado 3 Nutricionistas (role: nutritionist).');
 
         // 3. Crear 50 Clientes (Clients)
         // Usamos el estado client() definido en el UserFactory

@@ -1,5 +1,5 @@
-@import 'tailwindcss';
-@import '../../vendor/livewire/flux/dist/flux.css';
+@import "tailwindcss";
+@import "../../vendor/livewire/flux/dist/flux.css";
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -7,6 +7,12 @@
 @source '../../vendor/livewire/flux/stubs/**/*.blade.php';
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@reference "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
     /* font-family: 'Myanmar Text', sans-serif;  */
@@ -16,9 +22,10 @@ body {
     color: #7bcb01;
 }
 
-
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: "Instrument Sans", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
 
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
@@ -46,7 +53,6 @@ body {
 }
 
 @layer base {
-
     *,
     ::after,
     ::before,
@@ -61,11 +67,11 @@ body {
 }
 
 [data-flux-label] {
-    @apply  !mb-0 !leading-tight;
+    @apply !mb-0 !leading-tight;
 }
 
-.\[grid-area\:main\]  {
-    @apply bg-[url('../../../public/img/LOGOFIT101-1.jpg')] bg-center dark:bg-[url('../../../public/img/LOGOFIT101-2.jpg')] bg-center bg-cover p-0
+.\[grid-area\:main\] {
+    @apply bg-[url('../../../public/img/LOGOFIT101-1.jpg')] bg-center dark:bg-[url('../../../public/img/LOGOFIT101-2.jpg')] bg-center bg-cover p-0;
 }
 
 input:focus[data-flux-control],
@@ -77,3 +83,215 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* CLASES NUEVAS PARA UNIFICACION DE DISE:O */
+
+.div-principal {
+    @apply p-6 px-3 sm:px-10 bg-[#e5e5e5]/50 dark:bg-[#1a1a1a]/50 border-b border-gray-200 dark:border-gray-700 min-h-screen;
+}
+
+.titles-border {
+    @apply text-2xl font-extrabold text-[#7bcb01] dark:text-[#7bcb01] mb-6 border-b pb-4 dark:border-gray-700;
+}
+
+.titles {
+    @apply text-2xl font-extrabold text-[#7bcb01] dark:text-[#7bcb01];
+}
+
+/* .titles-v2 {
+    @apply text-xl font-extrabold text-[#7bcb01] dark:text-[#7bcb01];
+} */
+
+.subtitles {
+    @apply text-xl text-gray-900 dark:text-white mb-6 flex items-center;
+}
+
+.description {
+    @apply text-sm mt-2 text-gray-600 dark:text-gray-400;
+}
+
+.modalTitle {
+    @apply text-xl font-extrabold text-[#7bcb01] dark:text-[#7bcb01] mb-3;
+}
+
+.svg-lime {
+    @apply text-[#7bcb01] mb-4;
+}
+
+.btn-outline-lime {
+    @apply inline-flex 
+        justify-center 
+        items-center 
+        px-3 
+        py-1.5 
+        text-xs 
+        font-semibold 
+        border-2 
+        border-lime-500 
+        text-lime-500 
+        dark:border-lime-500 
+        dark:text-lime-300/70 
+        rounded-md 
+        hover:bg-lime-500/70 
+        hover:text-gray-900 
+        transition 
+        duration-150 
+        ease-in-out 
+        shadow-md;
+}
+
+.btn-outline-yellow {
+    @apply inline-flex justify-center items-center px-3 py-1.5 text-xs font-semibold border-2 border-yellow-500 text-yellow-600 rounded-md hover:bg-yellow-200/50  dark:hover:text-white transition duration-150 ease-in-out shadow-md;
+}
+
+.btn-outline-grey {
+    @apply inline-flex justify-center items-center px-3 py-1.5 text-xs font-semibold border-2 border-gray-400 text-gray-600 rounded-md hover:bg-gray-300 dark:text-gray-300  dark:hover:bg-gray-700 dark:hover:text-white transition duration-150 ease-in-out shadow-md;
+}
+
+.btn-outline-grey-disabled {
+    @apply inline-flex justify-center items-center px-3 py-1.5 text-xs font-semibold border-2 rounded-md bg-gray-400 cursor-not-allowed;
+}
+
+.btn-outline-red {
+    @apply inline-flex justify-center items-center px-3 py-1.5 text-xs font-semibold border-2 border-red-500/50 text-red-400/50 rounded-md hover:bg-red-500/60 hover:text-white transition duration-150 ease-in-out shadow-md;
+}
+
+.btn-outline-redunded-ve {
+    @apply p-2 border-2 border-lime-500 text-lime-500 rounded-full hover:bg-lime-500 hover:text-black transition duration-150 ease-in-out shadow-md;
+}
+
+.text-table-th {
+    @apply px-6 py-3 text-xs font-semibold uppercase tracking-wider dark:text-gray-100;
+}
+
+.div-table-principal {
+    @apply bg-white/95 dark:bg-[#1a1a1a]/95 dark:text-white shadow-xl rounded-xl overflow-hidden border border-gray-300
+}
+
+.div-table {
+    @apply overflow-x-auto border border-gray-300 rounded-lg;
+}
+
+.div-table-border {
+    @apply border border-gray-300 rounded-lg;
+}
+
+.border-table {
+    @apply border border-gray-300 rounded-lg;
+}
+
+.title-table {
+    @apply text-xl text-gray-900 dark:text-white flex items-center;
+}
+
+.tables {
+    @apply min-w-full divide-y divide-gray-300 dark:divide-gray-700;
+}
+
+.tables-th {
+    @apply bg-gray-50 dark:bg-zinc-800;
+}
+
+.tables-tbody {
+    @apply divide-y divide-gray-200 dark:divide-gray-700;
+}
+
+.card-tb-ve {
+    @apply text-center bg-white dark:bg-[#1a1a1a] sm:p-10 rounded-xl shadow-xl border-t-4 border-t-[#7bcb01];
+}
+
+.card-tl-ve {
+    @apply bg-[#e5e5e5] dark:bg-[#1a1a1a] p-3 rounded-xl shadow-xl border-l-4 border-[#7bcb01] dark:border-[#5aa301];
+}
+
+.card-tl-ro {
+    @apply bg-[#e5e5e5] dark:bg-[#1a1a1a] p-3 rounded-xl shadow-xl border-l-4 border-red-500 dark:border-red-600;
+}
+
+.card-tl-az {
+    @apply bg-[#e5e5e5] dark:bg-[#1a1a1a] p-3 rounded-xl shadow-xl border-l-4 border-blue-500 dark:border-blue-600;
+}
+
+.card-tb-ve-v2 {
+    @apply bg-white dark:bg-[#1a1a1a] p-4 flex flex-col justify-between rounded-xl shadow-2xl border-t-4 border-t-[#7bcb01]/50;
+}
+
+.modal-card {
+    @apply bg-white dark:bg-[#1a1a1a] p-8 flex flex-col justify-between rounded-xl shadow-2xl border border-dashed dark:border-[#7bcb01]/30;
+}
+
+.modal-message {
+    @apply text-sm text-gray-700 dark:text-gray-300 mb-6 text-center;
+}
+
+/* card naranja */
+.card-tb-an-v2 {
+    @apply bg-white dark:bg-[#1a1a1a] p-4 flex flex-col justify-between rounded-xl shadow-2xl border-t-4 border-t-orange-400;
+}
+
+/* card azul */
+.card-tb-az-v2 {
+    @apply bg-white dark:bg-[#1a1a1a] p-4 flex flex-col justify-between rounded-xl shadow-2xl border-t-4 border-t-cyan-500;
+}
+
+/* card roja */
+.card-tb-ro-v2 {
+    @apply bg-white dark:bg-[#1a1a1a] p-4 flex flex-col justify-between rounded-xl shadow-2xl border-t-4 border-t-red-600;
+}
+
+.titulos-card {
+    @apply mt-4 text-3xl font-extrabold text-gray-900 dark:text-white;
+}
+
+.inputs {
+    @apply border border-gray-300 dark:border-gray-100 text-xs rounded-lg shadow-sm focus:ring-[#7bcb01] focus:border-gray-300 focus:outline-none focus:ring-2 dark:bg-[#1a1a1a]/95 dark:bg-[#1a1a1a]/95 dark:text-white;
+}
+
+.bg-modal {
+    @apply fixed flex inset-0 z-[60] bg-zinc-900/70 backdrop-blur-sm p-4 justify-center items-center;
+}
+
+.modal-instrucciones {
+    /* @apply bg-white dark:bg-[#1a1a1a] rounded-xl shadow-2xl p-6 sm:p-8 max-w-lg w-full transform transition-all duration-300 text-left border border-gray-700/70; */
+
+    @apply max-w-md w-full bg-white dark:bg-[#1a1a1a] p-8 flex flex-col justify-between rounded-xl shadow-2xl border border-dashed dark:border-[#7bcb01]/30;
+}
+
+.modal-notificacion {
+}
+
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 8px; /* Ancho de la scrollbar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #33333340; /* Fondo de la pista de la scrollbar */
+    border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #7bcb01; /* Color del "pulgar" de la scrollbar */
+    border-radius: 10px; /* Bordes redondeados del pulgar */
+    border: 2px solid #33333340; /* Espacio alrededor del pulgar */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #5aa301; /* Color del pulgar al pasar el ratón */
+}
+
+/* Para Firefox */
+.custom-scrollbar {
+    scrollbar-width: thin; /* "auto" o "none" */
+    scrollbar-color: #7bcb01 #0000000d; /* color-del-pulgar color-de-la-pista */
+}
+
+.remove-number-arrows::-webkit-outer-spin-button,
+.remove-number-arrows::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.remove-number-arrows[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+}
