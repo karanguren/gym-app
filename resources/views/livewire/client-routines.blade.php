@@ -1,25 +1,6 @@
 <div class="div-principal">
     <div class="max-w mx-auto sm:px-6 lg:px-8">
         <div class="md:p-8">
-            @if (session()->has('info'))
-                <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
-                    role="alert">
-                    {{ session('info') }}
-                </div>
-            @endif
-            @if (session()->has('success'))
-                <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-                    role="alert">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if (session()->has('error'))
-                <div class="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-                    role="alert">
-                    {{ session('error') }}
-                </div>
-            @endif
-
             <div
                 class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b dark:border-gray-700 pb-3 space-y-3 sm:space-y-0">
 
@@ -27,7 +8,8 @@
                     Mis Rutinas Creadas
                 </h2>
 
-                <a href="{{ route('routine.builder') }}" class="w-full sm:w-auto flex flex-rowspace-x-2 btn-outline-ve">
+                <a href="{{ route('routine.builder') }}"
+                    class="w-full sm:w-auto flex flex-rowspace-x-2 btn-outline-lime">
                     <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                         stroke-linejoin="round">
@@ -39,11 +21,11 @@
                 </a>
             </div>
 
-            @if (!isset($routines) || $routines->isEmpty())
+            {{-- @if (!isset($routines) || $routines->isEmpty())
                 <div
                     class="text-center p-10 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-                    <svg class="w-12 h-12 svg-ve mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
+                    <svg class="w-12 h-12 svg-lime mx-auto mb-3" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
                         </path>
@@ -54,7 +36,7 @@
                     <p class="mt-2 text-gray-500 dark:text-gray-400">
                         ¡Empieza a crear tu plan de entrenamiento ahora!
                     </p>
-                    <a href="{{ route('routine.builder') }}" class="mt-4 inline-block btn-outline-ve">
+                    <a href="{{ route('routine.builder') }}" class="mt-4 inline-block btn-outline-lime">
                         Ir al Constructor de Rutinas &rarr;
                     </a>
                 </div>
@@ -83,22 +65,163 @@
                             </p>
 
                             <div class="flex justify-end space-x-3">
-                                <button wire:click="viewRoutineDetails({{ $routine->id }})" class="btn-outline-ve">
-                                    Ver Detalles
+                                <button wire:click="viewRoutineDetails({{ $routine->id }})" class="btn-outline-lime">
+                                    Empezar
                                 </button>
 
                                 <button wire:click="confirmRoutineDeletion({{ $routine->id }})"
-                                    class="btn-outline-ro">
+                                    class="btn-outline-red">
                                     Eliminar
                                 </button>
                             </div>
                         </div>
                     @endforeach
                 </div>
-            @endif
+            @endif --}}
+
+            <div x-data="{ currentTab: 'selfMade' }" class="mt-6">
+                <!-- PESTAÑAS (TABS) -->
+                <div class="flex border-b border-gray-200 dark:border-gray-700">
+                    <button @click="currentTab = 'selfMade'"
+                        :class="{ 'border-primary text-primary dark:text-primary': currentTab === 'selfMade', 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200': currentTab !== 'selfMade' }"
+                        class="py-2 px-4 border-b-2 font-semibold transition duration-150">
+                        Mis Rutinas Creadas ({{ $selfMadeRoutines->count() ?? 0 }})
+                    </button>
+                    @if (Auth::user()->client_type == 'personalized')
+                        <button @click="currentTab = 'assigned'"
+                            :class="{ 'border-primary text-primary dark:text-primary': currentTab === 'assigned', 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200': currentTab !== 'assigned' }"
+                            class="py-2 px-4 border-b-2 font-semibold transition duration-150">
+                            Rutinas Asignadas ({{ $assignedRoutines->count() ?? 0 }})
+                        </button>
+                    @endif
+                </div>
+
+                {{-- --- CONTENIDO DE LAS PESTAÑAS --- --}}
+                <div class="py-6">
+
+                    {{-- 1. CONTENIDO: MIS RUTINAS CREADAS --}}
+                    <div x-show="currentTab === 'selfMade'">
+                        @if (!isset($routines) || $routines->isEmpty())
+                            <div
+                                class="text-center p-10 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                                <svg class="w-12 h-12 svg-lime mx-auto mb-3" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                                    </path>
+                                </svg>
+                                <p class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                                    Aún no tienes rutinas guardadas.
+                                </p>
+                                <p class="mt-2 text-gray-500 dark:text-gray-400">
+                                    ¡Empieza a crear tu plan de entrenamiento ahora!
+                                </p>
+                                <a href="{{ route('routine.builder') }}" class="mt-4 inline-block btn-outline-lime">
+                                    Ir al Constructor de Rutinas &rarr;
+                                </a>
+                            </div>
+                        @else
+                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                @foreach ($routines as $routine)
+                                    <div class="card-tb-ve-v2">
+                                        <h3 class="text-xl font-extrabold text-gray-900 dark:text-white mb-2 truncate"
+                                            title="{{ $routine->name }}">
+                                            {{ $routine->name }}
+                                        </h3>
+
+                                        <div class="flex items-center text-gray-600 dark:text-gray-400 mb-4">
+                                            <svg class="w-5 h-5 mr-2 text-lime-600" xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path
+                                                    d="M14.4 14.4 9 18l-1.5-1.5L6 18l3.6-3.6M14 6h4M16 4v4M12 12l-6 6M12 12l6 6" />
+                                            </svg>
+                                            <span class="text-lg font-semibold">{{ $routine->exercises_count }} Ejercicios</span>
+                                        </div>
+
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 italic mb-4">
+                                            Creada: {{ $routine->created_at->diffForHumans() }}
+                                        </p>
+
+                                        <div class="flex justify-end space-x-3">
+                                            <button wire:click="viewRoutineDetails({{ $routine->id }})" class="btn-outline-lime">
+                                                Empezar
+                                            </button>
+
+                                            <button wire:click="confirmRoutineDeletion({{ $routine->id }})"
+                                                class="btn-outline-red">
+                                                Eliminar
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- 2. CONTENIDO: RUTINAS ASIGNADAS --}}
+                    <div x-show="currentTab === 'assigned'" x-cloak>
+                        @if ($assignedRoutines->isEmpty())
+                            <div
+                                class="text-center p-10 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                                <svg class="w-12 h-12 svg-lime mx-auto mb-3" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17 20h5m-5 0a2 2 0 100-4m0 4a2 2 0 110-4m-9-1h4m-4 0a2 2 0 01-2-2v-3a2 2 0 012-2h4a2 2 0 012 2v3a2 2 0 01-2 2zM7 20h2v-2H7v2z">
+                                    </path>
+                                </svg>
+                                <p class="text-xl font-semibold text-gray-700 dark:text-gray-300">
+                                    Aún no tienes rutinas asignadas.
+                                </p>
+                                <p class="mt-2 text-gray-500 dark:text-gray-400">
+                                    ¡Espera a que tu entrenador te asigne tu plan personalizado!
+                                </p>
+                            </div>
+                        @else
+                            {{-- LÓGICA DE LISTADO PARA RUTINAS ASIGNADAS --}}
+                            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                @foreach ($assignedRoutines as $routine)
+                                    <div class="card-tb-ve-v2">
+                                        <h3 class="text-xl font-extrabold text-gray-900 dark:text-white mb-2 truncate"
+                                            title="{{ $routine->name }}">
+                                            {{ $routine->name }}
+                                        </h3>
+
+                                        <div class="flex items-center text-gray-600 dark:text-gray-400 mb-4">
+                                            <svg class="w-5 h-5 mr-2 text-lime-600" xmlns="http://www.w3.org/2000/svg"
+                                                width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                stroke-linejoin="round">
+                                                <path
+                                                    d="M14.4 14.4 9 18l-1.5-1.5L6 18l3.6-3.6M14 6h4M16 4v4M12 12l-6 6M12 12l6 6" />
+                                            </svg>
+                                            <span
+                                                class="text-lg font-semibold">{{ $routine->exercises_count }} Ejercicios</span>
+                                        </div>
+
+                                        <p class="text-sm text-lime-600 dark:text-lime-400 font-semibold italic mb-4">
+                                            Asignada por el entrenador
+                                        </p>
+
+                                        <div class="flex justify-end space-x-3">
+                                            {{-- Botones de acción para rutinas ASIGNADAS (Solo empezar) --}}
+                                            <button wire:click="viewRoutineDetails({{ $routine->id }})"
+                                                class="btn-outline-lime">
+                                                Empezar Rutina
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+
+                </div>
+            </div>
 
             {{-- 🎯 ESTRUCTURA DEL MODAL DE ELIMINACIÓN --}}
-            @if ($showDeleteModal)
+            {{-- @if ($showDeleteModal)
                 <div class=" bg-modal flex items-center justify-center">
                     <div class="card-tb-ro-v2" @click.away="() => {}">
 
@@ -110,16 +233,16 @@
                         </p>
 
                         <div class="flex justify-end space-x-3">
-                            <button wire:click="closeModal" type="button" class="btn-outline-ve">
+                            <button wire:click="closeModal" type="button" class="btn-outline-lime">
                                 Cancelar
                             </button>
-                            <button wire:click="deleteRoutine" type="button" class="btn-outline-ro">
+                            <button wire:click="deleteRoutine" type="button" class="btn-outline-red">
                                 Sí, Eliminar
                             </button>
                         </div>
                     </div>
                 </div>
-            @endif
+            @endif --}}
 
         </div>
     </div>

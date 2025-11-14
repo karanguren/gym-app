@@ -4,7 +4,7 @@
             <div class=" flex items-center justify-center bg-transparent">
                 <!-- CARD INICIAL -->
                 <div class="card-tb-ve">
-                    <svg class="mx-auto h-12 w-12 svg-ve" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                    <svg class="mx-auto h-12 w-12 svg-lime" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
                         stroke-linejoin="round">
                         <circle cx="12" cy="12" r="10" />
@@ -17,7 +17,7 @@
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400 mb-6">
                         Debes completar tus datos para verificar tu cuenta y acceder a todos los beneficios.
                     </p>
-                    <button wire:click="$set('showForm', true)" class="btn-outline-ve">
+                    <button wire:click="$set('showForm', true)" class="btn-outline-lime">
                         Comenzar
                     </button>
                 </div>
@@ -166,17 +166,17 @@
                     <!-- BOTONES -->
                     <div class="flex justify-between mt-6">
                         @if ($step > 1)
-                            <button type="button" wire:click="prevStep" class="btn-outline-ro">
+                            <button type="button" wire:click="prevStep" class="btn-outline-red">
                                 Atrás
                             </button>
                         @endif
 
                         @if ($step < 3)
-                            <button type="button" wire:click="nextStep" class="btn-outline-ve">
+                            <button type="button" wire:click="nextStep" class="btn-outline-lime">
                                 Siguiente
                             </button>
                         @else
-                            <button type="submit" class="btn-outline-ve" wire:loading.attr="disabled"
+                            <button type="submit" class="btn-outline-lime" wire:loading.attr="disabled"
                                 wire:loading.class="opacity-50 cursor-wait" wire:target="submitData">
                                 <span wire:loading.remove wire:target="submitData">
                                     Guardar

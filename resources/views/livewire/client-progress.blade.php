@@ -14,23 +14,30 @@
 
             {{-- Mensaje si no hay datos --}}
             @if ($totalWorkouts === 0)
-                <div class="text-center p-12 bg-gray-50 dark:bg-[#1a1a1a] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-                    <svg class="mx-auto h-12 w-12 svg-ve" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                <div
+                    class="text-center p-12 bg-gray-50 dark:bg-[#1a1a1a] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
+                    <svg class="mx-auto h-12 w-12 svg-lime" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4" />
+                        <path d="M12 8h.01" />
+                    </svg>
                     <h3 class="mt-2 text-lg font-semibold text-gray-900 dark:text-white">Aún no hay progreso</h3>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                         ¡Comienza a registrar tu primer entrenamiento para ver tus estadísticas aquí!
                     </p>
                 </div>
             @else
-                
                 {{-- 1. TARJETAS DE ESTADÍSTICAS GENERALES --}}
                 <h2 class="subtitles">Estadísticas Clave</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    
+
                     {{-- Total Entrenamientos --}}
                     <div class="card-tl-ve !p-6">
                         <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Entrenamientos Completados</p>
-                        <p class="mt-1 text-3xl font-extrabold text-gray-900 dark:text-[#7bcb01]">{{ $totalWorkouts }}</p>
+                        <p class="mt-1 text-3xl font-extrabold text-gray-900 dark:text-[#7bcb01]">{{ $totalWorkouts }}
+                        </p>
                     </div>
 
                     {{-- Duración Promedio --}}
@@ -52,37 +59,36 @@
                 </div>
 
                 {{-- 2. TABLA DE PROGRESO DE FUERZA (PESO MÁXIMO) --}}
-                <h2 class="subtitles">
-                    Progreso de Fuerza (Máximo Kg) 
-                    <svg class="w-5 h-5 ml-2 text-[#7bcb01]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 17.58A5 5 0 0 0 18 10c-1.2 0-2.43.3-3.4.88L12 2v10l3.4-1.88a5 5 0 0 0 3.4.88 5 5 0 0 0 0-10"/></svg>
-                </h2>
+                <div class="div-table-principal mb-8">
 
-                <div class="shadow overflow-hidden border border-gray-200 dark:border-gray-700 sm:rounded-lg">
-                    <div class="overflow-x-auto">
+                    <div class="p-5 flex flex-wrap items-center justify-between gap-2 ">
+                        <h2 class="title-table">
+                            Progreso de Fuerza (Máximo Kg)
+                        </h2>
+                    </div>
+
+                    <div class="">
                         <table class="tables">
                             <thead class="tables-th">
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        Ejercicio
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        Máximo Peso Registrado (Kg)
-                                    </th>
+                                    <th class="text-left text-table-th">Ejercicio</th>
+                                    <th class="text-left text-table-th">Máximo Peso Registrado (Kg)</th>
                                 </tr>
                             </thead>
                             <tbody class="tables-tbody">
                                 @forelse ($sortedProgress as $progress)
-                                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition duration-150">
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
+                                    <tr class="hover:bg-lime/10 transition">
+                                        <td class="px-4 py-2 text-xs text-gray-800 dark:text-white">
                                             {{ $progress['name'] }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold text-[#7bcb01]">
+                                        <td class="px-4 py-2 text-xs text-gray-800 dark:text-white">
                                             {{ number_format($progress['max_weight'], 1) }} Kg
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="2" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                        <td colspan="2"
+                                            class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
                                             No se encontraron pesos registrados con sets completados.
                                         </td>
                                     </tr>
@@ -90,15 +96,20 @@
                             </tbody>
                         </table>
                     </div>
+                    
+                    {{-- Bloque de Paginación --}}
+                    <div class="p-4 border-t border-gray-200 dark:border-gray-800">
+                        {{-- {{ $pendingClients->links('pagination::tailwind', ['pageName' => 'pendingPage']) }} --}}
+                    </div>
                 </div>
-                
+
                 {{-- Nota sobre el cálculo --}}
                 <p class="mt-4 text-xs text-gray-500 dark:text-gray-400 italic">
-                    *El progreso de fuerza se calcula usando el peso máximo levantado para un set completado en cualquier registro de entrenamiento.
+                    *El progreso de fuerza se calcula usando el peso máximo levantado para un set completado en
+                    cualquier registro de entrenamiento.
                 </p>
 
             @endif
-
         </div>
     </div>
 </div>

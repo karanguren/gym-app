@@ -1,6 +1,5 @@
 <div class="div-principal">
-    <div class="max-w mx-auto sm:px-6 lg:px-8" 
-        >
+    <div class="max-w mx-auto sm:px-6 lg:px-8">
         <div class="md:p-8">
 
             <header
@@ -16,12 +15,11 @@
 
                 <div class="w-full sm:w-auto">
                     @if ($currentView === 'selector')
-                        <button wire:click="changeView('routine')" class="w-full sm:w-auto btn-outline-ve"
-                            >
+                        <button wire:click="changeView('routine')" class="w-full sm:w-auto btn-outline-lime">
                             Ver Rutina ({{ count($this->selectedRoutineIds) }})
                         </button>
                     @else
-                        <button wire:click="changeView('selector')" class="w-full sm:w-auto btn-outline-ve">
+                        <button wire:click="changeView('selector')" class="w-full sm:w-auto btn-outline-lime">
                             Volver al Selector
                         </button>
                     @endif
@@ -38,9 +36,9 @@
                     @if ($this->filteredExercises->isEmpty())
                         <div
                             class="text-center p-10 bg-gray-100 dark:bg-[#1a1a1a] rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600">
-                            <svg class="mx-auto h-12 w-12 svg-ve" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                stroke-linejoin="round">
+                            <svg class="mx-auto h-12 w-12 svg-lime" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10" />
                                 <path d="M12 16v-4" />
                                 <path d="M12 8h.01" />
@@ -174,7 +172,7 @@
 
                                             <button type="button"
                                                 wire:click="showExerciseDetails({{ $exercise->id }})"
-                                                class="btn-outline-rounded-ve" title="Ver Instrucciones">
+                                                class="btn-outline-redunded-ve" title="Ver Instrucciones">
                                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                                                     stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -188,7 +186,7 @@
                                             <h4 class="text-base font-bold text-gray-900 dark:text-white">Sets</h4>
                                             @forelse ($routineData[$exercise->id] ?? [] as $setIndex => $set)
                                                 <div
-                                                    class="flex flex-col w-full p-3 rounded-lg border border-gray-700/50 bg-[#262627] shadow-lg transition duration-300 ease-in-out hover:border-lime-500/50">
+                                                    class="flex flex-col w-full p-3 rounded-lg border border-gray-700/50 bg-[#e5e5e5] dark:bg-[#262627] shadow-lg transition duration-300 ease-in-out hover:border-lime-500/50">
 
                                                     <div class="flex items-center space-x-2 w-full">
 
@@ -201,7 +199,7 @@
 
                                                             <div class="flex items-center flex-1"> <label
                                                                     for="reps-{{ $exercise->id }}-{{ $setIndex }}"
-                                                                    class="text-xs font-medium text-gray-300 mr-1 whitespace-nowrap">Reps</label>
+                                                                    class="text-xs font-medium mr-1 whitespace-nowrap">Reps</label>
                                                                 <flux:input
                                                                     wire:model.live="routineData.{{ $exercise->id }}.{{ $setIndex }}.reps"
                                                                     id="reps-{{ $exercise->id }}-{{ $setIndex }}"
@@ -211,7 +209,7 @@
 
                                                             <div class="flex items-center flex-1"> <label
                                                                     for="kg-{{ $exercise->id }}-{{ $setIndex }}"
-                                                                    class="text-xs font-medium text-gray-300 mr-1 whitespace-nowrap">KG</label>
+                                                                    class="text-xs font-medium mr-1 whitespace-nowrap">KG</label>
                                                                 <flux:input
                                                                     wire:model.live="routineData.{{ $exercise->id }}.{{ $setIndex }}.kg"
                                                                     id="kg-{{ $exercise->id }}-{{ $setIndex }}"
@@ -243,18 +241,18 @@
                                             @endforelse
 
                                             {{-- <button wire:click="addSet({{ $exercise->id }})"
-                                                    class=" btn-outline-ve w-full mt-2">
+                                                    class=" btn-outline-lime w-full mt-2">
                                                     + Añadir Set
                                                 </button> --}}
                                         </div>
 
                                         <div class="mt-3 flex space-x-2 w-full">
                                             <button wire:click="addSet({{ $exercise->id }})"
-                                                class="flex-1 py-1 btn-outline-ve">
+                                                class="flex-1 py-1 btn-outline-lime">
                                                 + Añadir Set
                                             </button>
                                             <button wire:click="toggleExercise({{ $exercise->id }})"
-                                                class="flex-1 py-1  btn-outline-ro">
+                                                class="flex-1 py-1  btn-outline-red">
                                                 Quitar Ejercicio
                                             </button>
                                         </div>
@@ -286,10 +284,7 @@
             @endif
 
             @if ($showModal && $selectedExerciseDetails)
-                <x-exercise-instructions-modal 
-                    :show-modal="'showModal'" 
-                    :exercise="$selectedExerciseDetails" 
-                />
+                <x-exercise-instructions-modal :show-modal="'showModal'" :exercise="$selectedExerciseDetails" />
             @endif
 
 

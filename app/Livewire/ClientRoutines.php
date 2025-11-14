@@ -46,6 +46,30 @@ class ClientRoutines extends Component
     }
 
     // ------------------------------------------------------------------
+    // LÓGICA DE MODAL GLOBAL
+    // ------------------------------------------------------------------
+    
+    protected $listeners = [
+        'executeAction' => 'handleGlobalAction', // Captura el evento de ejecución
+    ];
+
+    public function handleGlobalAction(string $action, array $params = []): void
+    {
+        // Verifica si el método ($action, ej. 'removeSet') existe en esta clase
+        if (method_exists($this, $action)) {
+            
+            // ¡Magia! Llama a la función cuyo nombre está en la variable $action,
+            // pasándole el array de parámetros $params.
+            call_user_func_array([$this, $action], $params);
+            
+        } else {
+            Log::warning("Acción global no implementada: $action");
+        }
+    }
+
+    /////////////////////
+
+    // ------------------------------------------------------------------
     // LÓGICA DEL MODAL DE ELIMINACIÓN
     // ------------------------------------------------------------------
 
@@ -56,12 +80,32 @@ class ClientRoutines extends Component
     public function confirmRoutineDeletion(int $routineId): void
     {
         $routine = Routine::find($routineId);
+
         if ($routine) {
-            $this->routineToDeleteId = $routineId;
-            $this->routineToDeleteName = $routine->name;
-            $this->showDeleteModal = true;
+
+            $data = [
+                'title' => '¿Estás seguro de que deseas eliminar la rutina?',
+                'message' => 'Esto eliminara la rutina: -' . $routine->name . '- Esta acción es IRREVERSIBLE y también eliminará todos sus ejercicios asociados.',
+                
+                'confirmAction' => 'deleteRoutine', 
+                
+                'cancelAction' => 'closeModal',
+                
+                'confirmButtonText' => 'Sí, Eliminar',
+                'confirmButtonClass' => 'btn-outline-red',
+                'buttonClass' => 'btn-outline-lime',
+                
+                'params' => [
+                    $routineId,
+                ]
+            ];
+        
+            // 5. Envía el evento al modal global
+            $this->dispatch('openConfirmModal', data: $data);
+
         } else {
-            session()->flash('error', 'Rutina no encontrada.');
+            // session()->flash('error', 'Rutina no encontrada.');
+            $this->dispatch('notify', message: 'Rutina no encontrada.', type: 'error', duration: 3500 );
         }
     }
 
@@ -78,16 +122,14 @@ class ClientRoutines extends Component
     /**
      * Ejecuta la eliminación de la rutina después de la confirmación del modal.
      */
-    public function deleteRoutine(): void
+    public function deleteRoutine(int $routineId): void
     {
         // Si no hay ID de rutina para eliminar, simplemente cerramos y salimos.
-        if (is_null($this->routineToDeleteId)) {
+        if (is_null($routineId)) {
             $this->closeModal();
             return;
         }
         
-        $routineId = $this->routineToDeleteId;
-
         $routine = Routine::where('id', $routineId)
                          ->where('user_id', Auth::id()) 
                          ->first();
@@ -97,9 +139,11 @@ class ClientRoutines extends Component
 
             // Recargar la lista de rutinas para actualizar la vista
             $this->mount();
-            session()->flash('success', "La rutina '{$routine->name}' ha sido eliminada correctamente.");
+            $this->dispatch('notify', message: 'La rutina '. $routine->name . ' ha sido eliminada correctamente.', type: 'success', duration: 3500 );
+
         } else {
-            session()->flash('error', 'Rutina no encontrada o no tienes permiso para eliminarla.');
+            $this->dispatch('notify', message: 'Rutina no encontrada o no tienes permiso para eliminarla.', type: 'error', duration: 3500 );
+
         }
         
         // Cerramos el modal después de la operación
@@ -111,6 +155,14 @@ class ClientRoutines extends Component
      */
     public function render()
     {
-        return view('livewire.client-routines');
+        $userId = Auth::id();
+
+        $selfMadeRoutines = Routine::where('user_id', $userId)->where('creator_id', $userId)->get();
+        $assignedRoutines = Routine::where('user_id', $userId)->where('creator_id', '!=', $userId)->get();
+
+        return view('livewire.client-routines', [
+            'selfMadeRoutines' => $selfMadeRoutines,
+            'assignedRoutines' => $assignedRoutines,
+        ]);
     }
 }

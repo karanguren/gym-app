@@ -2,7 +2,7 @@
     @if ($show)
         <div class="bg-modal" wire:click.self="executeCancelAction" x-init="$el.style.opacity = '1'" x-cloak>
 
-            <div class="max-w-sm w-full z-10 modal-tb-ve">
+            <div class="max-w-sm w-full z-10 modal-card">
 
                 <div class="flex justify-center mb-4">
                     @if ($confirmButtonClass == 'btn-outline-red')

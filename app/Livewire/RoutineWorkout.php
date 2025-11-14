@@ -52,6 +52,9 @@ class RoutineWorkout extends Component
 
         $this->routine->load('routineExercises.exercise');
         
+        // 🚩 PERSISTENCIA: Disparamos el evento para que JavaScript cargue el estado
+        $this->dispatch('load-workout-state', routineId: $routine->id);
+        
         $initialData = [];
         
         foreach ($routine->routineExercises as $re) {
@@ -77,6 +80,7 @@ class RoutineWorkout extends Component
             $initialData[$re->id] = $this->prepareInitialSets($details);
         }
         
+        // Se inicializa con los datos de la rutina. Si JS carga el estado, esta data será sobrescrita.
         $this->workoutData = $initialData;
     }
 
@@ -88,14 +92,25 @@ class RoutineWorkout extends Component
             $targetKg = $set['kg'] ?? 0.0;
             
             $preparedSets[] = [
-                'target_reps' 	=> $targetReps,
-                'target_kg' 	=> $targetKg,
-                'done' 			=> false,
-                'result_reps' 	=> $targetReps, 
-                'result_kg' 	=> $targetKg, 	
+                'target_reps'   => $targetReps,
+                'target_kg'     => $targetKg,
+                'done'          => false,
+                'result_reps'   => $targetReps,
+                'result_kg'     => $targetKg,
             ];
         }
         return $preparedSets;
+    }
+    
+    /**
+     * Llamado por JavaScript para restaurar el estado del workout desde localStorage.
+     */
+    public function restoreState(array $workoutData, int $seconds, bool $isRunning): void
+    {
+        // 🟢 CRÍTICO: Sobrescribir el estado actual con el guardado
+        $this->workoutData = $workoutData;
+        $this->seconds = $seconds;
+        $this->isRunning = $isRunning;
     }
     
     #[Computed]
@@ -141,7 +156,9 @@ class RoutineWorkout extends Component
         if (!$this->isRunning) {
             $this->isRunning = true;
             $this->dispatch('notify', message: '¡Entrenamiento iniciado!', type: 'success', duration: 3500 );
-    
+            
+            // 🚩 PERSISTENCIA: Guardar estado al iniciar
+            $this->saveState();
         }
     }
 
@@ -150,6 +167,9 @@ class RoutineWorkout extends Component
         if ($this->isRunning) {
             $this->isRunning = false;
             $this->dispatch('notify', message: 'Entrenamiento en pausa.', type: 'info', duration: 3500 );
+            
+            // 🚩 PERSISTENCIA: Guardar estado al pausar
+            $this->saveState();
         }
     }
 
@@ -160,6 +180,9 @@ class RoutineWorkout extends Component
     {
        if ($this->isRunning) {
            $this->seconds++;
+           
+           // 🚩 PERSISTENCIA: Guardar estado cada segundo (es pesado, pero seguro)
+           $this->saveState();
        }
     }
 
@@ -174,6 +197,31 @@ class RoutineWorkout extends Component
         $s = $this->seconds % 60;
 
         return sprintf('%02d:%02d:%02d', $h, $m, $s);
+    }
+    
+    // ------------------------------------------------------------------
+    // LÓGICA DE PERSISTENCIA (GUARDADO)
+    // ------------------------------------------------------------------
+    
+    /**
+     * Dispara el evento para guardar el estado actual en el localStorage.
+     */
+    private function saveState(): void
+    {
+        $this->dispatch('save-workout-state', [
+           'workoutData' => $this->workoutData, 
+           'seconds' => $this->seconds,
+           'isRunning' => $this->isRunning
+        ]);
+    }
+    
+    /**
+     * Se ejecuta cuando $workoutData cambia (progreso de sets).
+     */
+    public function updatedWorkoutData(): void
+    {
+        // 🚩 PERSISTENCIA: Guardar estado al cambiar el progreso
+        $this->saveState();
     }
     
     // ------------------------------------------------------------------
@@ -196,6 +244,11 @@ class RoutineWorkout extends Component
         $this->selectedExerciseDetails = null;
     }
 
+    
+    // ------------------------------------------------------------------
+    // LÓGICA DE MODAL GLOBAL
+    // ------------------------------------------------------------------
+    
     protected $listeners = [
         'executeAction' => 'handleGlobalAction', // Captura el evento de ejecución
     ];
@@ -214,41 +267,30 @@ class RoutineWorkout extends Component
         }
     }
 
-    // ------------------------------------------------------------------
-    // LÓGICA DE MODAL DE FINALIZACIÓN (NUEVOS MÉTODOS)
-    // ------------------------------------------------------------------
-    
-    // public function openFinalizeModal(): void
-    // {
-    //     // Solo abrimos si el requisito de finalización se cumple (opcional, pero útil)
-    //     if ($this->isEverySetCompleted) {
-    //         $this->showFinalizeModal = true;
-    //     } else {
-    //         // Esto solo se dispara si alguien quita el disabled del botón en el HTML.
-    //         $this->dispatch('notify', message: '¡Faltan sets por completar! Marca todos los sets con el ícono de check para finalizar.', type: 'error', duration: 3500 );
-    //     }
-    // }
-
-    
+    /////////////////////
 
     public function openFinalizeModal(): void
     {
-        if ($this->isEverySetCompleted) {
-            $data = [
-                'title' => 'Finalizar Entrenamiento',
-                'message' => '¿Estás seguro de que quieres finalizar este entrenamiento? Se registrará tu progreso y el tiempo total.',
-                
-                // 2. Define la acción de confirmación (el nombre del método)
-                'confirmAction' => 'finishWorkout', // ¡Este es el método grande!
-                
-                'cancelAction' => 'doNothing', 
-                'confirmButtonText' => 'Confirmar',
-                'confirmButtonClass' => 'btn-outline-ve',
-                'buttonClass' => 'btn-outline-ro',
-            ];
-            
-            $this->dispatch('openConfirmModal', data: $data);
+        // Si no está completo, mostramos el error sin abrir el modal.
+        if (!$this->isEverySetCompleted) {
+            $this->dispatch('notify', message: '¡Faltan sets por completar! Marca todos los sets con el ícono de check para finalizar.', type: 'error', duration: 3500 );
+            return;
         }
+        
+        // Si está completo, abrimos el modal de confirmación
+        $data = [
+            'title' => 'Finalizar Entrenamiento',
+            'message' => '¿Estás seguro de que quieres finalizar este entrenamiento? Se registrará tu progreso y el tiempo total.',
+            
+            'confirmAction' => 'finishWorkout', 
+            
+            'cancelAction' => 'doNothing', 
+            'confirmButtonText' => 'Confirmar',
+            'confirmButtonClass' => 'btn-outline-lime',
+            'buttonClass' => 'btn-outline-red',
+        ];
+        
+        $this->dispatch('openConfirmModal', data: $data);
     }
 
     public function closeFinalizeModal(): void
@@ -277,17 +319,11 @@ class RoutineWorkout extends Component
             $this->dispatch('notify', message: 'Set marcado como incompleto.', type: 'info', duration: 3500 );
         }
 
-        // Reevaluar la propiedad computada tras el cambio
+        // Reevaluar la propiedad computada tras el cambio y guardar el estado
         $this->isEverySetCompleted();
+        $this->saveState();
     }
     
-    // public function confirmRemoveSet(int $routineExerciseId, int $setIndex): void
-    // {
-    //     $this->setRoutineExerciseId = $routineExerciseId;
-    //     $this->setIndexToDelete = $setIndex;
-    //     $this->showDeleteConfirmationModal = true;
-    // }
-
     public function confirmRemoveSet(int $routineExerciseId, int $setIndex): void
     {
         // 1. Prepara los datos que necesita el modal
@@ -302,13 +338,13 @@ class RoutineWorkout extends Component
             'cancelAction' => 'cancelRemoveSet',
             
             'confirmButtonText' => 'Sí, Eliminar',
-            'confirmButtonClass' => 'btn-outline-ro',
-            'buttonClass' => 'btn-outline-ve',
+            'confirmButtonClass' => 'btn-outline-red',
+            'buttonClass' => 'btn-outline-lime',
             
             // 4. Parámetros que necesita 'removeSet' para funcionar
             'params' => [
-                $routineExerciseId, // parámetro 1
-                $setIndex           // parámetro 2
+                $routineExerciseId,
+                $setIndex
             ]
         ];
         
@@ -335,6 +371,9 @@ class RoutineWorkout extends Component
             unset($this->workoutData[$routineExerciseId][$setIndex]);
             $this->workoutData[$routineExerciseId] = array_values($this->workoutData[$routineExerciseId]);
             $this->dispatch('notify', message: 'Set eliminado de la sesión.', type: 'info', duration: 3500);
+            
+            // 🚩 PERSISTENCIA: Guardar estado al eliminar un set
+            $this->saveState();
         }
         
         $this->setRoutineExerciseId = null;
@@ -353,16 +392,19 @@ class RoutineWorkout extends Component
         $lastTargetKg = $lastSet['target_kg'] ?? 0.0;
 
         $newSet = [
-            'target_reps' 	=> $lastTargetReps,
-            'target_kg' 	=> $lastTargetKg,
-            'done' 			=> false,
-            'result_reps' 	=> $lastTargetReps,
-            'result_kg' 	=> $lastTargetKg,
+            'target_reps'   => $lastTargetReps,
+            'target_kg'     => $lastTargetKg,
+            'done'          => false,
+            'result_reps'   => $lastTargetReps,
+            'result_kg'     => $lastTargetKg,
         ];
 
         $this->workoutData[$routineExerciseId][] = $newSet;
         $this->dispatch('notify', message: 'Set extra agregado. No olvides rellenar los datos.', type: 'info', duration: 3500 );
-        $this->isEverySetCompleted(); // Reevaluar el estado
+        
+        // Reevaluar el estado y guardar
+        $this->isEverySetCompleted(); 
+        $this->saveState();
     }
     
     public function finishWorkout(): void
@@ -375,14 +417,12 @@ class RoutineWorkout extends Component
             $this->showFinalizeModal = false; 
             return; 
         }
-
         // ------------------------------------------------------------------
-
 
         $this->pauseTimer();
 
         $hasCompletedSets = false;
-        $exerciseProgressForLog = []; // Lo mantenemos por si quieres guardar el JSON de historial
+        $exerciseProgressForLog = []; 
         $errors = [];
 
         try {
@@ -391,8 +431,7 @@ class RoutineWorkout extends Component
                 'user_id' => Auth::id(),
                 'routine_id' => $this->routine->id,
                 'duration_seconds' => $this->seconds,
-                'completed_at' => now(), // Aseguramos que completed_at se registre
-                // El campo 'details' se llenará después de registrar los sets, si es necesario.
+                'completed_at' => now(), 
             ]);
             
             // 2. Iterar sobre los datos y crear los WorkoutSets (persistiendo el detalle)
@@ -467,6 +506,7 @@ class RoutineWorkout extends Component
             
             if (!$hasCompletedSets) {
                 session()->flash('warning', 'Entrenamiento finalizado. No se registró ningún set completado.');
+                $this->dispatch('clear-workout-state', $this->routine->id); 
                 $this->redirect(route('client.routines'), navigate: true);
                 return;
             }
@@ -474,6 +514,9 @@ class RoutineWorkout extends Component
             $this->dispatch('notify', message: '¡Entrenamiento de ' . $this->routine->name . ' registrado y guardado con éxito! Duración: ' . $this->formattedTime . '.', type: 'success', duration: 3500 );
             
             $this->showFinalizeModal = false;
+
+            // 🚩 CRÍTICO: Disparar evento de limpieza después de guardar
+            $this->dispatch('clear-workout-state', $this->routine->id); 
 
             $this->redirect(route('client.routines'), navigate: true);
 

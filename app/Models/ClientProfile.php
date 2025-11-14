@@ -44,6 +44,11 @@ class ClientProfile extends Model
     {
         return $this->belongsTo(User::class, 'assigned_trainer_id');
     }
+    
+    public function requestedTrainer()
+    {
+        return $this->belongsTo(User::class, 'requested_trainer_id');
+    }
 
     public function currentRoutine(): BelongsTo
     {

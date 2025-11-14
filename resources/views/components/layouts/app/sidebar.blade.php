@@ -56,7 +56,7 @@
                     {{-- Grupo 1: Opciones BASE y Dashboard según Rol --}}
                     <flux:navlist.group 
                         :heading="__('Plataforma')" 
-                        class="grid text-gray-900 dark:text-[#7bcb01] text-sm">
+                        class="grid text-gray-900 dark:text-[#7bcb01]">
                         
                         @if ($user->role === 'administrador')
                             <flux:navlist.item 
@@ -102,7 +102,7 @@
                                 <flux:navlist.item icon="user" href="{{ route('client.trainer-selection') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate> {{ __('Entrenador Personal') }} </flux:navlist.item>
                             @endif
                             <!-- <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Reservas') }1}</flux:navlist.item> -->
-                            <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Foro') }}</flux:navlist.item>
+                            <!-- <flux:navlist.item icon="users" href="{{ route('dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Foro') }}</flux:navlist.item> -->
                         </flux:navlist.group>
                     @endif
                     
@@ -114,7 +114,7 @@
                                 icon="users" 
                                 href="{{ route('admin.clients') }}" 
                                 :current="request()->routeIs('admin.clients')" 
-                                class="text-gray-900 dark:text-[#7bcb01]"
+                                class="text-gray-900 dark:text-[#7bcb01] text-xs"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
                                 {{ __('Clientes') }}
@@ -124,31 +124,32 @@
                                 icon="user-group"
                                 href="{{ route('admin.employees') }}" 
                                 :current="request()->routeIs('admin.employees')" 
-                                class="text-gray-900 dark:text-[#7bcb01]"
+                                class="text-gray-900 dark:text-[#7bcb01] text-xs"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
                                 {{ __('Entrenadores/Nutriólogos') }}
                             </flux:navlist.item>
 
-                            <flux:navlist.item 
+                            <!-- <flux:navlist.item 
                                 icon="newspaper" 
                                 href="{{ route('admin.posts') }}" 
                                 :current="request()->routeIs('admin.posts')" 
-                                class="text-gray-900 dark:text-[#7bcb01]"
+                                class="text-gray-900 dark:text-[#7bcb01] text-xs"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
                                 {{ __('Publicaciones') }}
-                            </flux:navlist.item>
+                            </flux:navlist.item> -->
                             
                         </flux:navlist.group>
                     @endif
                     
                     {{-- Grupo 4: Opciones para EMPLEADOS --}}
                     @if ($user->role === 'trainer')
-                    <flux:navlist.group :heading="__('Staff')" class="grid text-gray-900 dark:text-[#7bcb01]">
-                        <flux:navlist.item icon="users" href="{{ route('employee.clients') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mis Clientes y Rutinas') }}</flux:navlist.item>
-                        <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Chat con Clientes') }}</flux:navlist.item>
-                        <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Horario') }}</flux:navlist.item>
+                    <flux:navlist.group :heading="__('Staff')" class="grid text-gray-900 dark:text-[#7bcb01] text-xs">
+                        <flux:navlist.item icon="users" href="{{ route('employee.clients') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mis Clientes') }}</flux:navlist.item>
+                        <flux:navlist.item icon="bolt" href="{{ route('employee.routine-templates.index') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mis Rutinas') }}</flux:navlist.item>
+                         <!-- <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Chat con Clientes') }}</flux:navlist.item> -->
+                         <!-- <flux:navlist.item icon="users" href="{{ route('employee.dashboard') }}" class="text-gray-900 dark:text-[#7bcb01]" icon-class="text-[#7bcb01]" wire:navigate>{{ __('Mi Horario') }}</flux:navlist.item> -->
                     </flux:navlist.group>
                     @endif
 

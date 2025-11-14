@@ -15,17 +15,10 @@
 
 
             <header class="mb-8 border-b dark:border-gray-700 pb-4">
-                <h1 class="text-3xl font-extrabold text-gray-900 dark:text-[#7bcb01] flex items-center">
-                    <svg class="w-8 h-8 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M6 12l6-4.5 6 4.5v9a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 21v-9z" />
-                        <path d="M9 11v6" />
-                        <path d="M12 9v8" />
-                        <path d="M15 11v6" />
-                    </svg>
+                <h1 class="titles flex mb-4">
                     {{ $routine->name }}
                 </h1>
-                <p class="mt-1 text-gray-600 dark:text-gray-400">
+                <p class="description">
                     Registra tu progreso set por set. ¡Buena suerte con tu entrenamiento!
                 </p>
             </header>
@@ -116,7 +109,7 @@
                                 </p>
                             </div>
                             <button type="button" wire:click="showExerciseDetails({{ $exerciseId }})"
-                                class="btn-outline-rounded-ve" title="Ver Instrucciones">
+                                class="btn-outline-redunded-ve" title="Ver Instrucciones">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -176,7 +169,7 @@
                                             </td>
 
                                             {{-- Botones de Acción --}}
-                                            <td
+                                            <td wire:key="set-{{ $reId }}-{{ $setIndex }}"
                                                 class="px-2 py-3 text-right text-sm font-medium flex space-x-1 justify-center items-center">
 
                                                 {{-- Toggle Done --}}
@@ -218,7 +211,7 @@
                         {{-- Botón para Añadir Set --}}
                         <div class="mt-4 flex justify-end">
                             <button wire:click="addSet({{ $reId }})" type="button"
-                                class="flex btn-outline-ve">
+                                class="flex btn-outline-lime">
                                 <svg class="w-4 h-4 mr-1" xmlns="http://www.w3.org/2000/svg" width="24"
                                     height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -237,63 +230,104 @@
 
         {{-- Modal de INSTRUCCIONES --}}
         @if ($showModal && $selectedExerciseDetails)
-            <x-exercise-instructions-modal 
-                :show-modal="'showModal'" 
-                :exercise="$selectedExerciseDetails" 
-            />
+            <x-exercise-instructions-modal :show-modal="'showModal'" :exercise="$selectedExerciseDetails" />
         @endif
-
-
-        {{-- Modal de CONFIRMACIÓN DE ELIMINACIÓN DE SET --}}
-        {{-- @if ($showDeleteConfirmationModal)
-            <div class="bg-modal flex items-center justify-center p-4" @click.self="cancelRemoveSet">
-                <div class="card-tb-ro-v2 max-w-sm w-full" @click.stop>
-                    <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-2">
-                        Confirmar Eliminación
-                    </h3>
-                    <p class="text-gray-700 dark:text-gray-300 mb-6">
-                        ¿Estás seguro de que deseas eliminar permanentemente el Set #{{ $setIndexToDelete + 1 }}?
-                    </p>
-                    <div class="flex justify-end space-x-3">
-                        <button wire:click="cancelRemoveSet" type="button" class="btn-outline-ve">
-                            Cancelar
-                        </button>
-                        <button wire:click="removeSet" type="button" class="btn-outline-ro">
-                            Sí, Eliminar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endif --}}
-
-
-        {{-- Modal de CONFIRMACIÓN DE FINALIZACIÓN --}}
-        {{-- @if ($showFinalizeModal)
-            <div class="fixed inset-0 z-50 bg-modal flex items-center justify-center p-4">
-                <div class="absolute inset-0 bg-black/50" wire:click.prevent="closeFinalizeModal"></div>
-
-                <div class="card-tb-ve-v2 max-w-md w-full z-10">
-
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                        Finalizar Entrenamiento
-                    </h3>
-                    <p class="text-gray-700 dark:text-gray-300 mb-6">
-                        ¿Estás seguro de que quieres finalizar este entrenamiento? Se registrará tu progreso y el tiempo
-                        total.
-                    </p>
-
-                    <div class="flex justify-end space-x-3">
-                        <button wire:click.prevent="closeFinalizeModal" type="button" class="btn-outline-ro">
-                            Cancelar
-                        </button>
-                        
-                        <button wire:click.prevent="finishWorkout" wire:loading.attr="disabled"
-                            type="button" class="btn-outline-ve">
-                            Confirmar y Guardar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        @endif --}}
     </div>
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+
+            const component = @this;
+            // La rutina.id no está disponible inmediatamente al inicio, la obtendremos dentro de la función 
+            // o aseguraremos que la carga del estado ya la ha hecho disponible.
+
+            // -----------------------------------------------------------
+            // 1. Lógica de Persistencia (Carga, Guardado, Limpieza)
+            // -----------------------------------------------------------
+
+            // Carga de Estado
+            Livewire.on('load-workout-state', (data) => {
+                const routineId = data[0].routineId;
+                const storageKey = `workout_${routineId}`;
+                const savedState = localStorage.getItem(storageKey);
+
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+
+                    @this.call('restoreState', state.workoutData, state.seconds, state.isRunning);
+
+                    @this.dispatch('notify', {
+                        message: 'Progreso anterior recuperado. ¡Continúa tu entrenamiento!',
+                        type: 'info',
+                        duration: 4000
+                    });
+                }
+            });
+
+            // Guardado de Estado
+            Livewire.on('save-workout-state', (state) => {
+                const routineId = @this.get('routine.id');
+
+                if (routineId) {
+                    const storageKey = `workout_${routineId}`;
+                    localStorage.setItem(storageKey, JSON.stringify(state[0]));
+                }
+            });
+
+            // Limpieza de Estado
+            Livewire.on('clear-workout-state', (data) => {
+                const routineId = data[0];
+                const storageKey = `workout_${routineId}`;
+                localStorage.removeItem(storageKey);
+            });
+
+            // -----------------------------------------------------------
+            // 2. Lógica de Prevención de Pérdida de Progreso
+            // -----------------------------------------------------------
+
+            // Obtiene la clave de almacenamiento. Usaremos una función para evitar errores si 
+            // routine.id no está lista inmediatamente.
+            const getStorageKey = () => {
+                const routineId = component.get('routine.id');
+                return routineId ? `workout_${routineId}` : null;
+            };
+
+            // A) Advertencia nativa al intentar salir/recargar (cierre de pestaña)
+            window.addEventListener('beforeunload', function(e) {
+                const storageKey = getStorageKey();
+
+                // Si hay progreso guardado, activamos la alerta nativa.
+                if (storageKey && localStorage.getItem(storageKey)) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                    // El mensaje no se puede personalizar.
+                }
+            });
+
+            // B) Advertencia al intentar cambiar de ruta (navegación interna con wire:navigate)
+            Livewire.on('navigate', (event) => {
+                const storageKey = getStorageKey();
+
+                if (storageKey && localStorage.getItem(storageKey)) {
+
+                    // Usamos confirm() para darle la opción al usuario.
+                    if (!confirm(
+                            "⚠️ Tienes un entrenamiento en curso. ¿Deseas detenerlo y salir de esta página?"
+                            )) {
+                        // Si el usuario presiona Cancelar, detenemos la navegación.
+                        event.preventDefault();
+
+                        component.dispatch('notify', {
+                            message: '¡El entrenamiento continúa!',
+                            type: 'info',
+                            duration: 2500
+                        });
+                    } else {
+                        // Si el usuario presiona Aceptar, limpiamos el estado antes de irnos, 
+                        // ya que está confirmando que quiere detenerlo y no restaurarlo después.
+                        localStorage.removeItem(storageKey);
+                    }
+                }
+            });
+        });
+    </script>
 </div>

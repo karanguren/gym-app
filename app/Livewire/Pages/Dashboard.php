@@ -8,16 +8,18 @@ use App\Models\WorkoutLog;
 use App\Models\Routine;
 use App\Models\ClientProfile;
 use Carbon\Carbon;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class Dashboard extends Component
 {
-    // Esta línea funcionará una vez Livewire controle la ruta
     public $layout = 'components.layouts.app'; 
 
    public $user;
-    public int $weeklySessionsTarget = 3; // Meta semanal
+    public int $weeklySessionsTarget = 5; // Meta semanal
     public int $weeklySessionsCompleted = 0;
+
+    public $requestedTrainerId;
     
     // Todas estas propiedades están type-hinted como Eloquent\Collection
     public Collection $recentWorkouts;
@@ -134,8 +136,13 @@ class Dashboard extends Component
                            : 0;
         $progressPercent = min(100, $progressPercent); 
         $remaining = max(0, $this->weeklySessionsTarget - $this->weeklySessionsCompleted);
+        $requestedTrainer = null;
+        if ($this->requestedTrainerId) {
+            $requestedTrainer = User::find($this->requestedTrainerId);
+        }
 
         return view('livewire.pages.dashboard', [
+            'requestedTrainer' => $requestedTrainer,
             'progressPercent' => $progressPercent,
             'remaining' => $remaining,
         ])->title('Dashboard');
