@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        @livewireStyles
-        
+<div>
         <style>
             .fixed-social::after {
                 content: "";
@@ -41,10 +34,7 @@
         </style>
         
         
-    </head>
-    
-    <body class="bg-white font-sans antialiased dark:bg-[#0a0a0a]">
-        @livewireScripts
+    @livewireScripts
         <div class="flex flex-col min-h-screen">
             
             <header class="p-6 bg-white shadow-md sticky top-0 z-50 w-full dark:bg-[#1a1a1a]">
@@ -67,7 +57,7 @@
 
             <main class="relative flex-grow py-20 md:py-32 w-full bg-cover bg-no-repeat bg-center">
                 
-                <div class="absolute inset-0 bg-[url('/img/fondo2.jpg')] dark:bg-[url('/img/fondo2.jpg')] bg-cover bg-no-repeat bg-center">
+                <div class="absolute inset-0 bg-cover bg-no-repeat bg-center" style="background-image: url('{{ asset('img/fondo2.jpg') }}')">
                     <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
                 </div>
 
@@ -300,5 +290,4 @@
             </footer>
             
         </div>
-    </body>
-</html>
+    </div>
