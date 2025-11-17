@@ -16,6 +16,10 @@
                 }
             })();
         </script> -->
+        
+        <link rel="stylesheet" href="/build/assets/app-B_Fg8-SD.css">
+        <script type="module" src="/build/assets/app-6F3hq9O7.js"></script>
+
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-white antialiased dark:bg-[#1a1a1a]/95 ">
