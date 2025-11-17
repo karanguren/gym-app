@@ -14,7 +14,7 @@ class RoleSeeder extends Seeder
     {
         // 1. Crear 5 Entrenadores (Trainers)
         // Usamos el estado trainer() definido en el UserFactory
-        User::factory()->count(15)->trainer()->create();
+        User::factory()->count(2)->trainer()->create();
         $this->command->info('Se han creado 15 Entrenadores (role: trainer).');
 
         // 2. Crear 3 Nutricionistas (Nutritionists)
@@ -24,7 +24,7 @@ class RoleSeeder extends Seeder
 
         // 3. Crear 50 Clientes (Clients)
         // Usamos el estado client() definido en el UserFactory
-        User::factory()->count(50)->client()->create();
+        User::factory()->count(5)->client()->create();
         $this->command->info('Se han creado 50 Clientes (role: client).');
 
         
