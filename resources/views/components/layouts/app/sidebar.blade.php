@@ -127,7 +127,7 @@
                                 class="text-gray-900 dark:text-[#7bcb01] text-xs"
                                 icon-class="text-[#7bcb01]"
                                 wire:navigate>
-                                {{ __('Entrenadores/Nutriólogos') }}
+                                {{ __('Entrenadores') }}
                             </flux:navlist.item>
 
                             <!-- <flux:navlist.item 

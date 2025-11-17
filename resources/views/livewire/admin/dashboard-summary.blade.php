@@ -54,12 +54,12 @@
                                 {{ $trainerActiveCount }} / {{ $trainerTotalCount }}
                             </span>
                         </div>
-                        <div class="flex justify-between items-center bg-orange-200 dark:bg-orange-300/50 p-3 rounded-md">
+                        {{-- <div class="flex justify-between items-center bg-orange-200 dark:bg-orange-300/50 p-3 rounded-md">
                             <span class="text-sm font-medium">Nutriólogos (Activos/Total):</span>
                             <span class="text-xl font-bold">
                                 {{ $nutriologoActiveCount }} / {{ $nutriologoTotalCount }}
                             </span>
-                        </div>
+                        </div> --}}
                     </div>
 
                     <a href="{{ route('admin.employees') }}" class="mt-4 text-orange-400 hover:text-orange-700 text-sm font-semibold flex items-center">

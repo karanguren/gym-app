@@ -67,7 +67,7 @@
                         </h2>
                     </div>
 
-                    <div class="">
+                    <div class="overflow-x-auto">
                         <table class="tables">
                             <thead class="tables-th">
                                 <tr>

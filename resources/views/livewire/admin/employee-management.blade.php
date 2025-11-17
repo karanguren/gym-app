@@ -79,13 +79,13 @@
                         <flux:select wire:model.live="filterRole" class="!w-full inputs">
                             <flux:select.option value="all">Mostrar Todo</flux:select.option>
                             <flux:select.option value="trainer">Entrenadores</flux:select.option>
-                            <flux:select.option value="nutriologo">Nutriólogos</flux:select.option>
+                            {{-- <flux:select.option value="nutriologo">Nutriólogos</flux:select.option> --}}
                         </flux:select>
                     </div>
                 </div>
 
                 {{-- TABLA DE EMPLEADOS --}}
-                <div class="">
+                <div class="overflow-x-auto">
                     <table class="tables">
                         <thead class="tables-th">
                             <tr>

@@ -24,7 +24,7 @@
             </div>
         @else
             <!-- MODAL / FORMULARIO POR PASOS -->
-            <div class="bg-white/80 dark:bg-[#1a1a1a]/95 shadow-xl sm:rounded-lg lg:p-6 pt-6 space-y-6">
+            <div class="modal-card">
                 <h2 class="text-2xl font-bold text-white dark:text-[#7bcb01] mb-4">
                     Paso {{ $step }} de 3
                 </h2>

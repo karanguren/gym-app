@@ -197,7 +197,7 @@ select:focus[data-flux-control] {
 }
 
 .card-tb-ve {
-    @apply text-center bg-white dark:bg-[#1a1a1a] sm:p-10 rounded-xl shadow-xl border-t-4 border-t-[#7bcb01];
+    @apply p-6 text-center bg-white dark:bg-[#1a1a1a] sm:p-10 rounded-xl shadow-xl border-t-4 border-t-[#7bcb01];
 }
 
 .card-tl-ve {

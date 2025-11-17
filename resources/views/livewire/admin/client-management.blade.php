@@ -27,7 +27,7 @@
                         </span>
                     </div>
 
-                    <div class="">
+                    <div class="overflow-x-auto">
                         <table class="tables">
                             <thead class="tables-th">
                                 <tr>
@@ -98,8 +98,8 @@
                     </div>
                 </div>
 
-                {{-- TABLA DE CLIENTES --}}
-                <div class="">
+                {{-- TABLA DE CLIiv-ENTES --}}
+                <div class="overflow-x-auto">
                     <table class="tables">
                         <thead class="tables-th">
                             <tr>

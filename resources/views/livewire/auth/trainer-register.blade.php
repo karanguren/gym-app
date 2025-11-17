@@ -85,7 +85,7 @@
                         
                                 <flux:select.option value="" disabled selected>Selecciona una opción</flux:select.option>
                                 <flux:select.option value="trainer">Entrenador</flux:select.option>
-                                <flux:select.option value="nutriologo">Nutriólogo</flux:select.option>
+                                {{-- <flux:select.option value="nutriologo">Nutriólogo</flux:select.option> --}}
                            
                 </flux:select>
                 
